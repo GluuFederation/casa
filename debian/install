@@ -3,7 +3,7 @@ casa.war /opt/gluu-server-3.1.6/opt/dist/gluu/
 twilio-7.17.0.jar /opt/gluu-server-3.1.6/opt/dist/gluu/
 
 # /opt/dist/oxd
-$OXD_SERVER /opt/gluu-server-3.1.6/opt/dist/oxd/
+%OXD_SERVER% /opt/gluu-server-3.1.6/opt/dist/oxd/
 
 # /opt/gluu/python/libs
 casa-external_otp.py /opt/gluu-server-3.1.6/opt/gluu/python/libs/
