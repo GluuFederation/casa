@@ -1,4 +1,4 @@
-gluu-casa-3.1.6 (1-1~xenial+Ub16.04) unstable; urgency=low
+gluu-casa-3.1.6 (%VERSION%) %DIST%; urgency=low
 
   * New version 3.1.6
 
