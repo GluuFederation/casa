@@ -1,7 +1,7 @@
 Source: gluu-casa-3.1.6
 Section: java
 Priority: optional
-Maintainer: Adrian Alves <adrian@gluu.org>
+Maintainer: Davit Nikoghosyan <davit@gluu.org> 
 Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.4
 Homepage: https://www.gluu.org/
