@@ -1,10 +1,10 @@
 %define _unpackaged_files_terminate_build 0
 Name:           gluu-casa-3.1.6
-Version:        1
-Release:        1.centos6
+Version:        %VERSION%
+Release:        %DIST%
 Summary:        Gluu Server Extension
 Group:          System Environment/Daemons
-License:        MIT
+License:        Gluu License Agreement for Gluu Casa
 URL:            http://www.gluu.org
 Source0:        %{name}.tar.gz
 BuildArch:      noarch
@@ -28,7 +28,7 @@ install -d %{buildroot}/opt/gluu-server-3.1.6/install/community-edition-setup
 install -d %{buildroot}/opt/gluu-server-3.1.6/etc/certs
 install -m 644 casa.war %{buildroot}/opt/gluu-server-3.1.6/opt/dist/gluu
 install -m 644 twilio-7.17.0.jar %{buildroot}/opt/gluu-server-3.1.6/opt/dist/gluu
-install -m 644 oxd-server-3.1.4-49.centos6.noarch.rpm %{buildroot}/opt/gluu-server-3.1.6/opt/dist/oxd
+install -m 644 %OXD_SERVER% %{buildroot}/opt/gluu-server-3.1.6/opt/dist/oxd
 install -m 755 casa-external_otp.py %{buildroot}/opt/gluu-server-3.1.6/opt/gluu/python/libs
 install -m 755 casa-external_super_gluu.py %{buildroot}/opt/gluu-server-3.1.6/opt/gluu/python/libs
 install -m 755 casa-external_twilio_sms.py %{buildroot}/opt/gluu-server-3.1.6/opt/gluu/python/libs
@@ -44,7 +44,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 /opt/gluu-server-3.1.6/opt/dist/gluu/casa.war
 /opt/gluu-server-3.1.6/opt/dist/gluu/twilio-7.17.0.jar
-/opt/gluu-server-3.1.6/opt/dist/oxd/oxd-server-3.1.4-49.centos6.noarch.rpm
+/opt/gluu-server-3.1.6/opt/dist/oxd/%OXD_SERVER%
 /opt/gluu-server-3.1.6/opt/gluu/python/libs/casa-external_otp.py
 /opt/gluu-server-3.1.6/opt/gluu/python/libs/casa-external_super_gluu.py
 /opt/gluu-server-3.1.6/opt/gluu/python/libs/casa-external_twilio_sms.py
