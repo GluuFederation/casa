@@ -1,5 +1,5 @@
-gluu-casa-3.1.6 (%VERSION%) %DIST%; urgency=low
+gluu-casa (%VERSION%) %DIST%; urgency=low
 
-  * New version 3.1.6
+  * New version %VERSION%
 
  -- Davit Nikoghosyan <davit@gluu.org>  Thu, 21 Dec 2017 11:00:27 -0500
