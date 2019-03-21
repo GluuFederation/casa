@@ -1,5 +1,5 @@
 %define _unpackaged_files_terminate_build 0
-Name:           gluu-casa-3.1.6
+Name:           gluu-casa
 Version:        %VERSION%
 Release:        %DIST%
 Summary:        Gluu Server Extension
@@ -54,5 +54,5 @@ rm -rf $RPM_BUILD_ROOT
 /opt/gluu-server-3.1.6/etc/certs/casa.pub
 
 %changelog
-* Fri Nov 30 2018 Davit Nikoghosyan <davit@gluu.org> - gluu-casa-3.1.6
+* Fri Nov 30 2018 Davit Nikoghosyan <davit@gluu.org> - gluu-casa 3.1.6
 - Release 3.1.6
