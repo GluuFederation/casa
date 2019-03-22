@@ -1,8 +1,3 @@
-/*
- * cred-manager is available under the MIT License (2008). See http://opensource.org/licenses/MIT for full text.
- *
- * Copyright (c) 2018, Gluu
- */
 package org.gluu.casa.misc;
 
 import org.slf4j.Logger;
@@ -78,11 +73,34 @@ public final class WebUtils {
 
     /**
      * Performs a redirect to the url passed avoiding any UI rendering (see "Forward and redirect" in ZK developer's
-     * reference manual).
+     * reference manual). It is equivalent to calling <code>execRedirect(url, true)</code>
      * @param url A String where the browser will be redirected to
      */
     public static void execRedirect(String url){
         execRedirect(url, true);
+    }
+
+    /**
+     * Performs a redirect to the url passed. The boolean parameter determines if the underlying ZK execution can be
+     * voided (see "Forward and redirect" in ZK developer's reference manual).
+     * @param url A String where the browser will be redirected to
+     * @param voidUI Whether to void the execution
+     */
+    public static void execRedirect(String url, boolean voidUI) {
+
+        try {
+            Execution exec = Executions.getCurrent();
+            HttpServletResponse response = (HttpServletResponse) exec.getNativeResponse();
+
+            LOG.debug("Redirecting to URL={}", url);
+            response.sendRedirect(response.encodeRedirectURL(url));
+            if (voidUI) {
+                exec.setVoided(voidUI); //no need to create UI since redirect will take place
+            }
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+        }
+
     }
 
     /**
@@ -111,23 +129,6 @@ public final class WebUtils {
             //LOG.error(e.getMessage(), e);
         }
         return val;
-
-    }
-
-    private static void execRedirect(String url, boolean voidUI) {
-
-        try {
-            Execution exec = Executions.getCurrent();
-            HttpServletResponse response = (HttpServletResponse) exec.getNativeResponse();
-
-            LOG.debug("Redirecting to URL={}", url);
-            response.sendRedirect(response.encodeRedirectURL(url));
-            if (voidUI) {
-                exec.setVoided(voidUI); //no need to create UI since redirect will take place
-            }
-        } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
-        }
 
     }
 
