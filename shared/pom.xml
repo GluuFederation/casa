@@ -22,13 +22,18 @@
 
         <!-- GLUU -->
         <dependency>
-            <groupId>org.xdi</groupId>
-            <artifactId>oxcore-ldap</artifactId>
+            <groupId>org.gluu</groupId>
+            <artifactId>oxcore-ldap-annotations</artifactId>
             <version>${ox.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.xdi</groupId>
+            <groupId>org.gluu</groupId>
             <artifactId>oxcore-persist-model</artifactId>
+            <version>${ox.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.gluu</groupId>
+            <artifactId>oxcore-filter</artifactId>
             <version>${ox.version}</version>
         </dependency>
 
