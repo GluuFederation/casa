@@ -5,11 +5,11 @@
  */
 package org.gluu.casa.conf;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.List;
 
 /**
  * @author jgomer
@@ -28,10 +28,7 @@ public class OxdSettings {
     @JsonProperty("frontchannel_logout_uri")
     private String frontLogoutUri;
 
-    @JsonProperty("use_https_extension")
-    private boolean useHttpsExtension;
-
-    @JsonProperty("client")
+	@JsonProperty("client")
     private OxdClientSettings client;
 
     @JsonIgnore
@@ -52,11 +49,7 @@ public class OxdSettings {
         return redirectUri;
     }
 
-    public boolean isUseHttpsExtension() {
-        return useHttpsExtension;
-    }
-
-    public String getPostLogoutUri() {
+	public String getPostLogoutUri() {
         return postLogoutUri;
     }
 
@@ -85,11 +78,7 @@ public class OxdSettings {
         this.redirectUri = redirectUri;
     }
 
-    public void setUseHttpsExtension(boolean useHttpsExtension) {
-        this.useHttpsExtension = useHttpsExtension;
-    }
-
-    public void setPostLogoutUri(String postLogoutUri) {
+	public void setPostLogoutUri(String postLogoutUri) {
         this.postLogoutUri = postLogoutUri;
     }
 

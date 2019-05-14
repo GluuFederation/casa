@@ -12,6 +12,7 @@ import org.gluu.util.security.StringEncrypter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.URL;
@@ -24,6 +25,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.enterprise.inject.spi.CDI;
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Provides miscelaneous utilities.
@@ -321,5 +323,41 @@ public final class Utils {
         String salt = new FileConfiguration(saltFile).getProperties().getProperty("encodeSalt");
         return StringEncrypter.instance(salt);
     }
+    
+    public static boolean getHealthCheckStatus(String host, int port) throws IOException {
 
+		try {
+			URL siteURL = new URL("https", host, port, "/health-check");
+			HttpsURLConnection connection = (HttpsURLConnection) siteURL.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setConnectTimeout(3000);
+			/*
+			 * /from a JVM, when trying to connect to an IP address (WW.XX.YY.ZZ) and not
+			 * the DNS name, the HTTPS connection will fail
+			 * because the certificate stored in the java truststore cacerts expects common
+			 * name to match the target address.
+			 * 
+			 * To mitigate this HostnameVerifier needs to be verify the connection despite
+			 * the mismatch
+			 * https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/
+			 * JSSERefGuide.html#HostnameVerifier
+			 */
+			/*connection.setHostnameVerifier(new HostnameVerifier() {
+
+				@Override
+				public boolean verify(String hostname, SSLSession session) {
+
+					return true;
+				}
+			});*/
+			connection.connect();
+
+			if (connection.getResponseCode() == 200)
+				return true;
+			return false;
+		} catch (Exception e) {
+			throw e;
+
+		}
+    }
 }
