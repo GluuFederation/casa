@@ -20,6 +20,7 @@ import org.gluu.casa.service.ILdapService;
 import org.gluu.site.ldap.LDAPConnectionProvider;
 import org.gluu.site.ldap.OperationsFacade;
 import org.slf4j.Logger;
+import org.xdi.ldap.model.GluuBoolean;
 import org.xdi.util.properties.FileConfiguration;
 import org.xdi.util.security.PropertiesDecrypter;
 import org.xdi.util.security.StringEncrypter;
@@ -30,6 +31,7 @@ import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -57,9 +59,7 @@ public class LdapService implements ILdapService {
 
     private JsonNode oxAuthConfStatic;
 
-    private JsonNode oxTrustConfApplication;
-
-    private JsonNode oxTrustConfCacheRefresh;
+    private boolean backendLdapEnabled;
 
     private ObjectMapper mapper;
 
@@ -293,24 +293,8 @@ public class LdapService implements ILdapService {
 
     }
 
-    /**
-     * Tries to determine whether local installation of Gluu is using a backend LDAP. This reads the OxTrust configuration
-     * Json and inspects inside property "sourceConfigs"
-     * @return A boolean value
-     */
     public boolean isBackendLdapEnabled() {
-
-        try {
-            if (oxTrustConfCacheRefresh != null) {
-                List<Boolean> enabledList = new ArrayList<>();
-                oxTrustConfCacheRefresh.get("sourceConfigs").forEach(node -> enabledList.add(node.get("enabled").asBoolean()));
-                return enabledList.stream().anyMatch(Boolean::booleanValue);
-            }
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-        return false;
-
+        return backendLdapEnabled;
     }
 
     public boolean authenticate(String uid, String pass) throws Exception {
@@ -362,12 +346,19 @@ public class LdapService implements ILdapService {
     }
 
     private void loadOxTrustSettings(String dn) throws Exception {
+
         oxTrustConfiguration confT = get(oxTrustConfiguration.class, dn);
         if (confT != null) {
-            oxTrustConfApplication = mapper.readTree(confT.getOxTrustConfApplication());
-            oxTrustConfCacheRefresh = mapper.readTree(confT.getOxTrustConfCacheRefresh());
+            JsonNode oxTrustConfApplication = mapper.readTree(confT.getOxTrustConfApplication());
             rootDn = oxTrustConfApplication.get("baseDN").asText();
+
+            String applianceInum = oxTrustConfApplication.get("applianceInum").asText();
+            gluuAppliance appliance = get(gluuAppliance.class, String.format("inum=%s,ou=appliances,%s", applianceInum, rootDn));
+            String gvcre = Optional.ofNullable(appliance.getGluuVdsCacheRefreshEnabled()).orElse("");
+            backendLdapEnabled = GluuBoolean.getByValue(gvcre).isBooleanValue();
+            logger.info("Backend ldap for cache refresh was{} detected", backendLdapEnabled ? "" : " not");
         }
+
     }
 
     private <T> List<T> fromPersistedObjects(PersistedObjects<T> objects) throws LDAPPersistException {
