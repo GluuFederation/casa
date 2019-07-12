@@ -1,25 +1,25 @@
 # https://github.com/GluuFederation/casa-ee-plugins/raw/master/LICENSE
 
 from java.lang import String
-from java.util import Collections, HashMap, HashSet, ArrayList, Arrays, Date
+from java.util import Collections, HashMap, ArrayList, Arrays, Date
 from java.net import URLEncoder
 from java.nio.charset import Charset
 
 from org.apache.http.params import CoreConnectionPNames
 from org.gluu.jsf2.service import FacesService
-from org.gluu.oxauth.model.config import ConfigurationFactory
-from org.gluu.oxauth.model.util import Base64Util
-from org.gluu.oxauth.security import Identity
-from org.gluu.oxauth.service import AuthenticationService, UserService, EncryptionService, AppInitializer
-from org.gluu.oxauth.service.custom import CustomScriptService
-from org.gluu.oxauth.service.net import HttpService
-from org.gluu.oxauth.util import ServerUtil
-from org.gluu.config.oxtrust import LdapOxPassportConfiguration
-from org.gluu.model import SimpleCustomProperty
-from org.gluu.model.custom.script import CustomScriptType
-from org.gluu.model.custom.script.type.auth import PersonAuthenticationType
-from org.gluu.service.cdi.util import CdiUtil
-from org.gluu.util import StringHelper
+from org.xdi.oxauth.model.config import ConfigurationFactory
+from org.xdi.oxauth.model.util import Base64Util
+from org.xdi.oxauth.security import Identity
+from org.xdi.oxauth.service import AuthenticationService, UserService, EncryptionService, AppInitializer
+from org.xdi.oxauth.service.custom import CustomScriptService
+from org.xdi.oxauth.service.net import HttpService
+from org.xdi.oxauth.util import ServerUtil
+from org.xdi.config.oxtrust import LdapOxPassportConfiguration
+from org.xdi.model import SimpleCustomProperty
+from org.xdi.model.custom.script import CustomScriptType
+from org.xdi.model.custom.script.type.auth import PersonAuthenticationType
+from org.xdi.service.cdi.util import CdiUtil
+from org.xdi.util import StringHelper
 
 try:
     import json
@@ -46,8 +46,8 @@ class PersonAuthentication(PersonAuthenticationType):
         self.uid_attr = self.getLocalPrimaryKey()
 
         custScriptService = CdiUtil.bean(CustomScriptService)
-        self.scriptsList = custScriptService.findCustomScripts(Collections.singletonList(CustomScriptType.PERSON_AUTHENTICATION), "oxConfigurationProperty", "displayName", "gluuStatus", "oxLevel")
-        dynamicMethods = self.computeMethods(self.scriptsList)
+        scriptsList = custScriptService.findCustomScripts(Collections.singletonList(CustomScriptType.PERSON_AUTHENTICATION), "oxConfigurationProperty", "displayName", "gluuStatus")
+        dynamicMethods = self.computeMethods(scriptsList)
 
         if len(dynamicMethods) > 0:
             print "Casa. init. Loading scripts for dynamic modules: %s" % dynamicMethods
@@ -59,7 +59,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     module = external.PersonAuthentication(self.currentTimeMillis)
 
                     print "Casa. init. Got dynamic module for acr %s" % acr
-                    configAttrs = self.getConfigurationAttributes(acr, self.scriptsList)
+                    configAttrs = self.getConfigurationAttributes(acr, scriptsList)
 
                     if acr == self.ACR_U2F:
                         u2f_application_id = configurationAttributes.get("u2f_app_id").getValue2()
@@ -76,9 +76,6 @@ class PersonAuthentication(PersonAuthenticationType):
                 except:
                     print "Casa. init. Failed to load module %s" % moduleName
                     print "Exception: ", sys.exc_info()[1]
-
-            mobile_methods = configurationAttributes.get("mobile_methods")
-            self.mobile_methods = [] if mobile_methods == None else StringHelper.split(mobile_methods.getValue2(), ",")
 
         print "Casa. init. Initialized successfully"
         return True
@@ -129,17 +126,14 @@ class PersonAuthentication(PersonAuthenticationType):
                 if foundUser == None:
                     print "Casa. authenticate for step 1. Unknown username"
                 else:
-                    platform_data = self.parsePlatformData(requestParameters)
-                    mfaOff = foundUser.getAttribute("oxPreferredMethod") == None
+                    acr = foundUser.getAttribute("oxPreferredMethod")
                     logged_in = False
 
-                    if mfaOff:
+                    if acr == None:
                         logged_in = authenticationService.authenticate(user_name, user_password)
-                    else:
-                        acr = self.getSuitableAcr(foundUser, platform_data['isMobile'])
-                        if acr != None:
-                            module = self.authenticators[acr]
-                            logged_in = module.authenticate(module.configAttrs, requestParameters, step)
+                    elif acr in self.authenticators:
+                        module = self.authenticators[acr]
+                        logged_in = module.authenticate(module.configAttrs, requestParameters, step)
 
                     if logged_in:
                         foundUser = authenticationService.getAuthenticatedUser()
@@ -147,11 +141,11 @@ class PersonAuthentication(PersonAuthenticationType):
                         if foundUser == None:
                             print "Casa. authenticate for step 1. Cannot retrieve logged user"
                         else:
-                            if mfaOff:
+                            if acr == None:
                                 identity.setWorkingParameter("skip2FA", True)
                             else:
                                 #Determine whether to skip 2FA based on policy defined (global or user custom)
-                                skip2FA = self.determineSkip2FA(userService, identity, foundUser, platform_data)
+                                skip2FA = self.determineSkip2FA(userService, identity, foundUser, ServerUtil.getFirstValue(requestParameters, "loginForm:platform"))
                                 identity.setWorkingParameter("skip2FA", skip2FA)
                                 identity.setWorkingParameter("ACR", acr)
 
@@ -159,7 +153,6 @@ class PersonAuthentication(PersonAuthenticationType):
 
                     else:
                         print "Casa. authenticate for step 1 was not successful"
-
             return False
 
         else:
@@ -178,7 +171,7 @@ class PersonAuthentication(PersonAuthenticationType):
             session_attributes = identity.getSessionId().getSessionAttributes()
             acr = session_attributes.get("ACR")
             #this working parameter is used in casa.xhtml
-            identity.setWorkingParameter("methods", ArrayList(self.getAvailMethodsUser(user, acr)))
+            identity.setWorkingParameter("methods", self.getAvailMethodsUser(user, acr))
 
             success = False
             if acr in self.authenticators:
@@ -225,7 +218,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
             acr = session_attributes.get("ACR")
             print "Casa. prepareForStep. ACR = %s" % acr
-            identity.setWorkingParameter("methods", ArrayList(self.getAvailMethodsUser(user, acr)))
+            identity.setWorkingParameter("methods", self.getAvailMethodsUser(user, acr))
 
             if acr in self.authenticators:
                 module = self.authenticators[acr]
@@ -319,8 +312,8 @@ class PersonAuthentication(PersonAuthenticationType):
     def computeMethods(self, scriptList):
 
         methods = []
-        f = open(self.configFileLocation, 'r')
         try:
+            f = open(self.configFileLocation, 'r')
             cmConfigs = json.loads(f.read())
             if 'acr_plugin_mapping' in cmConfigs:
                 mapping = cmConfigs['acr_plugin_mapping']
@@ -350,8 +343,8 @@ class PersonAuthentication(PersonAuthenticationType):
         return configMap
 
 
-    def getAvailMethodsUser(self, user, skip=None):
-        methods = HashSet()
+    def getAvailMethodsUser(self, user, skip):
+        methods = ArrayList()
 
         for method in self.authenticators:
             try:
@@ -362,10 +355,9 @@ class PersonAuthentication(PersonAuthenticationType):
                 print "Casa. getAvailMethodsUser. hasEnrollments call could not be issued for %s module" % method
 
         try:
-            if skip != None:
-                # skip is guaranteed to be a member of methods (if hasEnrollments routines are properly implemented).
-                # A call to remove strangely crashes when skip is absent
-                methods.remove(skip)
+            #skip is guaranteed to be a member of methods (if hasEnrollments routines are properly implemented).
+            #A call to remove strangely crashes if skip is absent
+            methods.remove(skip)
         except:
             print "Casa. getAvailMethodsUser. methods list does not contain %s" % skip
 
@@ -388,42 +380,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
 # 2FA policy enforcement
 
-    def parsePlatformData(self, requestParameters):
-        try:
-            #Find device info passed in HTTP request params (see index.xhtml)
-            platform = ServerUtil.getFirstValue(requestParameters, "loginForm:platform")
-            deviceInf = json.loads(platform)
-        except:
-            print "Casa. parsePlatformData. Error parsing platform data"
-            deviceInf = None
-
-        return deviceInf
-
-
-    def getSuitableAcr(self, user, onMobile):
-
-        id = user.getUserId()
-        strongest = -1
-        acr = None
-        user_methods = self.getAvailMethodsUser(user)
-
-        for s in self.scriptsList:
-            name = s.getName()
-            if user_methods.contains(name) and name in self.authenticators and s.getLevel() > strongest and (not onMobile or name in self.mobile_methods):
-                acr = name
-                strongest = s.getLevel()
-
-        print "Casa. getSuitableAcr. On mobile = %s" % onMobile
-        if acr == None and onMobile:
-            print "Casa. getSuitableAcr. No mobile-friendly authentication method available for user %s" % id
-            # user_methods is not empty when this function is called, so just pick any
-            acr = user_methods.get(0)
-
-        print "Casa. getSuitableAcr. %s was selected for user %s" % (acr, id)
-        return acr
-
-
-    def determineSkip2FA(self, userService, identity, foundUser, deviceInf):
+    def determineSkip2FA(self, userService, identity, foundUser, platform):
 
         f = open(self.configFileLocation, 'r')
         try:
@@ -460,9 +417,9 @@ class PersonAuthentication(PersonAuthenticationType):
             deviceCriterion = 'DEVICE_UNKNOWN,' in policy
 
             if locationCriterion or deviceCriterion:
-                if deviceInf == None:
-                    print "Casa. determineSkip2FA. No user device data. Forcing 2FA to take place..."
-                else:
+                try:
+                    #Find device info passed in HTTP request params (see index.xhtml)
+                    deviceInf = json.loads(platform)
                     skip2FA = self.process2FAPolicy(identity, foundUser, deviceInf, locationCriterion, deviceCriterion)
 
                     if skip2FA:
@@ -472,6 +429,8 @@ class PersonAuthentication(PersonAuthenticationType):
                         if devInf != None:
                             foundUser.setAttribute("oxTrustedDevicesInfo", devInf)
                             userService.updateUser(foundUser)
+                except:
+                    print "Casa. determineSkip2FA. Error parsing current user device data. Forcing 2FA to take place..."
 
             else:
                 print "Casa. determineSkip2FA. Unknown %s policy: cannot skip 2FA" % policy
@@ -625,16 +584,16 @@ class PersonAuthentication(PersonAuthenticationType):
 # External authentication providers integration
 
     def getAuthzRequestUrl(self, providerName):
-    
+
         url = None
         if providerName in self.registeredProviders:
-        
-            print "Casa. getAuthzRequestUrl. Building an authz request URL for passport"            
+
+            print "Casa. getAuthzRequestUrl. Building an authz request URL for passport"
             isSaml = self.registeredProviders[providerName]["saml"]
-            
+
             params = ["response_type", "client_id", "scope", "redirect_uri", "state", "nonce"]
             attrs = CdiUtil.bean(Identity).getSessionId().getSessionAttributes()
-            
+
             authzParams = {}
             # use passport-* instead of casa
             authzParams["acr_values"] = self.getAcrFor(isSaml)
@@ -642,26 +601,26 @@ class PersonAuthentication(PersonAuthenticationType):
             authzParams[self.preSelParams["saml" if isSaml else "social"]] = self.encodeProvider(providerName)
             # avoids passport flow updating the profile of user if he has been provisioned previously
             authzParams["skipPassportProfileUpdate"] = "true"
-            
+
             # copy the params in the current casa request
             for param in params:
                 authzParams[param] = URLEncoder.encode(attrs.get(param), "UTF-8")
-        
+
             url = "/oxauth/restv1/authorize?"
             for param in authzParams:
                 url += "&" + param + "=" + authzParams[param]
-            
+
         else:
             print "Casa. getAuthzRequestUrl. Provider %s not recognized" % providerName
-            
+
         return url
-    
+
     def encodeProvider(self, name):
         enc = { "provider" : name }
         return Base64Util.base64urlencode(String(json.dumps(enc)).getBytes())
 
     def getPreselectionIDPParams(self):
-    
+
         param = { "saml" : None, "social": None }
         acrs = [self.getAcrFor(True), self.getAcrFor(False)]
         custScriptService = CdiUtil.bean(CustomScriptService)
@@ -673,7 +632,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     if prop.getValue1() == "authz_req_param_provider" and StringHelper.isNotEmpty(prop.getValue2()):
                         param["saml" if customScript.getName() == "passport_saml" else "social"] = prop.getValue2()
                         break
-        
+
         if param["saml"] != None:
             print "Casa. getPreselectionIDPParams. Found oxAuth cust param for SAML IDPs authz requests '%s'" % param["saml"]
         else:
@@ -683,43 +642,80 @@ class PersonAuthentication(PersonAuthenticationType):
             print "Casa. getPreselectionIDPParams. Found oxAuth cust param for OAuth/OIDC providers' authz requests '%s'" % param["social"]
         else:
             print "Casa. getPreselectionIDPParams. oxAuth cust param for for OAuth/OIDC providers' authz requests not found. OPs won't be available"
-            
+
         return param
 
-    
-    def getAcrFor(self, isSaml):
-        return "passport_saml" if isSaml else "passport_social"        
 
-    
+    def getAcrFor(self, isSaml):
+        return "passport_saml" if isSaml else "passport_social"
+
+
     def parseProviderConfigs(self):
 
         print "Casa. parseProviderConfigs. Adding external providers"
-        registeredProviders = {}
         preSelParams = self.getPreselectionIDPParams()
 
-        try:
-            passportDN = CdiUtil.bean(ConfigurationFactory).getPersistenceConfiguration().getConfiguration().getString("oxpassport_ConfigurationEntryDN")
-            entryManager = CdiUtil.bean(AppInitializer).createPersistenceEntryManager()
+        providers = {}
+        if preSelParams["saml"] != None:
+            providers = self.parseSAMLProviders()
 
-            config = LdapOxPassportConfiguration()
-            config = entryManager.find(config.getClass(), passportDN).getPassportConfiguration()
-            config = config.getProviders() if config != None else config
+        if preSelParams["social"] != None:
+            p = self.parseSocialProviders()
+            for prov in p:
+                providers[prov] = p[prov]
 
-            if config != None and len(config) > 0:      
-                for prvdetails in config:
-                    if prvdetails.isEnabled():
-                        isSaml = prvdetails.getType() == "saml"
-
-                        if (preSelParams["saml"] != None and isSaml) or (preSelParams["social"] != None and not isSaml):
-                            registeredProviders[prvdetails.getId()] = {     
-                                "logo_img": prvdetails.getLogoImg()
-                                "displayName": prvdetails.getDisplayName(),
-                                "saml": isSaml
-                            }
-        except:
-            print "Casa. parseProviderConfigs. An error occurred while building the list of supported authentication providers", sys.exc_info()[1]
-
-        print "Casa. parseProviderConfigs. Resulting list %s" % registeredProviders
+        print "Casa. parseProviderConfigs. Resulting list %s" % providers
         self.preSelParams = preSelParams
+        return providers
+
+
+    def parseSocialProviders(self):
+        registeredProviders = {}
+
+        try:
+            passportDN = CdiUtil.bean(ConfigurationFactory).getLdapConfiguration().getString("oxpassport_ConfigurationEntryDN")
+            entryManager = CdiUtil.bean(AppInitializer).createLdapEntryManager()
+            config = LdapOxPassportConfiguration()
+            config = entryManager.find(config.getClass(), passportDN).getPassportConfigurations()
+
+            if config != None:
+                for strategy in config:
+                    provider = strategy.getStrategy()
+                    registeredProviders[provider] = { "saml" : False }
+
+                    property = "logo_img"
+                    for field in strategy.getFieldset():
+                        if StringHelper.equalsIgnoreCase(field.getValue1(), property):
+                            registeredProviders[provider][property] = field.getValue2()
+                            break
+
+                    if not property in registeredProviders[provider]:
+                        registeredProviders[provider][property] = "img/%s.png" % provider
+
+        except:
+            print "Casa. parseProviderConfigs. An error occurred while building the list of supported social authentication providers", sys.exc_info()[1]
+
+        return registeredProviders
+
+
+    def parseSAMLProviders(self):
+
+        registeredProviders = {}
+        try:
+            f = open("/etc/gluu/conf/passport-saml-config.json", 'r')
+            config = json.loads(f.read())
+
+            for provider in config:
+                providerCfg = config[provider]
+                property = "enable"
+
+                if property in providerCfg and StringHelper.equalsIgnoreCase(providerCfg[property], "true"):
+                    registeredProviders[provider] = { "saml" : True }
+
+                    property = "logo_img"
+                    registeredProviders[provider][property] = providerCfg[property] if property in providerCfg else ""
+
+        except:
+            print "Casa. parseSAMLProviders. An error occurred while building the list of supported SAML authentication providers", sys.exc_info()[1]
 
         return registeredProviders
