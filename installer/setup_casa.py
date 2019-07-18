@@ -25,7 +25,7 @@ class SetupCasa(object):
         self.savedProperties = '%s/setup_casa.properties.last' % self.install_dir
         
         # Change this to final version
-        self.casa_war = 'https://ox.gluu.org/maven/org/gluu/casa/4.0.0-SNAPSHOT/casa-4.0.0-SNAPSHOT.war'
+        self.casa_war = 'https://ox.gluu.org/maven/org/gluu/casa/4.0.b1/casa-4.0.b1.war'
 
         self.twilio_jar = 'twilio-7.17.0.jar'
         self.twilio_url = 'http://central.maven.org/maven2/com/twilio/sdk/twilio/7.17.0/%s' % self.twilio_jar
