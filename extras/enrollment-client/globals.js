@@ -1,14 +1,15 @@
 //Defines some global variables
 
 //The URL of a server where Casa is installed e.g. https://my.company.com
-var issuer = "https://my.company.com"
+var issuer = "https://some.gluu.info"
 var OIDCUrl = issuer + "/.well-known/openid-configuration"
 var endpoints_root = issuer + "/casa/rest/enrollment"
 
-//This client should exist already in the Gluu server pointed above
-//Ensure you add the domain you are using to serve these pages in the "Add authorized Javascript origin" text field
 var clientId= "@!..."
-var clientSecret = "change it"
+//This client should already exist in the Gluu server pointed above. Use default values provided by oxTrust form and also:
+//Response types = token, Grant types = client credentials, Authorized JavaScript Origins = The domain you are using to
+//serve this file (eg. https://my.local.org)
+var clientSecret = "secret"
 
 //leave this blank
 var token=""
