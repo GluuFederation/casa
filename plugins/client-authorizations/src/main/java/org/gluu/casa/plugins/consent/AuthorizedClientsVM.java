@@ -1,7 +1,7 @@
 package org.gluu.casa.plugins.consent;
 
-import org.gluu.casa.plugins.consent.model.Scope;
-import org.gluu.casa.plugins.consent.model.Client;
+import org.gluu.casa.plugins.consent.ldap.Client;
+import org.gluu.casa.plugins.consent.ldap.Scope;
 import org.gluu.casa.plugins.consent.service.ClientAuthorizationsService;
 import org.gluu.casa.plugins.consent.service.ClientService;
 import org.gluu.casa.core.pojo.User;
@@ -54,7 +54,7 @@ public class AuthorizedClientsVM {
     }
 
     public String getContactEmailsAsCSV(Client client) {
-        return client.getContacts().stream().collect(Collectors.joining(", "));
+        return client.getOxAuthContactAsList().stream().collect(Collectors.joining(", "));
     }
 
     @Command

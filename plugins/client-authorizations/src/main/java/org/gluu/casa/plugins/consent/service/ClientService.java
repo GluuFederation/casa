@@ -1,9 +1,10 @@
 package org.gluu.casa.plugins.consent.service;
 
-import org.gluu.casa.core.model.BasePerson;
-import org.gluu.casa.plugins.consent.model.Client;
+import com.unboundid.ldap.sdk.DN;
+import org.gluu.casa.plugins.consent.ldap.Client;
+import org.gluu.casa.core.ldap.BaseLdapPerson;
 import org.gluu.casa.misc.Utils;
-import org.gluu.casa.service.IPersistenceService;
+import org.gluu.casa.service.ILdapService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,17 +15,17 @@ import java.util.stream.Collectors;
  */
 public class ClientService {
 
-    private IPersistenceService persistenceService;
+    private ILdapService ldapService;
 
     public ClientService() {
-        persistenceService = Utils.managedBean(IPersistenceService.class);
+        ldapService = Utils.managedBean(ILdapService.class);
     }
 
     public List<String> getAssociatedPeople(Client client) {
-        List<String> dns = client.getAssociatedPeople();
+        List<DN> dns = client.getAssociatedPersonAsList();
 
-        return dns.stream().map(dn -> persistenceService.get(BasePerson.class, dn))
-                .filter(person -> person != null).map(BasePerson::getUid).collect(Collectors.toList());
+        return dns.stream().map(dn -> ldapService.get(BaseLdapPerson.class, dn.toString()))
+                .filter(person -> person != null).map(BaseLdapPerson::getUid).collect(Collectors.toList());
 
     }
 
