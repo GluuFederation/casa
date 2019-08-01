@@ -19,7 +19,6 @@ public class CustomBrandingPlugin extends Plugin {
         super(wrapper);
     }
 
-    @Override
     public void delete() {
 
         try {
