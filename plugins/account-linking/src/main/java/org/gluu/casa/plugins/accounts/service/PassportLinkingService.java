@@ -1,18 +1,18 @@
 package org.gluu.casa.plugins.accounts.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.gluu.casa.core.model.CustomScript;
+import org.gluu.casa.core.ldap.oxCustomScript;
 import org.gluu.casa.core.pojo.User;
 import org.gluu.casa.misc.Utils;
 import org.gluu.casa.plugins.accounts.pojo.*;
-import org.gluu.casa.service.IPersistenceService;
+import org.gluu.casa.service.ILdapService;
 import org.gluu.casa.service.ISessionContext;
-import org.gluu.oxauth.model.common.WebKeyStorage;
-import org.gluu.oxauth.model.configuration.AppConfiguration;
-import org.gluu.oxauth.model.crypto.CryptoProviderFactory;
-import org.gluu.oxauth.model.jwt.Jwt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xdi.oxauth.model.common.WebKeyStorage;
+import org.xdi.oxauth.model.configuration.AppConfiguration;
+import org.xdi.oxauth.model.crypto.CryptoProviderFactory;
+import org.xdi.oxauth.model.jwt.Jwt;
 import org.zkoss.util.resource.Labels;
 import org.zkoss.web.servlet.http.Encodes;
 
@@ -35,7 +35,7 @@ public class PassportLinkingService {
 
     private ObjectMapper mapper = new ObjectMapper();
 
-    private IPersistenceService persistenceService;
+    private ILdapService ldapService;
 
     private Map<ProviderType, PassportScriptProperties> passportProperties;
 
@@ -47,23 +47,26 @@ public class PassportLinkingService {
         try {
             logger.info("Creating an instance of PassportLinkingService");
             mapper = new ObjectMapper();
-            persistenceService = Utils.managedBean(IPersistenceService.class);
+            ldapService = Utils.managedBean(ILdapService.class);
 
             passportProperties = new HashMap<>();
             for (ProviderType pt : ProviderType.values()) {
 
                 PassportScriptProperties psp = new PassportScriptProperties();
-                CustomScript script = new CustomScript();
+                oxCustomScript script = new oxCustomScript();
                 script.setDisplayName(pt.getAcr());
-                script.setBaseDn(persistenceService.getCustomScriptsDn());
 
-                List<CustomScript> list = persistenceService.find(script);
+                List<oxCustomScript> list = ldapService.find(script, oxCustomScript.class, ldapService.getCustomScriptsDn());
                 script = list.size() > 0  ? list.get(0) : null;
 
                 if (script != null) {
                     Map<String, String> props = Utils.scriptConfigPropertiesAsMap(script);
                     psp.setKeyStoreFile(props.get("key_store_file"));
                     psp.setKeyStorePassword(props.get("key_store_password"));
+
+                    int i = Utils.firstTrue(Arrays.asList(props.get("generic_local_attributes_list").split(",\\s*")), "uid"::equals);
+                    psp.setRemoteUserNameAttribute(i >= 0 ? props.get("generic_remote_attributes_list").split(",\\s*")[i] : "id");
+
                     passportProperties.put(pt, psp);
                 }
             }
@@ -98,14 +101,16 @@ public class PassportLinkingService {
                 logger.warn(msg);
 
             } else if (PendingLinks.contains(userId, provider)) {
-                Provider prv = AvailableProviders.get().stream().filter(p -> p.getId().equals(provider)).findFirst().get();
-                PassportScriptProperties psp = passportProperties.get(prv.getScriptType());
+                Provider prv = AvailableProviders.get().stream().filter(p -> p.getName().equals(provider)).findFirst().get();
+                PassportScriptProperties psp = passportProperties.get(prv.getType());
 
                 Jwt jwt = validateJWT(userJwt, psp);
                 if (jwt != null) {
                     logger.info("user profile JWT validated successfully\n{}", jwt);
                     String profile = jwt.getClaims().getClaimAsString("data");
-                    String uid = mapper.readTree(profile).get("uid").asText();
+
+                    String remoteUserNameAttribute = psp.getRemoteUserNameAttribute();
+                    String uid = mapper.readTree(profile).get(remoteUserNameAttribute).asText();
 
                     //Verify it's not already enrolled by someone
                     if (!prv.getEnrollmentManager().isAssigned(uid)) {

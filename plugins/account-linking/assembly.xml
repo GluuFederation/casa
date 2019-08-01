@@ -15,7 +15,7 @@
             <scope>runtime</scope>
             <includes>
                 <include>org.xdi:casa-shared</include>
-                <include>org.gluu:oxcore-service</include>
+                <include>org.xdi:oxcore-service</include>
                 <include>redis.clients:jedis</include>
             </includes>
         </dependencySet>

@@ -2,13 +2,13 @@ package org.gluu.casa.plugins.accounts.vm;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gluu.casa.core.pojo.User;
+import org.gluu.casa.misc.WebUtils;
 import org.gluu.casa.plugins.accounts.pojo.LinkingSummary;
 import org.gluu.casa.plugins.accounts.pojo.PendingLinks;
 import org.gluu.casa.service.ISessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zkoss.bind.annotation.Init;
-import org.zkoss.bind.annotation.QueryParam;
 import org.zkoss.util.resource.Labels;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.event.Event;
@@ -44,20 +44,22 @@ public class PostAccountLinkingViewModel {
     }
 
     @Init
-    public void init(@QueryParam("provider") String provider) {
+    public void init() {
 
         try {
             logger.debug("Initializing ViewModel");
             title = Labels.getLabel("general.error.general");
 
+            String provider = WebUtils.getQueryParam("provider");
             String userId = Optional.ofNullable(sessionContext.getLoggedUser()).map(User::getId).orElse(null);
+
             LinkingSummary summary = PendingLinks.get(userId, provider);
             if (summary != null) {
                 String uid = summary.getUid();
 
                 if (uid != null) {
                     logger.warn("Notifying linking page...");
-                    EventQueues.lookup(AccountLinkingViewModel.LINK_QUEUE, EventQueues.SESSION, true)
+                    EventQueues.lookup(AccountLinkingViewModel.SOCIAL_LINK_QUEUE, EventQueues.SESSION, true)
                             .publish(new Event(AccountLinkingViewModel.EVENT_NAME, null, summary));
 
                     title = Labels.getLabel("sociallogin.linking_result.success");

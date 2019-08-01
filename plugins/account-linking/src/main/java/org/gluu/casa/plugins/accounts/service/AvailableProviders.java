@@ -1,20 +1,22 @@
 package org.gluu.casa.plugins.accounts.service;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.gluu.casa.misc.Utils;
-import org.gluu.casa.plugins.accounts.model.oxPassportConfiguration;
+import org.gluu.casa.plugins.accounts.ldap.oxPassportConfiguration;
 import org.gluu.casa.plugins.accounts.pojo.Provider;
-import org.gluu.casa.service.IPersistenceService;
-import org.gluu.model.passport.PassportConfiguration;
+import org.gluu.casa.plugins.accounts.pojo.ProviderType;
+import org.gluu.casa.service.ILdapService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xdi.model.SimpleCustomProperty;
+import org.xdi.model.passport.PassportConfiguration;
 
-import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -22,8 +24,7 @@ import java.util.stream.Stream;
  */
 public class AvailableProviders {
 
-    private static final String[] CONFIG_FILES = new String[]{ "/etc/gluu/conf/gluu-couchbase.properties",
-            "/etc/gluu/conf/gluu-ldap.properties" };
+    private static final Path OXLDAP_PATH = Paths.get("/etc/gluu/conf/ox-ldap.properties");
     private static final String OXPASSPORT_PROPERTY = "oxpassport_ConfigurationEntryDN";
 
     private static List<Provider> providers;
@@ -33,11 +34,11 @@ public class AvailableProviders {
     //This has to be a codehaus mapper (see PassportConfiguration.class)
     private static ObjectMapper mapper;
 
-    private static IPersistenceService persistenceService;
+    private static ILdapService ldapService;
 
     static {
         mapper = new ObjectMapper();
-        persistenceService = Utils.managedBean(IPersistenceService.class);
+        ldapService = Utils.managedBean(ILdapService.class);
         //Lookup the authentication providers supported in the current Passport installation
         providers = retrieveProviders();
     }
@@ -54,58 +55,94 @@ public class AvailableProviders {
     }
 
     public static Optional<Provider> getByName(String name) {
-        return providers.stream().filter(p -> p.getDisplayName().equals(name)).findFirst();
-    }
-
-    private static Path getConfigFile() {
-        return Stream.of(CONFIG_FILES).map(Paths::get).filter(Files::isRegularFile).findFirst().orElse(null);
+        return providers.stream().filter(p -> p.getName().equals(name)).findFirst();
     }
 
     private static List<Provider> retrieveProviders() {
 
-        List<Provider> providers = new ArrayList<>();
-        logger.info("Loading providers info");
-        try {
-            logger.debug("Reading DN of passport configuration");
-            Path path = getConfigFile();
+        List<Provider> list = new ArrayList<>();
+        list.addAll(retrieveSAMLIDPs());
+        list.addAll(retrieveSocialProviders());
+        return list;
 
-            if (path == null) {
-                throw new IOException("No configuration file found in /etc/gluu/conf");
+    }
+
+    private static List<Provider> retrieveSAMLIDPs() {
+
+        List<Provider> providers = new ArrayList<>();
+        logger.info("Loading IDPs list");
+        try {
+            logger.debug("Parsing passport-saml-config.json");
+            byte[] bytes = Files.readAllBytes(Paths.get("/etc/gluu/conf/passport-saml-config.json"));
+            Map<String, Object> data = mapper.readValue(new String(bytes, StandardCharsets.UTF_8), new TypeReference<Map<String, Object>>(){});
+
+            for (String key : data.keySet()) {
+                Map<String, Object> props = (Map<String, Object>) data.get(key);
+
+                if (Optional.ofNullable(props.get("enable")).map(val -> Boolean.valueOf(val.toString())).orElse(false)) {
+                    logger.info("Found provider {}", key);
+
+                    Provider prv = new Provider();
+                    prv.setType(ProviderType.SAML);
+                    prv.setName(key);
+
+                    String logo = Optional.ofNullable(props.get("logo_img")).map(Object::toString).orElse(null);
+                    if (logo != null) {
+                        if (!logo.startsWith("http")) {
+                            logo = "/oxauth/auth/passport/" + logo;
+                        }
+                        prv.setLogo(logo);
+                    }
+                    providers.add(prv);
+                }
             }
 
-            String dn = Files.newBufferedReader(path).lines().filter(l -> l.startsWith(OXPASSPORT_PROPERTY))
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return providers;
+    }
+
+    private static List<Provider> retrieveSocialProviders() {
+
+        List<Provider> providers = new ArrayList<>();
+        logger.info("Loading social strategies info");
+        try {
+            logger.debug("Reading DN of LDAP passport configuration");
+            String dn = Files.newBufferedReader(OXLDAP_PATH).lines().filter(l -> l.startsWith(OXPASSPORT_PROPERTY))
                     .findFirst().map(l -> l.substring(OXPASSPORT_PROPERTY.length())).get();
             //skip uninteresting chars
             dn = dn.replaceFirst("[\\W]*=[\\W]*","");
 
-            List<org.gluu.model.passport.Provider> details = Optional.ofNullable(persistenceService.get(oxPassportConfiguration.class, dn))
-                    .map(oxPassportConfiguration::getConfig).map(PassportConfiguration::getProviders)
-                    .orElse(Collections.emptyList());
+            oxPassportConfiguration passportConfig = ldapService.get(oxPassportConfiguration.class, dn);
 
-            details = details.stream().filter(org.gluu.model.passport.Provider::isEnabled).collect(Collectors.toList());
-            logger.info("Found {} enabled providers", details.size());
-            for (org.gluu.model.passport.Provider p : details) {
-                Provider provider = new Provider(p);
+            if (passportConfig != null) {
+                Stream.of(passportConfig.getGluuPassportConfiguration())
+                        .forEach(cfg -> {
+                            try {
+                                PassportConfiguration pcf = mapper.readValue(cfg, PassportConfiguration.class);
+                                Provider provider = new Provider();
+                                provider.setType(ProviderType.SOCIAL);
+                                provider.setName(pcf.getStrategy());
 
-                if (provider.getDisplayName() == null) {
-                    provider.setDisplayName(p.getId());
-                }
-                logger.info("Found provider {}", provider.getDisplayName());
+                                logger.info("Found provider {}", provider.getName());
+                                //Search the logo
+                                String logo = Optional.ofNullable(pcf.getFieldset()).orElse(Collections.emptyList()).stream()
+                                        .filter(prop -> prop.getValue1().equals("logo_img")).map(SimpleCustomProperty::getValue2)
+                                        .findFirst().orElse(null);
+                                if (logo == null) {
+                                    logo = "/oxauth/auth/passport/img/" + provider.getName() + ".png";
+                                } else if (!logo.startsWith("http")) {
+                                    logo = "/oxauth/auth/passport/" + logo;
+                                }
+                                provider.setLogo(logo);
 
-                //Fix the logo
-                String logo = provider.getLogoImg();
-                if (logo == null) {
-                    //Most providers already have their logo in img folder of passport...
-                    logo = String.format("img/%s.png", provider.getDisplayName().toLowerCase());
-                }
-                if (!logo.startsWith("http")) {
-                    //It's not an absolute URL
-                    logo = "/oxauth/auth/passport/" + logo;
-                }
-                provider.setLogoImg(logo);
-                providers.add(provider);
+                                providers.add(provider);
+                            } catch (Exception e) {
+                                logger.error(e.getMessage(), e);
+                            }
+                        });
             }
-
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

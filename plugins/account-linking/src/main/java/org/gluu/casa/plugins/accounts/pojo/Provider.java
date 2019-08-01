@@ -1,6 +1,5 @@
 package org.gluu.casa.plugins.accounts.pojo;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.gluu.casa.plugins.accounts.service.enrollment.ProviderEnrollmentManager;
 import org.gluu.casa.plugins.accounts.service.enrollment.SamlEnrollmentManager;
 import org.gluu.casa.plugins.accounts.service.enrollment.SocialEnrollmentManager;
@@ -8,32 +7,50 @@ import org.gluu.casa.plugins.accounts.service.enrollment.SocialEnrollmentManager
 /**
  * @author jgomer
  */
-public class Provider extends org.gluu.model.passport.Provider {
+public class Provider {
 
-    public Provider(org.gluu.model.passport.Provider pd) {
+    private String logo;
+    private String name;
+    private ProviderType type;
 
-        try {
-            BeanUtils.copyProperties(this, pd);
-        } catch (Exception e) {
-            //No need to handle here
-        }
-
+    public String getName() {
+        return name;
     }
 
-    public ProviderType getScriptType() {
-        return getType().equals("saml") ? ProviderType.SAML : ProviderType.SOCIAL;
+    public String getLogo() {
+        return logo;
+    }
+
+    public ProviderType getType() {
+        return type;
+    }
+
+    public void setLogo(String logo) {
+        this.logo = logo;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setType(ProviderType type) {
+        this.type = type;
     }
 
     public ProviderEnrollmentManager getEnrollmentManager() {
 
-        switch (getScriptType()) {
-            case SAML:
-                return new SamlEnrollmentManager(this);
-            case SOCIAL:
-                return new SocialEnrollmentManager(this);
-            default:
-                return null;
+        ProviderEnrollmentManager em = null;
+        if (type != null) {
+            switch (type) {
+                case SAML:
+                    em = new SamlEnrollmentManager(this);
+                    break;
+                case SOCIAL:
+                    em = new SocialEnrollmentManager(this);
+                    break;
+            }
         }
+        return em;
 
     }
 

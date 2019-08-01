@@ -1,6 +1,7 @@
 package org.gluu.casa.plugins.accounts.service.enrollment;
 
-import org.gluu.casa.core.model.IdentityPerson;
+import org.gluu.casa.core.ldap.IdentityPerson;
+import org.gluu.casa.misc.Utils;
 import org.gluu.casa.plugins.accounts.pojo.Provider;
 
 import java.util.*;
@@ -18,14 +19,14 @@ public class SamlEnrollmentManager extends AbstractEnrollmentManager {
 
     public String getUid(IdentityPerson p, boolean linked) {
 
-        List<String> list = linked ? p.getOxExternalUid() : p.getOxUnlinkedExternalUids();
+        List<String> list = Utils.listfromArray(linked ? p.getOxExternalUid() : p.getOxUnlinkedExternalUids());
         for (String externalUid : list) {
             if (externalUid.startsWith(OXEXTERNALUID_PREFIX)) {
 
                 int i = externalUid.lastIndexOf(":");
                 if (i > OXEXTERNALUID_PREFIX.length() && i < externalUid.length() - 1) {
                     String providerName = externalUid.substring(OXEXTERNALUID_PREFIX.length(), i);
-                    if (provider.getDisplayName().equals(providerName)) {
+                    if (provider.getName().equals(providerName)) {
                         return externalUid.substring(i+1);
                     }
                 }
@@ -37,11 +38,11 @@ public class SamlEnrollmentManager extends AbstractEnrollmentManager {
 
     public boolean link(IdentityPerson p, String externalId) {
 
-        List<String> list = new ArrayList<>(p.getOxExternalUid());
+        List<String> list = new ArrayList<>(Utils.listfromArray(p.getOxExternalUid()));
         list.add(getFormattedAttributeVal(externalId));
 
         logger.info("Linked accounts for {} will be {}", p.getUid(), list);
-        p.setOxExternalUid(list);
+        p.setOxExternalUid(list.toArray(new String[0]));
         return updatePerson(p);
 
     }
@@ -58,9 +59,9 @@ public class SamlEnrollmentManager extends AbstractEnrollmentManager {
             return false;
         }
 
-        List<String> list = new ArrayList<>(p.getOxUnlinkedExternalUids());
+        List<String> list = new ArrayList<>(Utils.listfromArray(p.getOxUnlinkedExternalUids()));
         list.add(getFormattedAttributeVal(uid));
-        p.setOxUnlinkedExternalUids(list);
+        p.setOxUnlinkedExternalUids(list.toArray(new String[0]));
         return updatePerson(p);
 
     }
@@ -72,26 +73,25 @@ public class SamlEnrollmentManager extends AbstractEnrollmentManager {
             return false;
         }
 
-        List<String> list = new ArrayList<>(p.getOxExternalUid());
+        List<String> list = new ArrayList<>(Utils.listfromArray(p.getOxExternalUid()));
         list.add(getFormattedAttributeVal(uid));
-        p.setOxExternalUid(list);
+        p.setOxExternalUid(list.toArray(new String[0]));
         return updatePerson(p);
 
     }
 
     public boolean isAssigned(String uid) {
         IdentityPerson p = new IdentityPerson();
-        p.setOxExternalUid(Collections.singletonList(getFormattedAttributeVal(uid)));
-        p.setBaseDn(persistenceService.getPeopleDn());
-        return persistenceService.count(p) > 0;
+        p.setOxExternalUid(getFormattedAttributeVal(uid));
+        return ldapService.find(p, IdentityPerson.class, ldapService.getPeopleDn()).size() > 0;
     }
 
     private String removeProvider(IdentityPerson p) {
 
-        String pattern = String.format("%s%s:",OXEXTERNALUID_PREFIX, provider.getDisplayName());
+        String pattern = String.format("%s%s:",OXEXTERNALUID_PREFIX, provider.getName());
 
-        Set<String> externalUids = new HashSet<>(p.getOxExternalUid());
-        Set<String> unlinkedUids = new HashSet<>(p.getOxUnlinkedExternalUids());
+        Set<String> externalUids = new HashSet<>(Utils.listfromArray(p.getOxExternalUid()));
+        Set<String> unlinkedUids = new HashSet<>(Utils.listfromArray(p.getOxUnlinkedExternalUids()));
 
         String externalUid = externalUids.stream().filter(str -> str.startsWith(pattern)).findFirst()
                 .map(str -> str.substring(pattern.length())).orElse("");
@@ -108,14 +108,14 @@ public class SamlEnrollmentManager extends AbstractEnrollmentManager {
             externalUid = null;
         }
 
-        p.setOxExternalUid(new ArrayList<>(externalUids));
-        p.setOxUnlinkedExternalUids(new ArrayList<>(unlinkedUids));
+        p.setOxExternalUid(externalUids.toArray(new String[0]));
+        p.setOxUnlinkedExternalUids(unlinkedUids.toArray(new String[0]));
         return externalUid;
 
     }
 
     private String getFormattedAttributeVal(String uid) {
-        return String.format("passport-saml:%s:%s", provider.getId(), uid);
+        return String.format("passport-saml:%s:%s", provider.getName(), uid);
     }
 
 }

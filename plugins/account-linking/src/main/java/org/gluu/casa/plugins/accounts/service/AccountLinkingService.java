@@ -1,10 +1,10 @@
 package org.gluu.casa.plugins.accounts.service;
 
-import org.gluu.casa.core.model.IdentityPerson;
+import org.gluu.casa.core.ldap.IdentityPerson;
 import org.gluu.casa.misc.Utils;
 import org.gluu.casa.plugins.accounts.pojo.ExternalAccount;
 import org.gluu.casa.plugins.accounts.pojo.Provider;
-import org.gluu.casa.service.IPersistenceService;
+import org.gluu.casa.service.ILdapService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,10 +17,10 @@ public class AccountLinkingService {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    private IPersistenceService persistenceService;
+    private ILdapService ldapService;
 
     public AccountLinkingService() {
-        persistenceService = Utils.managedBean(IPersistenceService.class);
+        ldapService = Utils.managedBean(ILdapService.class);
     }
 
     public List<ExternalAccount> getAccounts(String id, boolean linked) {
@@ -66,7 +66,7 @@ public class AccountLinkingService {
     }
     
     private IdentityPerson getPerson(String id) {
-        return persistenceService.get(IdentityPerson.class, persistenceService.getPersonDn(id));   
+        return ldapService.get(IdentityPerson.class, ldapService.getPersonDn(id));   
     }
     
 }

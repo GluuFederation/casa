@@ -7,13 +7,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * @author jgomer
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class LinkingSummary {
 
     private String provider;
     private String uid;
     private String errorMessage;
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public String getProvider() {
         return provider;
     }
@@ -22,6 +22,7 @@ public class LinkingSummary {
         this.provider = provider;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public String getUid() {
         return uid;
     }
@@ -30,6 +31,7 @@ public class LinkingSummary {
         this.uid = uid;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public String getErrorMessage() {
         return errorMessage;
     }

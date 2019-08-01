@@ -9,6 +9,8 @@ public class PassportScriptProperties {
 
     private String keyStorePassword;
 
+    private String remoteUserNameAttribute;
+
     public String getKeyStoreFile() {
         return keyStoreFile;
     }
@@ -23,6 +25,14 @@ public class PassportScriptProperties {
 
     public void setKeyStorePassword(String keyStorePassword) {
         this.keyStorePassword = keyStorePassword;
+    }
+
+    public String getRemoteUserNameAttribute() {
+        return remoteUserNameAttribute;
+    }
+
+    public void setRemoteUserNameAttribute(String remoteUserNameAttribute) {
+        this.remoteUserNameAttribute = remoteUserNameAttribute;
     }
 
 }

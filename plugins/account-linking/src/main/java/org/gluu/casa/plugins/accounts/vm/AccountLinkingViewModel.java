@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class AccountLinkingViewModel {
 
-    public static final String LINK_QUEUE ="social_queue";
+    public static final String SOCIAL_LINK_QUEUE="social_queue";
 
     public static final String EVENT_NAME = "linked";
 
@@ -69,7 +69,7 @@ public class AccountLinkingViewModel {
 
         if (providers.size() > 0) {
 
-            EventQueues.lookup(LINK_QUEUE, EventQueues.SESSION, true)
+            EventQueues.lookup(SOCIAL_LINK_QUEUE, EventQueues.SESSION, true)
                     .subscribe(event -> {
                         if (event.getName().equals(EVENT_NAME)) {
 
@@ -137,7 +137,7 @@ public class AccountLinkingViewModel {
 
                             if (slService.delete(userId, provider)) {
                                 parseLinkedAccounts();
-                                UIUtils.showMessageUI(true, Labels.getLabel("sociallogin.removed_link", new String[]{provider.getDisplayName()}));
+                                UIUtils.showMessageUI(true, Labels.getLabel("sociallogin.removed_link", new String[]{provider.getName()}));
                                 BindUtils.postNotifyChange(null, null, AccountLinkingViewModel.this, "providers");
                             } else {
                                 UIUtils.showMessageUI(false);
