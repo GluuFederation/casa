@@ -10,7 +10,7 @@ This is a client-side only application (HTML+JS). Intended to be illustrative an
 
 - Edit file **globals.js** prior to use
 
-- Ensure to include this origin in [casa cors config](https://gluu.org/docs/casa/3.1.6/developer/rest-services/#cross-domain-consumption-of-services),
+- Ensure to include this origin in [casa cors config](https://gluu.org/docs/casa/3.1.7/developer/rest-services/#cross-domain-consumption-of-services),
   that is, the domain you are using to serve this client (eg. https://my.local.org)
 
 - This app has been tested on Firefox only
