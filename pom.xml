@@ -26,7 +26,7 @@
         <log4j.version>2.8.2</log4j.version>
         <oxd.version>3.1.5.Final</oxd.version>
         <ox.version>3.1.5.Final</ox.version>
-        <jackson.version>2.9.8</jackson.version>
+        <jackson.version>2.9.9</jackson.version>
         <zk.version>8.6.0.1</zk.version>
         <ldapsdk.version>4.0.7</ldapsdk.version>
         <quartz.version>2.2.3</quartz.version>
@@ -121,7 +121,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
+                <version>2.9.9.3</version>
             </dependency>
 
             <!-- JMIME MAGIC -->
