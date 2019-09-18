@@ -263,17 +263,17 @@ public class StatisticsTimer extends JobListenerSupport {
             if (wrapper != null) {
                 try {
                     //Is plugin implementing ITrackable?
-                     int users = ITrackable.class.cast(wrapper.getPlugin()).getActiveUsers(start, end);
-                     if (users < 0) {
+                	Set<String> userList =  ITrackable.class.cast(wrapper.getPlugin()).getActiveUsers(start, end);
+                     //int users = ITrackable.class.cast(wrapper.getPlugin()).getActiveUsers(start, end);
+                     if (userList == null ) {
                          logger.warn("Computing active users for plugin '{}' failed", pluginId);
                      } else {
-                         Integer prevActiveUsers = metric.getActiveUsers();
+                         Set<String> prevActiveUsers = metric.getActiveUsers();
 
                          if (prevActiveUsers != null) {
-                             //Preserve the greatest in history
-                             users = Math.max(users, prevActiveUsers);
+                        	 userList.addAll(prevActiveUsers);
                          }
-                         metric.setActiveUsers(users);
+                         metric.setActiveUsers(userList);
                      }
                 } catch (ClassCastException e) {
                     logger.info("Plugin {} does not implement ITrackable. Cannot compute active users");
