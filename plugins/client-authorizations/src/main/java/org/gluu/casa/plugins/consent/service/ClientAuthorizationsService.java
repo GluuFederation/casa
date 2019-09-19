@@ -54,7 +54,7 @@ public class ClientAuthorizationsService {
         logger.info("Found {} client authorizations for user {}", clients.size(), userId);
         Map<Client, Set<Scope>> perms = new HashMap<>();
 
-        for (Client client : clients) {
+        for (Client client : clients) { 
             Set<Scope> clientScopes = new HashSet<>();
 
             for (ClientAuthorization auth : authorizations) {

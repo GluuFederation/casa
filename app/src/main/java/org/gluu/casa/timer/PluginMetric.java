@@ -1,6 +1,6 @@
 package org.gluu.casa.timer;
 
-import java.util.Set;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -13,7 +13,7 @@ public class PluginMetric {
     private int daysUsed;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private Set<String> activeUsers;
+    private Map<String,String> activeUsers;
 
     public String getPluginId() {
         return pluginId;
@@ -39,11 +39,11 @@ public class PluginMetric {
         this.daysUsed = daysUsed;
     }
 
-    public Set<String> getActiveUsers() {
+    public Map<String,String> getActiveUsers() {
         return activeUsers;
     }
 
-    public void setActiveUsers(Set<String> activeUsers) {
+    public void setActiveUsers(Map<String,String> activeUsers) {
         this.activeUsers = activeUsers;
     }
 

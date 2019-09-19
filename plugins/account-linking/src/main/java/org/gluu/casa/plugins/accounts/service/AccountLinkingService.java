@@ -40,7 +40,7 @@ public class AccountLinkingService {
             }
         }
         return externalAccts;
-
+ 
     }
 
     public boolean link(String id, String provider, String externalId) {

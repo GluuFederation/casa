@@ -1,6 +1,6 @@
 package org.gluu.casa.core;
 
-import java.util.Set;
+import java.util.Map;
 
 /**
  * An interface that can be implemented by plugins in order to exhibit information about plugin usage.
@@ -14,7 +14,7 @@ public interface ITrackable {
      * @return Set<String>. If the computation cannot be specifically performed for the period of time specified,
      * it will return the usage exhibited at the moment of the invocation of this method.
      */
-    default Set<String> getActiveUsers(long start, long end) {
+    default Map<String,String> getActiveUsers(long start, long end) {
         return null;
     }
 
