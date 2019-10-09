@@ -13,7 +13,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <plugin.id>authorized-clients</plugin.id>
-        <plugin.version>4.0.rc3</plugin.version>
+        <plugin.version>4.0.Final</plugin.version>
     </properties>
 
     <repositories>
@@ -66,7 +66,7 @@
         <dependency>
             <groupId>org.gluu</groupId>
             <artifactId>casa-shared</artifactId>
-            <version>4.0.rc3</version>
+            <version>4.0.Final</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

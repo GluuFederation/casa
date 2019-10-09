@@ -13,8 +13,8 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <plugin.id>account-linking</plugin.id>
-        <plugin.version>4.0.rc3</plugin.version>
-        <ox.version>4.0.rc3</ox.version>
+        <plugin.version>4.0.Final</plugin.version>
+        <ox.version>4.0.Final</ox.version>
     </properties>
 
     <repositories>
@@ -68,7 +68,7 @@
         <dependency>
             <groupId>org.gluu</groupId>
             <artifactId>casa-shared</artifactId>
-            <version>4.0.rc3</version>
+            <version>4.0.Final</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
