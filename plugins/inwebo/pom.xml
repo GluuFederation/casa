@@ -13,7 +13,8 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <plugin.id>inwebo-plugin</plugin.id>
-        <plugin.version>0.1</plugin.version>
+        <plugin.version>4.0.Final</plugin.version>
+        <ox.version>4.0.Final</ox.version>
     </properties>
 
     <repositories>
