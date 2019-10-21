@@ -22,6 +22,7 @@ User-facing dashboard for people to manage authentication and authorization data
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d %{buildroot}/opt/gluu-server/opt/dist/gluu
+install -d %{buildroot}/opt/gluu-server/opt/dist/gluu/casa-al
 install -d %{buildroot}/opt/gluu-server/opt/dist/oxd
 install -d %{buildroot}/opt/gluu-server/opt/gluu/python/libs
 install -d %{buildroot}/opt/gluu-server/install/community-edition-setup
