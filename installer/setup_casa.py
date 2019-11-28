@@ -53,7 +53,7 @@ class SetupCasa(object):
 
         # Change this to final version
         self.twilio_version = '7.17.0'
-        self.casa_version = '4.0.Final'
+        self.casa_version = '4.0.1.Final'
         self.casa_war_url = 'https://ox.gluu.org/maven/org/gluu/casa/{0}/casa-{0}.war'.format(self.casa_version)
         self.twilio_jar_url = 'http://central.maven.org/maven2/com/twilio/sdk/twilio/{0}/twilio-{0}.jar'.format(self.twilio_version)
 
