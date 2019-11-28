@@ -11,11 +11,11 @@
 	<parent>
 		<groupId>org.gluu</groupId>
 		<artifactId>casa-base</artifactId>
-        <version>4.0.Final</version>
+        <version>4.0.1.Final</version>
 	</parent>
 
     <properties>
-        <oxd.version>4.0.Final</oxd.version>
+        <oxd.version>4.0.1.Final</oxd.version>
     </properties>
 
 	<dependencies>
