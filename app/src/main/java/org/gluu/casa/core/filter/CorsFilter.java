@@ -60,7 +60,8 @@ public class CorsFilter implements Filter {
                     if (method.equals("OPTIONS")) {
                         method = req.getHeader("Access-Control-Request-Method");
                         res.setHeader("Access-Control-Allow-Methods", method);
-                        res.setHeader("Access-Control-Allow-Headers", "authorization,origin,x-requested-with,access-control-request-headers,content-type,access-control-request-method,accept");
+                        res.setHeader("Access-Control-Allow-Headers", "authorization,origin,x-requested-with," +
+                                "access-control-request-headers,content-type,access-control-request-method,accept");
                         res.setHeader("Access-Control-Max-Age", "86400");
 
                         res.setStatus(HttpServletResponse.SC_OK);
@@ -93,11 +94,11 @@ public class CorsFilter implements Filter {
             reloadedAt = now;
             try (BufferedReader bfr = Files.newBufferedReader(Paths.get(basePath, ORIGINS_CORS_FILE))) {
                 logger.debug("Re-reading cors file");
-                allowedHosts = bfr.lines().collect(Collectors.toSet());
+                allowedHosts = bfr.lines().map(String::toLowerCase).collect(Collectors.toSet());
             }
         }
         //Search for a match with origin
-        return allowedHosts.contains(origin);
+        return allowedHosts.contains(origin.toLowerCase());
 
     }
 
