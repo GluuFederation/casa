@@ -34,11 +34,11 @@ public class UserMainViewModel extends UserViewModel {
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
-	private String licenseRelatedMessage;
-
-	public String getLicenseRelatedMessage() {
-		return licenseRelatedMessage;
-	}
+	/*
+	 * private String licenseRelatedMessage;
+	 * 
+	 * public String getLicenseRelatedMessage() { return licenseRelatedMessage; }
+	 */
 
 	@WireVariable
 	private PersistenceService persistenceService;
@@ -79,9 +79,9 @@ public class UserMainViewModel extends UserViewModel {
 		// roleAdmin - if the user has admin role
 		// isAdmin - if the application has administrator operations enabled
 		// if the product is within trial period, admin features will be enabled and the warning will be shown to admin user only via admin console.
-		if (sessionContext.getUser().isRoleAdmin() && !LicenseUtils.verifyLicense()  && !LicenseUtils.isTrialPeriod(LicenseUtils.getTrialExpiryDate())) {
+		/*if (sessionContext.getUser().isRoleAdmin() && !LicenseUtils.verifyLicense()  && !LicenseUtils.isTrialPeriod(LicenseUtils.getTrialExpiryDate())) {
 		    licenseRelatedMessage = Labels.getLabel("adm.casa.invalid.license.for.administrator") ;
-		}
+		}*/
 
 		if (methodsAvailability) {
 			StringBuffer helper = new StringBuffer();
