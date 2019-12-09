@@ -35,7 +35,7 @@ public class AdminMainViewModel {
 	public void childInit() {
 
 		user = sessionContext.getUser();
-		if (user.isRoleAdmin()) {
+	/*	if (user.isRoleAdmin()) {
 			LocalDateTime expiryDate = LicenseUtils.getTrialExpiryDate();
 			String daysUntilExpiry = String.valueOf(LocalDateTime.now().until( expiryDate,ChronoUnit.DAYS));
 			boolean verified = LicenseUtils.verifyLicense();
@@ -45,6 +45,6 @@ public class AdminMainViewModel {
 			} else if (!verified) {
 				licenseRelatedMessage = Labels.getLabel("adm.casa.invalid.license");
 			}
-		}
+		}*/
 	}
 }

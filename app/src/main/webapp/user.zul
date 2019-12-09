@@ -10,9 +10,7 @@
 		
         
         <div class="${css.contentHeading}">
-         	<zk:zk if="${vm.licenseRelatedMessage ne null}">
-                <div class="alert alert-danger" role="alert">${vm.licenseRelatedMessage}</div>
-        	</zk:zk>
+         	
             <h1 class="f3 dark-blue2">${labels.usr.title}</h1>
             
             <p class="f6">${vm.introText}</p>

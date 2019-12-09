@@ -81,7 +81,7 @@ public class UserService {
 
         u.setPreferredMethod(person.getPreferredMethod());
         u.setAdmin(persistenceService.isAdmin(inum) && administrationAllowed());
-        u.setRoleAdmin(persistenceService.isAdmin(inum));
+        //u.setRoleAdmin(persistenceService.isAdmin(inum));
         cleanRandEnrollmentCode(inum);
 
         return u;
@@ -304,13 +304,12 @@ public class UserService {
     }
 
     /**
-     * Administration functionalities are enabled only if .administrable file exists and a valid license for casa exists
-     * (or the product is within 30 day trial period)
+     * Administration functionalities are enabled only if .administrable file exists 
      * @return boolean value
      */
     private boolean administrationAllowed() {
-        return Files.isReadable(Paths.get(BASE_PATH, ADMIN_LOCK_FILE))
-                && (LicenseUtils.verifyLicense() || LicenseUtils.isTrialPeriod(LicenseUtils.getTrialExpiryDate()));
+        return Files.isReadable(Paths.get(BASE_PATH, ADMIN_LOCK_FILE));
+                //&& (LicenseUtils.verifyLicense() || LicenseUtils.isTrialPeriod(LicenseUtils.getTrialExpiryDate()));
     }
 
 }
