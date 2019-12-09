@@ -273,7 +273,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
             if step == 2 and numbers:
                 # Means that the selection number page was used
-                idx = ServerUtil.getFirstValue(requestParameters, "OtpSmsloginForm:indexOfNumber")
+                idx = ServerUtil.getFirstValue(requestParameters, "TwilioSmsloginForm:indexOfNumber")
                 if idx and code:
                     number = numbers.split(",")[int(idx)]
                     return self.sendMessage(number, str(code))
@@ -320,12 +320,12 @@ class PersonAuthentication(PersonAuthenticationType):
         print("SMPP getPageForStep called {}".format(step))
         print("SMPP Numbers are {}".format(CdiUtil.bean(Identity).getWorkingParameter("numbers")))
 
-        def_page = "/casa/otp_sms.xhtml"
+        def_page = "/casa/twiliosms.xhtml"
         if step == 2:
             if not CdiUtil.bean(Identity).getWorkingParameter("numbers"):
                 return def_page
             else:
-                return "/casa/otp_sms_prompt.xhtml"
+                return "/casa/twiliosms_prompt.xhtml"
         elif step == 3:
             return def_page
 
