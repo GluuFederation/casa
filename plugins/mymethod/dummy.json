@@ -1,0 +1,42 @@
+{
+  "enable_pass_reset": true,
+  "use_branding": false,
+  "log_level": "TRACE",
+  "min_creds_2FA": 2,
+  "policy_2fa": [
+    "EVERY_LOGIN"
+  ],
+  "acr_plugin_mapping": {
+    "u2f": null,
+    "otp": null,
+    "fido2": null
+  },
+  "oxd_config": {
+    "host": "localhost",
+    "port": 8443,
+    "scopes": [
+      "openid",
+      "profile",
+      "user_name",
+      "clientinfo",
+      "oxd",
+      "email"
+    ],
+    "authz_redirect_uri": "https://gomer-vbox/casa",
+    "post_logout_uri": "https://gomer-vbox/casa/bye.zul",
+    "frontchannel_logout_uri": "https://gomer-vbox/casa/autologout",
+    "client": {
+      "oxdId": "53b3e0d9-4869-47c7-b67b-119198ed0597",
+      "clientId": "acc3ebac-08d0-4190-bc9d-598d3b587177",
+      "clientSecret": "7c2aac70-f4da-4f66-8320-1970f51663fc",
+      "clientName": "gluu-casa_1574527325"
+    }
+  },
+  "allowed_cors_domains": [],
+  "plugins_settings": {
+    "custom-branding": {
+      "x": 1.0,
+      "y": 2.0
+    }
+  }
+}
