@@ -18,12 +18,25 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.Key;
+import java.security.KeyFactory;
+import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
 import javax.enterprise.inject.spi.CDI;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 
 /**
@@ -344,4 +357,34 @@ public final class Utils {
 
     }
 
+    public static byte[] decrypt(byte[] bytes, Key key, String transformation) throws Exception {
+        Cipher cipher = Cipher.getInstance(transformation);
+        cipher.init(Cipher.DECRYPT_MODE, key);
+		
+		  try (CipherInputStream cis = new CipherInputStream(new
+		  ByteArrayInputStream(bytes), cipher)) { ByteArrayOutputStream bos = new
+		  ByteArrayOutputStream(); copy(cis, bos); bos.write(cipher.doFinal());
+		  
+		  return bos.toByteArray(); }
+		  
+		     }
+    public static void copy(InputStream in, OutputStream out) throws Exception {
+
+		byte[] ibuf = new byte[1024];
+		int len;
+		while ((len = in.read(ibuf)) != -1) {
+			out.write(ibuf, 0, len);
+		}
+
+	}
+    public static Path getPublicKeyPath() {
+		return Paths.get(Utils.onWindows() ? System.getProperty("gluu.base") + File.separator + "casa.pub"
+				: "/etc/certs/casa.pub");
+	}
+
+    public static PublicKey getPublicKey() throws Exception {
+		byte[] bytes = Files.readAllBytes(getPublicKeyPath());
+		X509EncodedKeySpec ks = new X509EncodedKeySpec(bytes);
+		return KeyFactory.getInstance("RSA").generatePublic(ks);
+	}
 }

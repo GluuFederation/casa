@@ -4,12 +4,23 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unboundid.util.StaticUtils;
+
+import org.gluu.casa.core.ConfigurationHandler;
 import org.gluu.casa.core.ExtensionsManager;
 import org.gluu.casa.core.ITrackable;
 import org.gluu.casa.core.TimerService;
 import org.gluu.service.cache.CacheInterface;
 import org.gluu.casa.core.model.BasePerson;
+import org.gluu.casa.core.model.CredentialsActiveUsersSummary;
+import org.gluu.casa.core.model.PluginActiveUsersSummary;
+import org.gluu.casa.core.pojo.Report;
 import org.gluu.casa.misc.Utils;
+import org.gluu.casa.plugins.authnmethod.OTPExtension;
+import org.gluu.casa.plugins.authnmethod.OTPSmppExtension;
+import org.gluu.casa.plugins.authnmethod.OTPTwilioExtension;
+import org.gluu.casa.plugins.authnmethod.SecurityKey2Extension;
+import org.gluu.casa.plugins.authnmethod.SecurityKeyExtension;
+import org.gluu.casa.plugins.authnmethod.SuperGluuExtension;
 import org.gluu.casa.service.IPersistenceService;
 import org.gluu.oxauth.fido2.model.entry.Fido2RegistrationEntry;
 import org.gluu.oxauth.fido2.model.entry.Fido2RegistrationStatus;
@@ -161,22 +172,38 @@ public class StatisticsTimer extends JobListenerSupport {
             }
 
             int daysCovered = 1;
-            List<PluginMetric> plugins = null;
+            List<PluginActiveUsersSummary> plugins = null;
+			List<CredentialsActiveUsersSummary> credentials = null;
 
-            if (tmpExists) {
-                //Read stats from tmpFilePath and updates daysCovered variable
-                byte[] bytes = Files.readAllBytes(tmpFilePath);
-                Map<String, Object> currStats = mapper.readValue(bytes, new TypeReference<Map<String, Object>>(){});
-                daysCovered = Integer.parseInt(currStats.get("daysCovered").toString()) + 1;
+			if (tmpExists) {
+				// Read stats from tmpFilePath and updates daysCovered variable
+				byte[] bytes = Files.readAllBytes(tmpFilePath);
+				Map<String, Object> currStats = mapper.readValue(bytes, new TypeReference<Map<String, Object>>() {
+				});
+				daysCovered = Integer.parseInt(currStats.get("daysCovered").toString()) + 1;
 
-                plugins = mapper.convertValue(currStats.get("plugins"), new TypeReference<List<PluginMetric>>(){});
-            }
-            //Updates plugin data accounting from first day of present month to current time
-            long start = todayStartAt - (t.getDayOfMonth() - 1) * DAY_IN_MILLIS;
-            plugins = getPluginInfo(Optional.ofNullable(plugins).orElse(Collections.emptyList()), start, now);
-            //Saves to disk plain and encrypted file
-            int activeUsers = getActiveUsers(start, now);
-            serialize(month, year, activeUsers, daysCovered, plugins, statsPath, tmpFilePath);
+				plugins = mapper.convertValue(currStats.get("plugins"),
+						new TypeReference<List<PluginActiveUsersSummary>>() {
+						});
+				credentials = mapper.convertValue(currStats.get("credentials"),
+						new TypeReference<List<CredentialsActiveUsersSummary>>() {
+						});
+			}
+			// Updates plugin data accounting from first day of present month to current
+			// time
+			long start = todayStartAt - (t.getDayOfMonth() - 1) * DAY_IN_MILLIS;
+			plugins = getActiveUsersForPlugin(plugins, start, now);
+			// Saves to disk plain and encrypted file
+
+			credentials = getActiveUsersForDefaultAuthenticationMechanisms(start, now);
+			int activeUsers = getActiveUsers(start, now);
+			Report report = new Report();
+			report.setMonth(month);
+			report.setYear(year);
+			report.setDaysCovered(daysCovered);
+			report.setCredentials(credentials);
+			report.setPlugins(plugins);
+			serialize(report, statsPath);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -246,114 +273,107 @@ public class StatisticsTimer extends JobListenerSupport {
     }
 
     /**
-     * Computes a list with plugins usage data based on previous data
-     * @param plugins Previous data
-     * @return Up-to-date data
-     */
-    private List<PluginMetric> getPluginInfo(List<PluginMetric> plugins, long start, long end) {
+	 * Computes a list with plugins usage data based on previous data
+	 * 
+	 * @param plugins Previous data
+	 * @return Up-to-date data
+	 */
+	private List<PluginActiveUsersSummary> getActiveUsersForPlugin(List<PluginActiveUsersSummary> plugins, long start,
+			long end) {
 
-        //Computes a temporary list with info (id + version) about plugins which are currently installed
-        List<PluginWrapper> pluginSummary = extManager.getPlugins().stream()
-                .filter(pw -> pw.getDescriptor().getPluginClass().startsWith(GLUU_CASA_PLUGINS_PREFIX)
-                        && pw.getPluginState().equals(PluginState.STARTED)).collect(Collectors.toList());
+		
+		// Computes a temporary list with info (id + version) about plugins which are
+		// currently installed
+		List<PluginWrapper> pluginSummary = extManager.getPlugins().stream()
+				.filter(pw -> pw.getDescriptor().getPluginClass().startsWith(GLUU_CASA_PLUGINS_PREFIX)
+						&& pw.getPluginState().equals(PluginState.STARTED))
+				.collect(Collectors.toList());
 
-        //Correlates pluginSummary vs. plugins variables and updates the days of usage
-        for (PluginMetric metric : plugins) {
-            String pluginId = metric.getPluginId();
-            String version = metric.getVersion();
+		List<PluginActiveUsersSummary> list = new ArrayList<PluginActiveUsersSummary>();
+		
+		if(plugins != null)
+		{
+			// Correlates pluginSummary vs. plugins variables and updates the days of usage
+			for (PluginActiveUsersSummary metric : plugins) {
+				String pluginId = metric.getPluginId();
+				String version = metric.getVersion();
 
-            //Search this occurrence in currently installed plugins
-            PluginWrapper wrapper = pluginSummary.stream()
-                    .filter(pw -> pw.getDescriptor().getVersion().equals(version)
-                            && pw.getPluginId().equals(pluginId)).findFirst().orElse(null);
+				// Search this occurrence in currently installed plugins
+				PluginWrapper wrapper = pluginSummary.stream()
+						.filter(pw -> pw.getDescriptor().getVersion().equals(version) && pw.getPluginId().equals(pluginId))
+						.findFirst().orElse(null);
 
-            if (wrapper != null) {
-                try {
-                    //Is plugin implementing ITrackable?
-                     int users = ITrackable.class.cast(wrapper.getPlugin()).getActiveUsers(start, end);
-                     if (users < 0) {
-                         logger.warn("Computing active users for plugin '{}' failed", pluginId);
-                     } else {
-                         Integer prevActiveUsers = metric.getActiveUsers();
+				if (wrapper != null) {
+					try {
+						// Is plugin implementing ITrackable?
+						int users = ITrackable.class.cast(wrapper.getPlugin()).getActiveUsers(start, end);
+						if (users < 0) {
+							logger.warn("Computing active users for plugin '{}' failed", pluginId);
+						} else {
+							Integer prevActiveUsers = metric.getActiveUsers();
 
-                         if (prevActiveUsers != null) {
-                             //Preserve the greatest in history
-                             users = Math.max(users, prevActiveUsers);
-                         }
-                         metric.setActiveUsers(users);
-                     }
-                } catch (ClassCastException e) {
-                    logger.info("Plugin {} does not implement ITrackable. Cannot compute active users");
-                }
-                metric.setDaysUsed(metric.getDaysUsed() + 1);
-            }
-        }
+							if (prevActiveUsers != null) {
+								// Preserve the greatest in history
+								users = Math.max(users, prevActiveUsers);
+							}
+							metric.setActiveUsers(users);
+						}
+					} catch (ClassCastException e) {
+						logger.info("Plugin {} does not implement ITrackable. Cannot compute active users");
+					}
+					metric.setDaysUsed(metric.getDaysUsed() + 1);
+				}
+			}
+			list.addAll(plugins);
+		}
+		
+		// Adds the relevant information found in pluginSummary and not present in
+		// plugins
+		for (PluginWrapper pw : pluginSummary) {
+			String pluginId = pw.getPluginId();
+			String version = pw.getDescriptor().getVersion();
 
-        List<PluginMetric> list = new ArrayList<>(plugins);
-        //Adds the relevant information found in pluginSummary and not present in plugins
-        for (PluginWrapper pw : pluginSummary) {
-            String pluginId = pw.getPluginId();
-            String version = pw.getDescriptor().getVersion();
+			if (plugins == null || (plugins !=null && plugins.stream().noneMatch(m -> m.getPluginId().equals(pluginId) && m.getVersion().equals(version)))) {
 
-            if (plugins.stream().noneMatch(m -> m.getPluginId().equals(pluginId) && m.getVersion().equals(version))) {
+				PluginActiveUsersSummary metric = new PluginActiveUsersSummary();
+				metric.setPluginId(pluginId);
+				metric.setVersion(version);
+				metric.setDaysUsed(1);
+				int userCount = ITrackable.class.cast(pw.getPlugin()).getActiveUsers(start, end);
+				logger.info("Active user count for : "+ pw.getPluginId()+" - "+userCount);
+				metric.setActiveUsers(userCount);
+				list.add(metric);
+			}
+		}
+		return list;
 
-                PluginMetric metric = new PluginMetric();
-                metric.setPluginId(pluginId);
-                metric.setVersion(version);
-                metric.setDaysUsed(1);
+	}
 
-                list.add(metric);
-            }
-        }
-        return list;
+	/**
+	 * @param report contains all the contents that has to be written to the file in json format
+	 * @param destination destination References a file to update
+	 * @throws Exception A problem occurred saving files, encrypting, serializing data, etc.
+	 */
+	private void serialize(Report report, Path destination) throws Exception {
 
-    }
+		
 
-    /**
-     * Updates the files referenced by params <code>destination</code> (encrypted) and <code>tempDestination</code> (plain text)
-     * @param month Displayable name of current month
-     * @param year Displayable name of current year
-     * @param activeUsers Number of current users
-     * @param days Number of days actually covered by this update
-     * @param plugins List with up-to-date info about plugins
-     * @param destination References a file to update
-     * @param tmpDestination References a file to update
-     * @throws Exception A problem occurred saving files, encrypting, serializing data, etc.
-     */
-    private void serialize(String month, String year, int activeUsers, int days, List<PluginMetric> plugins,
-                           Path destination, Path tmpDestination) throws Exception {
+		// See
+		// https://stackoverflow.com/questions/1199058/how-to-use-rsa-to-encrypt-files-huge-data-in-c-sharp
+		// https://stackoverflow.com/questions/5583379/what-is-the-limit-to-the-amount-of-data-that-can-be-encrypted-with-rsa
+		byte[] encrKey = encrypt(symmetricKey.getEncoded(), pub, "RSA/ECB/PKCS1Padding");
+		// Writes a header to the file consisting of an encrypted key. It will be used
+		// to know how to decrypt the remaining contents
+		Files.write(destination, encrKey);
+		// It always holds that encrKey.size == 256
 
-        //A LinkedHashMap guarantees JSON data is serialized in the same order of key insertion
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("daysCovered", days);
-        map.put("plugins", plugins);
+		// Encrypts a byte array consisting of the info stored in map variable
+		byte[] bytes = mapper.writeValueAsBytes(report);
+		bytes = encrypt(bytes, symmetricKey, "AES"); // AES/CBC/PKCS5Padding
+		// Appends encrypted data to file
+		Files.write(destination, bytes, StandardOpenOption.APPEND);
 
-        //Overwrites or creates tmpDestination file with info in map
-        Files.write(tmpDestination, mapper.writeValueAsBytes(map));
-
-        //Adds more context information to map
-        map.put("activeUsers", activeUsers);
-        map.put("serverName", serverName);
-        map.put("email", email);
-
-        map.put("month", month);
-        map.put("year", year);
-        map.put("generatedOn", ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME));
-
-        //See https://stackoverflow.com/questions/1199058/how-to-use-rsa-to-encrypt-files-huge-data-in-c-sharp
-        //https://stackoverflow.com/questions/5583379/what-is-the-limit-to-the-amount-of-data-that-can-be-encrypted-with-rsa
-        byte[] encrKey = encrypt(symmetricKey.getEncoded(), pub, "RSA/ECB/PKCS1Padding");
-        //Writes a header to the file consisting of an encrypted key. It will be used to know how to decrypt the remaining contents
-        Files.write(destination, encrKey);
-        //It always holds that encrKey.size == 256
-
-        //Encrypts a byte array consisting of the info stored in map variable
-        byte[] bytes = mapper.writeValueAsBytes(map);
-        bytes = encrypt(bytes, symmetricKey, "AES");  // AES/CBC/PKCS5Padding
-        //Appends encrypted data to file
-        Files.write(destination, bytes, StandardOpenOption.APPEND);
-
-    }
+	}
 
     private byte[] encrypt(byte[] data, Key key, String transformation) throws Exception {
 
@@ -429,5 +449,123 @@ public class StatisticsTimer extends JobListenerSupport {
         }
 
     }
+    
+    private List<CredentialsActiveUsersSummary> getActiveUsersForDefaultAuthenticationMechanisms(long start, long end) {
+		List<Integer> hashesValidUsers = Collections.emptyList();
+		List<CredentialsActiveUsersSummary> credentialMetricsList = new ArrayList<CredentialsActiveUsersSummary>();
+
+		// Implementing this method by iterating through every user in the database and
+		// calling method
+		// org.gluu.casa.extension.AuthnMethod.getTotalUserCreds() is prohibitely
+		// expensive: we
+		// have to solve it by using low-level direct queries
+		try {
+			String peopleDN = persistenceService.getPeopleDn();
+			String startTime = StaticUtils.encodeGeneralizedTime(start);
+			String endTime = StaticUtils.encodeGeneralizedTime(end - 1);
+
+			// Employed to compute users who have logged in a time period
+			Filter filter = Filter.createANDFilter(Filter.createGreaterOrEqualFilter(LAST_LOGON_ATTR, startTime),
+					Filter.createLessOrEqualFilter(LAST_LOGON_ATTR, endTime));
+			hashesValidUsers = persistenceService.find(BasePerson.class, peopleDN, filter).stream()
+					.map(BasePerson::getInum).map(String::hashCode).collect(Collectors.toList());
+
+
+			for (String acr : ConfigurationHandler.DEFAULT_SUPPORTED_METHODS) {
+				CredentialsActiveUsersSummary metric = null;
+				if (OTPExtension.ACR.equals(acr)) {
+					metric = getActiveUsersForOTP(hashesValidUsers);
+				} else if (OTPSmppExtension.ACR.equals(acr)) {
+					metric = getActiveUsersForMobile(hashesValidUsers);
+				} else if (OTPTwilioExtension.ACR.equals(acr)) {
+					metric = getActiveUsersForMobile(hashesValidUsers);
+				} else if (SecurityKeyExtension.ACR.equals(acr)) {
+					metric = getActiveUsersForU2F(hashesValidUsers);
+				} else if (SuperGluuExtension.ACR.equals(acr)) {
+					metric = getActiveUsersForU2F(hashesValidUsers);
+				} else if (SecurityKey2Extension.ACR.equals(acr)) {
+					metric = getActiveUsersForFIDO2(hashesValidUsers);
+				} else {
+					// ideally control should never reach here
+					logger.warn("ActiveUsers method not implemented for acr - " + acr);
+				}
+				metric.setCredentialName(acr);
+				credentialMetricsList.add(metric);
+			}
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+
+		return credentialMetricsList;
+	}
+
+	private CredentialsActiveUsersSummary getActiveUsersForOTP(List<Integer> activeUsersLoggedIn) {
+		String peopleDN = persistenceService.getPeopleDn();
+		Set<Integer> hashes = new HashSet<>();
+
+		Filter filter = Filter.createPresenceFilter("oxOTPDevices");
+		hashes.addAll(persistenceService.find(BasePerson.class, peopleDN, filter).stream().map(BasePerson::getInum)
+				.map(String::hashCode).collect(Collectors.toList()));
+
+		hashes.retainAll(activeUsersLoggedIn);
+		CredentialsActiveUsersSummary otpMetric = new CredentialsActiveUsersSummary();
+		otpMetric.setActiveUsers(hashes.size());
+		hashes.size();
+		return otpMetric;
+	}
+
+	// 2. Mobile (oxMobileDevices) (Twilio + SMPP)
+	private CredentialsActiveUsersSummary getActiveUsersForMobile(List<Integer> activeUsersLoggedIn) {
+		String peopleDN = persistenceService.getPeopleDn();
+		Set<Integer> hashes = new HashSet<>();
+
+		Filter filter = Filter.createPresenceFilter("oxMobileDevices");
+		hashes.addAll(persistenceService.find(BasePerson.class, peopleDN, filter).stream().map(BasePerson::getInum)
+				.map(String::hashCode).collect(Collectors.toList()));
+
+		hashes.retainAll(activeUsersLoggedIn);
+		CredentialsActiveUsersSummary otpMetric = new CredentialsActiveUsersSummary();
+		otpMetric.setActiveUsers(hashes.size());
+		hashes.size();
+		return otpMetric;
+	}
+
+	private CredentialsActiveUsersSummary getActiveUsersForFIDO2(List<Integer> activeUsersLoggedIn) {
+		String peopleDN = persistenceService.getPeopleDn();
+		Set<Integer> hashes = new HashSet<>();
+
+		List<Fido2RegistrationEntry> list = persistenceService.find(Fido2RegistrationEntry.class,
+				persistenceService.getPeopleDn(),
+				Filter.createEqualityFilter("oxStatus", Fido2RegistrationStatus.registered.getValue()));
+		hashes.addAll(list.stream().map(e -> e.getUserInum().hashCode()).collect(Collectors.toList()));
+
+		hashes.retainAll(activeUsersLoggedIn);
+		CredentialsActiveUsersSummary otpMetric = new CredentialsActiveUsersSummary();
+		otpMetric.setActiveUsers(hashes.size());
+		hashes.size();
+		return otpMetric;
+	}
+
+	private CredentialsActiveUsersSummary getActiveUsersForU2F(List<Integer> activeUsersLoggedIn) {
+		String peopleDN = persistenceService.getPeopleDn();
+		Set<Integer> hashes = new HashSet<>();
+
+		SimpleBranch sb = new SimpleBranch(peopleDN);
+		// Compute owners of u2f or supergluu enrollments, and then fido2
+		String ous[] = new String[] { "fido" }; // , "fido2_register"
+		for (String ou : ous) {
+			sb.setOrganizationalUnitName(ou);
+			// Extract the user inum from the enrolled device DN
+			hashes.addAll(persistenceService.find(sb).stream().map(SimpleBranch::getDn)
+					.map(dn -> dn.substring(dn.indexOf("inum=") + 5, dn.length() - peopleDN.length() - 1).hashCode())
+					.collect(Collectors.toList()));
+		}
+
+		hashes.retainAll(activeUsersLoggedIn);
+		CredentialsActiveUsersSummary metric = new CredentialsActiveUsersSummary();
+		metric.setActiveUsers(hashes.size());
+		return metric;
+	}
 
 }

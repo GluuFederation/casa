@@ -1,0 +1,63 @@
+<?page language="xhtml"?>
+<?init class="org.gluu.casa.core.navigation.AdminProtectionInitiator"?>
+<?init class="org.zkoss.zk.ui.util.Composition" template="/general.zul"?>
+<zk:zk xmlns:z="http://www.zkoss.org/2005/zul" xmlns:h="xhtml"
+	xmlns:zk="zk" xmlns:w="client" xmlns:ca="client/attribute"
+	xmlns="native">
+
+	<h:title self="@define(title)">
+		${zkService.appName} - ${labels.adm.title}
+	</h:title>
+
+	<z:div if="${empty pageScope.error}" self="@define(maincontent)"
+		viewModel="@id('vm') @init('org.gluu.casa.ui.vm.admin.ReportViewModel')">
+
+		<z:include src="/back-home.zul" />
+
+		<div class="${css['sectionsWrapper']}">
+			<section class="${css.section}">
+				<div class="${css.panel}">
+					<h2 class="f4 dark-blue2">
+						${labels.adm.report_title}
+					</h2>
+					<p class="mb0">${labels.adm.report_text}</p>
+					<div
+						class="${css.panel} flex flex-column justify-center">
+
+						<canvas id="myChartPlugins" width="800px"
+							height="400px">
+						</canvas>
+					</div>
+					<div
+						class="${css.panel} flex flex-column justify-center">
+
+						<canvas id="myChartCreds" width="800px"
+							height="400px">
+						</canvas>
+					</div>
+				</div>
+
+
+			</section>
+		</div>
+	</z:div>
+	<z:div self="@define(extra)">
+		<script>
+
+			function loadChartPlugins(jsonData) 
+			{ 
+				var ctx = document.getElementById('myChartPlugins'); 
+				var myChart = new Chart(ctx, jsonData);
+
+			}
+
+			function loadChartCreds(jsonData) 
+			{ 
+				var ctx = document.getElementById('myChartCreds'); 
+				var myChart = new Chart(ctx, jsonData);
+
+			}
+		</script>
+	</z:div>
+
+</zk:zk>
