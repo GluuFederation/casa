@@ -26,6 +26,7 @@ class casaCleanup(object):
         self.conf_prop = get_properties(setupObject.gluu_properties_fn)
         self.detectedHostname = setupObject.detect_hostname()
         self.twilio_version = '7.17.0'
+        self.jsmmp_version = '2.3.7'
 
         if os.path.exists(setupObject.gluu_hybrid_roperties):
              get_properties(setupObject.gluu_hybrid_roperties, self.conf_prop)
@@ -155,6 +156,8 @@ class casaCleanup(object):
                     '/run/jetty/casa-start.log',
                     '/run/jetty/casa.pid',
                     '/opt/dist/scripts/casa',
+                    os.path.join(setupObject.jetty_base, 'oxauth/custom/libs/twilio-{}.jar'.format(self.twilio_version)),
+                    os.path.join(setupObject.jetty_base, 'oxauth/custom/libs/jsmpp-{}.jar'.format(self.jsmmp_version)),
                     ]
 
         for fn in casafiles:
@@ -177,7 +180,8 @@ class casaCleanup(object):
             for l in oxauth_xml[:]:
                 if re.search('twilio-(.*)\.jar', l):
                     oxauth_xml.remove(l)
-                    break
+                elif re.search('jsmpp-(.*)\.jar', l):
+                    oxauth_xml.remove(l)
 
             oxauth_xml = '\n'.join(oxauth_xml)
             setupObject.writeFile(oxauth_xml_fn, oxauth_xml)
