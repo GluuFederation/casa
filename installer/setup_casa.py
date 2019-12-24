@@ -53,6 +53,7 @@ class SetupCasa(object):
 
         # Change this to final version
         self.twilio_version = '7.17.0'
+        self.jsmmp_version = '2.3.7'
         self.casa_version = '4.1.0.Final'
         self.casa_war_url = 'https://ox.gluu.org/maven/org/gluu/casa/{0}/casa-{0}.war'.format(self.casa_version)
         self.twilio_jar_url = 'http://central.maven.org/maven2/com/twilio/sdk/twilio/{0}/twilio-{0}.jar'.format(self.twilio_version)
@@ -266,7 +267,15 @@ class SetupCasa(object):
         setupObject.copyFile('%s/casa.war' % setupObject.distGluuFolder, jettyServiceWebapps)
 
         jettyServiceOxAuthCustomLibsPath = '%s/%s/%s' % (setupObject.jetty_base, "oxauth", "custom/libs")
-        setupObject.copyFile(os.path.join(setupObject.distGluuFolder, os.path.basename(self.twilio_jar_url)), jettyServiceOxAuthCustomLibsPath)
+        setupObject.copyFile(
+                os.path.join(setupObject.distGluuFolder, os.path.basename(self.twilio_jar_url)), 
+                jettyServiceOxAuthCustomLibsPath
+                )
+        
+        setupObject.copyFile(
+                os.path.join(setupObject.distGluuFolder, 'jsmpp-{}.jar'.format(self.jsmmp_version)), 
+                jettyServiceOxAuthCustomLibsPath
+                )
         
         setupObject.run([setupObject.cmd_chown, '-R', 'jetty:jetty', jettyServiceOxAuthCustomLibsPath])
 
@@ -282,20 +291,21 @@ class SetupCasa(object):
             oxauth_xml = setupObject.readFile(oxauth_xml_fn)
             oxauth_xml = oxauth_xml.splitlines()
 
-            n = -1
-
             for i, l in enumerate(oxauth_xml[:]):
                 ls = l.strip()
                 if ls == '</Configure>':
-                    n = i
-                if re.search('twilio-(.*)\.jar', ls):
                     oxauth_xml.remove(l)
-                    n -= 1
+                elif re.search('twilio-(.*)\.jar', ls):
+                    oxauth_xml.remove(l)
+                elif re.search('jsmpp-(.*)\.jar', ls):
+                    oxauth_xml.remove(l)
 
-            oxauth_xml.insert(n, '\t<Set name="extraClasspath">./custom/libs/twilio-{}.jar</Set>'.format(self.twilio_version))
+            oxauth_xml.append('\t<Set name="extraClasspath">./custom/libs/twilio-{}.jar</Set>'.format(self.twilio_version))
+            oxauth_xml.append('\t<Set name="extraClasspath">./custom/libs/jsmpp-{}.jar</Set>'.format(self.jsmmp_version))
+            oxauth_xml.append('</Configure>')
             oxauth_xml = '\n'.join(oxauth_xml)
             setupObject.writeFile(oxauth_xml_fn, oxauth_xml)
-        
+
         setupObject.run(['chown', '-R', 'jetty:jetty', '%s/casa.json' % setupObject.configFolder])
         setupObject.run(['chmod', 'g+w', '%s/casa.json' % setupObject.configFolder])
         self.casa_json_config()
