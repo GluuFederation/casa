@@ -28,7 +28,7 @@
         <jackson.version>2.10.1</jackson.version>
         <zk.version>8.6.0.1</zk.version>
         <ldapsdk.version>4.0.14</ldapsdk.version>
-        <resteasy.version>3.0.21.Final</resteasy.version>
+        <resteasy.version>3.9.3.Final</resteasy.version>
         <jaxr.version>3.0.12.Final</jaxr.version>
         <mimemagic.version>0.1.5</mimemagic.version>
     </properties>
