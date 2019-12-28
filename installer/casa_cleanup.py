@@ -6,10 +6,12 @@ from pylib import Properties
 from pylib.cbm import CBM
 import ldap
 import ldap.modlist as modlist
-ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_ALLOW)
+
+from xml.etree import ElementTree
 
 from setup_casa import get_properties, unobscure, cur_dir, SetupCasa
 
+ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_ALLOW)
 
 COUCHBASE = 1
 LDAP = 2
@@ -171,21 +173,38 @@ class casaCleanup(object):
                 setupObject.run(['rm', '-f', (os.path.join(libdir,lib))])
 
     def removeTwilioPathOxauth(self):
-        print "Removing twilio jar path form oxauth.xml"
+        print "Removing path of casa jar files form oxauth.xml"
         oxauth_xml_fn = '/opt/gluu/jetty/oxauth/webapps/oxauth.xml'
         if os.path.exists(oxauth_xml_fn):
-            oxauth_xml = setupObject.readFile(oxauth_xml_fn)
-            oxauth_xml = oxauth_xml.splitlines()
+            class CommentedTreeBuilder(ElementTree.TreeBuilder):
+                def comment(self, data):
+                    self.start(ElementTree.Comment, {})
+                    self.data(data)
+                    self.end(ElementTree.Comment)
 
-            for l in oxauth_xml[:]:
-                if re.search('twilio-(.*)\.jar', l):
-                    oxauth_xml.remove(l)
-                elif re.search('jsmpp-(.*)\.jar', l):
-                    oxauth_xml.remove(l)
+            parser = ElementTree.XMLParser(target=CommentedTreeBuilder())
+            tree = ElementTree.parse(oxauth_xml_fn, parser)
+            root = tree.getroot()
 
-            oxauth_xml = '\n'.join(oxauth_xml)
-            setupObject.writeFile(oxauth_xml_fn, oxauth_xml)
+            xml_headers = '<?xml version="1.0"  encoding="ISO-8859-1"?>\n<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure_9_0.dtd">\n\n'
 
+            for element in root:
+                if element.tag == 'Set' and element.attrib.get('name') == 'extraClasspath':
+
+                    extraClasspath_list = element.text.split(',')
+
+                    for ecp in extraClasspath_list[:]:
+                        if (not ecp) or re.search('twilio-(.*)\.jar', ecp) or re.search('jsmpp-(.*)\.jar', ecp):
+                            extraClasspath_list.remove(ecp)
+
+                    if extraClasspath_list:
+                        element.text = ','.join(extraClasspath_list)
+                    else:
+                        root.remove(element)
+                    
+                    break
+
+            setupObject.writeFile(oxauth_xml_fn, xml_headers+ElementTree.tostring(root))
 
 if __name__ == '__main__':
 
