@@ -9,6 +9,7 @@ import ssl
 import base64
 import pyDes
 import re
+import urllib2
 
 from urlparse import urlparse
 from xml.etree import ElementTree
@@ -103,41 +104,78 @@ class SetupCasa(object):
                 print "Downloading:", fname
                 setupObject.run(['/usr/bin/wget', download_url, '--no-verbose', '--retry-connrefused', '--tries=10', '-O', dest_path])
 
+    def check_oxd_server(self, oxd_url, error_out=True):
+
+        oxd_url = os.path.join(oxd_url, 'health-check')
+        try:
+            result = urllib2.urlopen(
+                        oxd_url,
+                        timeout = 2,
+                        context=ssl._create_unverified_context()
+                    )
+            if result.code == 200:
+                oxd_status = json.loads(result.read())
+                if oxd_status['status'] == 'running':
+                    return True
+        except Exception as e:
+            if error_out:
+                print colors.DANGER
+                print "Can't connect to oxd-server with url {}".format(oxd_url)
+                print "Reason: ", e
+                print colors.ENDC
+
     def promptForProperties(self):
 
-        promptForCasa = setupObject.getPrompt("Install Gluu Casa? (Y/n)", "Y")[0].lower()
+        promptForLicense = setupObject.getPrompt("\n\nDo you acknowledge that Casa is commercial software, and use of Casa is only permitted\nunder the Gluu License Agreement for Gluu Casa? (y/n)", "n")[0].lower()
 
-        if promptForCasa == 'y':
-            self.application_max_ram = setupObject.getPrompt("Enter maximum RAM for applications in MB", '1024')
+        if promptForLicense == 'n':
+            print("You must accept the Gluu License Agreement to continue. Exiting.\n")
+            sys.exit()
+                
+        self.oxd_server_https = 'https://localhost:8443'
+        use_local_oxd = False
 
-            have_oxd = setupObject.getPrompt(
-                "Do you have an existing oxd-server-4.0 installation?\nNote: oxd is used to integrate this product with the Gluu Server OP. (Y/n) ?",
-                "n")[0].lower()
 
-            if have_oxd == 'y':
-                oxd_server_https = 'https://localhost:8443'
-                self.oxd_server_https = setupObject.getPrompt("Enter the URL + port of your oxd-server", oxd_server_https).lower()
+        self.application_max_ram = setupObject.getPrompt("Enter maximum RAM for applications in MB", '1024')
 
-                o = urlparse(self.oxd_server_https)
-                oxd_hostname = o.hostname
+        # check local oxd-server
+        local_oxd_check = self.check_oxd_server(self.oxd_server_https, False)
 
-                if oxd_hostname in (self.detectedHostname, 'localhost'):
-                    self.start_oxd_server('restart')
+        if local_oxd_check:
+            use_local_oxd = setupObject.getPrompt(
+                "Local oxd server is detected. Do you want to use local oxd server? (y/n)?"
+                )
+            if use_local_oxd[0].lower() == 'n':
+                use_local_oxd = False
 
+        if not use_local_oxd:
+            print "Please enter URL of oxd-server if you have one, for example: https://oxd.mygluu.org:8443"
+            if not local_oxd_check:
+                print "Else leave blank to install oxd server locally."
             else:
-                install_oxd = setupObject.getPrompt("Install oxd-server on this host now?", "Y")[0].lower()
-                if install_oxd == 'n':
-                    print "An oxd server instance is required when installing this product via Linux packages"
-                    sys.exit(0)
-                else:
+                print "Enter {}q{} to quit installation".format(colors.BOLD, colors.ENDC)
+            while True:
+                oxd_server_https = raw_input("oxd Server URL: ").lower()
+                
+                if oxd_server_https and oxd_server_https[0].lower() == 'q':
+                    sys.exit()
+                
+                if (not oxd_server_https) and (not local_oxd_check):
                     self.install_oxd = True
-                    self.oxd_server_https = 'https://localhost:8443'
+                    break
+                
+                print "Checking oxd server"
+                if self.check_oxd_server(oxd_server_https):
+                    self.oxd_server_https = oxd_server_https
+                    use_local_oxd = True
+                    break
 
-            promptForLicense = setupObject.getPrompt("\n\nDo you acknowledge that Casa is commercial software, and use of Casa is only permitted\nunder the Gluu License Agreement for Gluu Casa? [Y/n]", "n")[0].lower()
-            if promptForLicense == 'n':
-                print("You must accept the Gluu License Agreement to continue. Exiting.\n")
-                sys.exit()
+        if (not use_local_oxd) and (not self.install_oxd):
+            print "An oxd server instance is required when installing this product via Linux packages."
+            print "Exiting ..."
+            sys.exit(0)
 
+        print
 
     def casa_json_config(self):
         data = setupObject.readFile(self.casa_config)
@@ -380,7 +418,7 @@ if __name__ == '__main__':
     setupObject.log = os.path.join(cur_dir, 'setup_casa.log')
     setupObject.logError = os.path.join(cur_dir, 'setup_casa_error.log')
 
-    installObject = SetupCasa(cur_dir)    
+    installObject = SetupCasa(cur_dir)
 
     if installObject.check_installed():
         print "\033[91m\nThis instance has already been configured. If you need to install new one you should reinstall package first.\033[0m"
