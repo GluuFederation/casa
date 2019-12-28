@@ -169,8 +169,10 @@ class SetupCasa(object):
         p = get_properties(setupObject.gluuCouchebaseProperties)
         attribDataTypes.startup(setupObject.install_dir)
 
+        setupObject.oxtrust_admin_password = unobscure(p['auth.userPassword'])
+
         setupObject.prepare_multivalued_list()
-        setupObject.cbm = CBM(p['servers'].split(',')[0], p['auth.userName'], unobscure(p['auth.userPassword']))
+        setupObject.cbm = CBM(p['servers'].split(',')[0], p['auth.userName'], setupObject.oxtrust_admin_password)
         setupObject.import_ldif_couchebase([os.path.join('.','output/scripts_casa.ldif')],'gluu')
 
 
@@ -183,6 +185,7 @@ class SetupCasa(object):
         p = get_properties(setupObject.ox_ldap_properties)
 
         setupObject.ldapPass = unobscure(p['bindPassword'])
+        setupObject.oxtrust_admin_password = setupObject.ldapPass
         setupObject.ldap_hostname = p['servers'].split(',')[0].split(':')[0]
 
         setupObject.createLdapPw()
@@ -392,6 +395,16 @@ if __name__ == '__main__':
         installObject.import_oxd_certificate2javatruststore()
         installObject.start_services()
         setupObject.save_properties(installObject.savedProperties, installObject)
+        
+        print ("Encrypted properties file saved to {0}.enc with password {1}\n"
+                "Decrypt the file with the following command if you want to "
+                "re-use:\nopenssl enc -d -aes-256-cbc -in {2}.enc -out {3}\n"
+                ).format( 
+                    installObject.savedProperties,  
+                    setupObject.oxtrust_admin_password, 
+                    os.path.basename(installObject.savedProperties), 
+                    os.path.basename(installObject.savedProperties)
+                    )
     except:
         setupObject.logIt("***** Error caught in main loop *****", True)
         setupObject.logIt(traceback.format_exc(), True)
