@@ -9,7 +9,10 @@ import ssl
 import base64
 import pyDes
 import re
+
 from urlparse import urlparse
+from xml.etree import ElementTree
+
 from setup import *
 from pylib import Properties
 
@@ -169,8 +172,10 @@ class SetupCasa(object):
         p = get_properties(setupObject.gluuCouchebaseProperties)
         attribDataTypes.startup(setupObject.install_dir)
 
+        setupObject.oxtrust_admin_password = unobscure(p['auth.userPassword'])
+
         setupObject.prepare_multivalued_list()
-        setupObject.cbm = CBM(p['servers'].split(',')[0], p['auth.userName'], unobscure(p['auth.userPassword']))
+        setupObject.cbm = CBM(p['servers'].split(',')[0], p['auth.userName'], setupObject.oxtrust_admin_password)
         setupObject.import_ldif_couchebase([os.path.join('.','output/scripts_casa.ldif')],'gluu')
 
 
@@ -183,6 +188,7 @@ class SetupCasa(object):
         p = get_properties(setupObject.ox_ldap_properties)
 
         setupObject.ldapPass = unobscure(p['bindPassword'])
+        setupObject.oxtrust_admin_password = setupObject.ldapPass
         setupObject.ldap_hostname = p['servers'].split(',')[0].split(':')[0]
 
         setupObject.createLdapPw()
@@ -288,23 +294,37 @@ class SetupCasa(object):
         #Adding twilio jar path to oxauth.xml
         oxauth_xml_fn = '/opt/gluu/jetty/oxauth/webapps/oxauth.xml'
         if os.path.exists(oxauth_xml_fn):
-            oxauth_xml = setupObject.readFile(oxauth_xml_fn)
-            oxauth_xml = oxauth_xml.splitlines()
+            
+            class CommentedTreeBuilder(ElementTree.TreeBuilder):
+                def comment(self, data):
+                    self.start(ElementTree.Comment, {})
+                    self.data(data)
+                    self.end(ElementTree.Comment)
 
-            for i, l in enumerate(oxauth_xml[:]):
-                ls = l.strip()
-                if ls == '</Configure>':
-                    oxauth_xml.remove(l)
-                elif re.search('twilio-(.*)\.jar', ls):
-                    oxauth_xml.remove(l)
-                elif re.search('jsmpp-(.*)\.jar', ls):
-                    oxauth_xml.remove(l)
+            parser = ElementTree.XMLParser(target=CommentedTreeBuilder())
+            tree = ElementTree.parse(oxauth_xml_fn, parser)
+            root = tree.getroot()
 
-            oxauth_xml.append('\t<Set name="extraClasspath">./custom/libs/twilio-{}.jar</Set>'.format(self.twilio_version))
-            oxauth_xml.append('\t<Set name="extraClasspath">./custom/libs/jsmpp-{}.jar</Set>'.format(self.jsmmp_version))
-            oxauth_xml.append('</Configure>')
-            oxauth_xml = '\n'.join(oxauth_xml)
-            setupObject.writeFile(oxauth_xml_fn, oxauth_xml)
+            xml_headers = '<?xml version="1.0"  encoding="ISO-8859-1"?>\n<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure_9_0.dtd">\n\n'
+
+            for element in root:
+                if element.tag == 'Set' and element.attrib.get('name') == 'extraClasspath':
+                    break
+            else:
+                element = ElementTree.SubElement(root, 'Set', name='extraClasspath')
+                element.text = ''
+
+            extraClasspath_list = element.text.split(',')
+
+            for ecp in extraClasspath_list[:]:
+                if (not ecp) or re.search('twilio-(.*)\.jar', ecp) or re.search('jsmpp-(.*)\.jar', ecp):
+                    extraClasspath_list.remove(ecp)
+
+            extraClasspath_list.append('./custom/libs/twilio-{}.jar'.format(self.twilio_version))
+            extraClasspath_list.append('./custom/libs/jsmpp-{}.jar'.format(self.jsmmp_version))
+            element.text = ','.join(extraClasspath_list)
+
+            setupObject.writeFile(oxauth_xml_fn, xml_headers+ElementTree.tostring(root))
 
         setupObject.run(['chown', '-R', 'jetty:jetty', '%s/casa.json' % setupObject.configFolder])
         setupObject.run(['chmod', 'g+w', '%s/casa.json' % setupObject.configFolder])
@@ -392,6 +412,16 @@ if __name__ == '__main__':
         installObject.import_oxd_certificate2javatruststore()
         installObject.start_services()
         setupObject.save_properties(installObject.savedProperties, installObject)
+        
+        print ("Encrypted properties file saved to {0}.enc with password {1}\n"
+                "Decrypt the file with the following command if you want to "
+                "re-use:\nopenssl enc -d -aes-256-cbc -in {2}.enc -out {3}\n"
+                ).format( 
+                    installObject.savedProperties,  
+                    setupObject.oxtrust_admin_password, 
+                    os.path.basename(installObject.savedProperties), 
+                    os.path.basename(installObject.savedProperties)
+                    )
     except:
         setupObject.logIt("***** Error caught in main loop *****", True)
         setupObject.logIt(traceback.format_exc(), True)
