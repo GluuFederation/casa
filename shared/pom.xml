@@ -14,10 +14,6 @@
         <version>4.1.0.Final</version>
 	</parent>
 
-    <properties>
-        <commons-beanutils>1.8.3</commons-beanutils>
-    </properties>
-
     <dependencies>
 
         <!-- GLUU -->
@@ -80,7 +76,7 @@
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>${commons-beanutils}</version>
+            <version>1.8.3</version>
         </dependency>
 
         <!-- SERVLET -->

@@ -78,7 +78,6 @@
             </dependency>
 
             <!-- WELD -->
-            <!-- https://mvnrepository.com/artifact/org.jboss.weld.servlet/weld-servlet-shaded -->
             <dependency>
                 <groupId>org.jboss.weld.servlet</groupId>
                 <artifactId>weld-servlet-shaded</artifactId>
@@ -92,6 +91,7 @@
                 <version>${ldapsdk.version}</version>
             </dependency>
 
+            <!-- ZK -->
             <dependency>
                 <groupId>org.zkoss.zk</groupId>
                 <artifactId>zk</artifactId>
