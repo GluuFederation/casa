@@ -65,7 +65,7 @@ class PersonAuthentication(PersonAuthenticationType):
                         configAttrs.put("u2f_application_id", SimpleCustomProperty("u2f_application_id", u2f_application_id))
                     elif acr == self.ACR_SG:
                         application_id = configurationAttributes.get("supergluu_app_id").getValue2()
-                        configAttrs.put("application_id", SimpleCustomProperty("application_id", client_redirect_uri))
+                        configAttrs.put("application_id", SimpleCustomProperty("application_id", application_id))
 
                     if module.init(configAttrs):
                         module.configAttrs = configAttrs
