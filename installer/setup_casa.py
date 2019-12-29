@@ -126,7 +126,7 @@ class SetupCasa(object):
 
     def promptForProperties(self):
 
-        promptForLicense = setupObject.getPrompt("\n\nDo you acknowledge that Casa is commercial software, and use of Casa is only permitted\nunder the Gluu License Agreement for Gluu Casa? (y/n)", "n")[0].lower()
+        promptForLicense = setupObject.getPrompt("\n\nDo you acknowledge that use of the Gluu Casa is under the Apache  License V2? (y/n)", "n")[0].lower()
 
         if promptForLicense == 'n':
             print("You must accept the Gluu License Agreement to continue. Exiting.\n")
