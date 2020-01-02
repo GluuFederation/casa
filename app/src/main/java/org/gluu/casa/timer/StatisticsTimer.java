@@ -1,34 +1,10 @@
 package org.gluu.casa.timer;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.unboundid.util.StaticUtils;
-import org.gluu.casa.core.ExtensionsManager;
-import org.gluu.casa.core.ITrackable;
-import org.gluu.casa.core.TimerService;
-import org.gluu.casa.core.inmemory.IStoreService;
-import org.gluu.casa.core.model.BasePerson;
-import org.gluu.casa.misc.Utils;
-import org.gluu.casa.service.IPersistenceService;
-import org.gluu.oxauth.fido2.model.entry.Fido2RegistrationEntry;
-import org.gluu.oxauth.fido2.model.entry.Fido2RegistrationStatus;
-import org.gluu.persist.model.base.SimpleBranch;
-import org.gluu.search.filter.Filter;
-import org.pf4j.*;
-import org.quartz.JobExecutionContext;
-import org.quartz.listeners.JobListenerSupport;
-import org.slf4j.Logger;
-
-import javax.annotation.PostConstruct;
-import javax.crypto.Cipher;
-import javax.crypto.CipherInputStream;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,9 +17,47 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.gluu.casa.core.ExtensionsManager;
+import org.gluu.casa.core.ITrackable;
+import org.gluu.casa.core.TimerService;
+import org.gluu.casa.core.inmemory.IStoreService;
+import org.gluu.casa.core.model.BasePerson;
+import org.gluu.casa.misc.Utils;
+import org.gluu.casa.service.IPersistenceService;
+import org.gluu.oxauth.fido2.model.entry.Fido2RegistrationEntry;
+import org.gluu.oxauth.fido2.model.entry.Fido2RegistrationStatus;
+import org.gluu.persist.model.base.SimpleBranch;
+import org.gluu.search.filter.Filter;
+import org.pf4j.PluginState;
+import org.pf4j.PluginWrapper;
+import org.quartz.JobExecutionContext;
+import org.quartz.listeners.JobListenerSupport;
+import org.slf4j.Logger;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unboundid.util.StaticUtils;
 
 /**
  * Generates Casa usage data.
@@ -406,18 +420,12 @@ public class StatisticsTimer extends JobListenerSupport {
             quartzJobName = getClass().getSimpleName() + "_timer";
             oneDay = (int) TimeUnit.DAYS.toSeconds(1);
 
-            //Obtains email and server name from the current Gluu installation
-            try (BufferedReader reader = Files.newBufferedReader(Paths.get(SETUP_PROPERTIES_LOCATION))) {
-                Properties p = new Properties();
-                p.load(reader);
-                email = p.getProperty("admin_email");
-                serverName = p.getProperty("hostname");
-            } catch (Exception e) {
-                if (!Utils.onWindows()) {
-                    throw  e;
-                }
-            }
+            //TODO: in casa-4.2.0 this will come from setup.properties.last.enc
+            email = "sales@gluu.org";
 
+            serverName = persistenceService.getIssuerUrl();//p.getProperty("hostname");
+            
+			
             //Create stats directories if missing
             Files.createDirectories(Paths.get(TEMP_PATH));
             Files.createDirectories(Paths.get(STATS_PATH));
