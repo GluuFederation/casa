@@ -1,13 +1,24 @@
 package org.gluu.casa.ui.vm.admin;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.gluu.casa.core.ReportService;
 import org.gluu.casa.core.model.CredentialsActiveUsersSummary;
 import org.gluu.casa.core.model.PluginActiveUsersSummary;
 import org.gluu.casa.core.pojo.Report;
+import org.gluu.casa.misc.WebUtils;
 import org.gluu.casa.ui.model.report.BarChart;
 import org.gluu.casa.ui.model.report.BarData;
 import org.gluu.casa.ui.model.report.BarDatasets;
@@ -17,7 +28,11 @@ import org.gluu.casa.ui.model.report.Ticks;
 import org.gluu.casa.ui.model.report.YAxes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.Init;
+import org.zkoss.web.Attributes;
+import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.select.annotation.VariableResolver;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zk.ui.util.Clients;
@@ -36,8 +51,25 @@ public class ReportViewModel extends MainViewModel {
 	private List<String> COLORS = Arrays.asList("#F0E68C", "#9ACD32", "#ff9999", "#80dfff", "#ffffb3", "#ff99ff",
 			"#b399ff", "#9ce085", "#ffb3b3");
 	private Logger logger = LoggerFactory.getLogger(getClass());
-
+	private static final String STATS_PATH = System.getProperty("server.base") + File.separator + "stats";
 	private Report report;
+	private List<String> reportNames;
+	private String month;
+	public String getMonth() {
+		return month;
+	}
+
+	public void setMonth(String month) {
+		this.month = month;
+	}
+
+	public List<String> getReportNames() {
+		return reportNames;
+	}
+
+	public void setReportNames(List<String> reportNames) {
+		this.reportNames = reportNames;
+	}
 
 	String jsonData;
 
@@ -66,8 +98,18 @@ public class ReportViewModel extends MainViewModel {
 	}
 
 	private void reloadConfig() {
-		//report = reportService.getReportForCurrentMonthPvtKey();
-		report = reportService.getMockData();
+		reportNames = getAllReportFileNames();
+		long now = System.currentTimeMillis();
+		ZonedDateTime t = ZonedDateTime.ofInstant(Instant.ofEpochMilli(now), ZoneOffset.UTC);
+
+		// Computes current month and year
+		String month = t.getMonth().toString();
+		String year = Integer.toString(t.getYear());
+		
+		month=month+year;
+
+		report = reportService.getReportForCurrentMonthPvtKey(month+year);
+		//report = reportService.getMockData();
 		loadCredentialsChart();
 		loadPluginsChart();
  
@@ -75,6 +117,7 @@ public class ReportViewModel extends MainViewModel {
 	
 	private void loadCredentialsChart()
 	{
+		
 		if (report != null) {
 			BarChart barchart = new BarChart();
 			List<BarDatasets> datasetList = new ArrayList<BarDatasets>();
@@ -94,6 +137,7 @@ public class ReportViewModel extends MainViewModel {
 				backgroundColorBorderList.add(COLORS.get(i++));
 
 			}
+			
 
 			datasetList.add(dataset);
 			dataset.setData(activeUsers);
@@ -141,7 +185,7 @@ public class ReportViewModel extends MainViewModel {
 			List<String> labelsOnXAxis = new ArrayList<String>();
 			List<String> backgroundColorList = new ArrayList<String>();
 			List<String> backgroundColorBorderList = new ArrayList<String>();
-			int i = COLORS.size();
+			int i = COLORS.size()-1;
 			
 			for (PluginActiveUsersSummary plugin : report.getPlugins()) {
 				activeUsers.add(plugin.getActiveUsers());
@@ -183,5 +227,27 @@ public class ReportViewModel extends MainViewModel {
 
 			Clients.evalJavaScript("loadChartPlugins(" + jsonData + ")");
 		}
+	}
+	
+	public List<String> getAllReportFileNames()
+	{
+		try (Stream<Path> walk = Files.walk(Paths.get(STATS_PATH))) {
+
+			List<String> result = walk.filter(Files::isRegularFile)
+					.map(x -> Paths.get(x.toString()).getFileName().toString()).collect(Collectors.toList());
+
+			return result;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	@Command
+	public void monthChanged(@BindingParam("month") String monthYear) {
+
+		month=monthYear;
+		report = reportService.getReportForCurrentMonthPvtKey(month);
+		loadCredentialsChart();
+		loadPluginsChart();
 	}
 }

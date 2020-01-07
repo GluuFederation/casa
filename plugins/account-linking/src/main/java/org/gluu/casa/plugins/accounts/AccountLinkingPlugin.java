@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.message.StringFormatterMessageFactory;
 import org.gluu.casa.core.ITrackable;
 import org.gluu.casa.core.model.BasePerson;
 import org.gluu.casa.misc.Utils;
@@ -62,6 +63,24 @@ public class AccountLinkingPlugin extends Plugin implements ITrackable {
 		return totalActiveUsers;
 	}
 
-	
+	@Override
+	public String getPluginActivity(String userId) {
+		AccountLinkingService slService = new AccountLinkingService();
+		 List<ExternalAccount> linked = slService.getAccounts(userId, true);
+	     List<ExternalAccount> unlinked = slService.getAccounts(userId, false);
+	     
+	     StringBuilder sb = new StringBuilder();
+	     sb.append(linked.size() +" Linked accounts ");
+	     for(ExternalAccount account: linked)
+	     {
+	    	 sb.append(account.getProvider().getDisplayName());
+	     }
+	     sb.append("."+unlinked.size()+" Unlinked accounts");
+	     for(ExternalAccount account: unlinked)
+	     {
+	    	 sb.append(account.getProvider().getDisplayName());
+	     }
+		return sb.toString();
+	}
 	
 }

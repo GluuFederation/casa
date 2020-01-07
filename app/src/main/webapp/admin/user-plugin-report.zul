@@ -1,0 +1,61 @@
+<?page language="xhtml"?>
+<?init class="org.gluu.casa.core.navigation.AdminProtectionInitiator"?>
+<?init class="org.zkoss.zk.ui.util.Composition" template="/general.zul"?>
+
+
+<zk:zk xmlns:z="http://www.zkoss.org/2005/zul" xmlns:h="xhtml"
+	xmlns:zk="zk" xmlns:w="client" xmlns:ca="client/attribute"
+	xmlns="native">
+
+	<h:title self="@define(title)">
+		${zkService.appName} - ${labels.adm.title}
+	</h:title>
+
+	<z:div if="${empty pageScope.error}" self="@define(maincontent)"
+		viewModel="@id('vm') @init('org.gluu.casa.ui.vm.admin.UserPluginUsageReportViewModel')">
+
+		<z:include src="/back-home.zul" />
+
+		<div class="${css['sectionsWrapper']}">
+			<section class="${css.section}">
+				<div class="${css.panel}">
+					<h2 class="f4 dark-blue2">
+						${labels.adm.detailed_user_plugin_report_title}
+					</h2>
+					<p class="mb0">
+						${labels.labels.adm.detailed_user_plugin_report_text}
+					</p>
+					<table id="example" class="display" width="100%">
+						
+					</table>
+
+
+					<z:div self="@define(extra)">
+
+						<script>
+
+							function loadReport(reportData) {
+								var columns = [];
+								columns.push({data:"userId", title:"Username"});
+								
+								columns.push({data:"authorized-clients",title:"authorized-clients"});
+								columns.push({data:"account-linking",title:"account-linking"});
+								columns.push({data:"custom-branding",title:"custom-branding"});
+																
+								columns.push({data:"lastLoginDate", title:"Last login date"});
+							
+								$('#example').DataTable( 
+								{
+								  "data": 	reportData,
+								  "columns": columns
+								  
+								}   ); 
+							} 
+						</script>
+					</z:div>
+				</div>
+			</section>
+		</div>
+	</z:div>
+
+</zk:zk>

@@ -66,5 +66,13 @@ public class AuthorizedClientsPlugin extends Plugin implements ITrackable {
 
 		return totalActiveUsers;
 	}
-
+	@Override
+	public String getPluginActivity(String userId) {
+		ClientAuthorizationsService cas = new ClientAuthorizationsService();
+		StringBuilder sb = new StringBuilder();
+			Map<Client, Set<Scope>> userClientPermissions = cas.getUserClientPermissions(userId);
+			return  userClientPermissions.keySet().stream().map(Client::getDisplayName).collect(Collectors.joining(","));
+			
+		
+	}
 }

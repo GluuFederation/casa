@@ -1,0 +1,89 @@
+<?page language="xhtml"?>
+<?init class="org.gluu.casa.core.navigation.AdminProtectionInitiator"?>
+<?init class="org.zkoss.zk.ui.util.Composition" template="/general.zul"?>
+
+
+<zk:zk xmlns:z="http://www.zkoss.org/2005/zul" xmlns:h="xhtml"
+	xmlns:zk="zk" xmlns:w="client" xmlns:ca="client/attribute"
+	xmlns="native">
+
+	<h:title self="@define(title)">
+		${zkService.appName} - ${labels.adm.title}
+	</h:title>
+
+	<z:div if="${empty pageScope.error}" self="@define(maincontent)"
+		viewModel="@id('vm') @init('org.gluu.casa.ui.vm.admin.UserCredEnrollmentReportViewModel')">
+
+		<z:include src="/back-home.zul" />
+
+		<div class="${css['sectionsWrapper']}">
+			<section class="${css.section}">
+				<div class="${css.panel}">
+					<h2 class="f4 dark-blue2">
+						${labels.adm.detailed_user_cred_report_title}
+					</h2>
+					<p class="mb0">
+						${labels.labels.adm.detailed_user_cred_report_text}
+					</p>
+
+
+
+					<table id="example" class="display" width="100%">
+						
+					</table>
+
+
+					<z:div self="@define(extra)">
+
+						<script>
+
+							function loadReport(reportData) {
+								var columns = [];
+								columns.push({data:"userId", title:"Username"});
+								
+								columns.push({data:"u2f",title:"U2F"});
+								columns.push({data:"fido2",title:"FIDO2"});
+								columns.push({data:"otp",title:"OTP"});
+								columns.push({data:"super_gluu",title:"Super Gluu"});
+								columns.push({data:"twilio_sms",title:"Twilio SMS"});
+							//	columns.push({data:"smpp",title:"SMPP"});
+								
+								columns.push({data:"lastLoginDate", title:"Last login date"});
+								
+								// this hardcoding of column names should be replaced with another solution. The code below doesnt work
+								/*var credMap_temp =  JSON.parse( JSON.stringify(reportData.data[0].credentials));
+								
+								
+								// this is not working, needs to be fixed.
+								Object.keys(credMap_temp).forEach(key => {
+								alert("JSON.stringify(reportData.data[0].credentials - "+JSON.stringify(reportData.data[0].credentials.key)+"no string "+reportData.data[0].credentials.key);
+										
+																		var col= {
+																			data:key, title:key
+																			}
+																			columns.push(col);
+																		});
+								*/
+							
+								$('#example').DataTable( 
+								{
+								  "data": 	reportData,
+								  "columns": columns
+								  
+								}   ); 
+							} 
+						</script>
+
+					</z:div>
+
+
+
+
+				</div>
+
+
+			</section>
+		</div>
+	</z:div>
+
+</zk:zk>

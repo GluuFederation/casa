@@ -54,6 +54,11 @@ public class StrongAuthnSettingsPlugin extends Plugin implements ITrackable {
 	}
     
     @Override
+	public String getPluginActivity(String userId) {
+    	return "-";
+    }
+    
+    @Override
     public void delete() {
 
         //This impl is a extreme hack... there was no other feasible way though. This plugin offers features orthogonal

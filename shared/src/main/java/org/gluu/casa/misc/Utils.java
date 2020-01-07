@@ -141,6 +141,23 @@ public final class Utils {
     }
 
     /**
+     * @param <T> The type of the target object that gets deserialized from the json object 
+     * @param data json data as bytes
+     * @param clazz A {@link Class} representing the required type
+     * @return
+     */
+    public static <T> T objectFromJson(byte[] data, Class<T> clazz ) {
+
+        try {
+        	return MAPPER.readValue(data, clazz);
+        } catch (Exception e) {
+           
+        }
+        return null;
+
+    }
+    
+    /**
      * Computes the <code>data-uri</code> representation of an image whose bytes are given a parameter. This is useful
      * to represent images inlined in CSS.
      * @param bytes Array of bytes

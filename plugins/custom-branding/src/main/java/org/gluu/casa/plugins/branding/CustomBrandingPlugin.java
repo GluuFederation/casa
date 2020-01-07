@@ -53,7 +53,15 @@ public class CustomBrandingPlugin extends Plugin implements ITrackable{
    		return activeUserList.size();
    	}
     
+   
+    
     @Override
+	public String getPluginActivity(String userId) {
+		// TODO Auto-generated method stub
+		return ITrackable.super.getPluginActivity(userId);
+	}
+
+	@Override
     public void delete() {
 
         try {

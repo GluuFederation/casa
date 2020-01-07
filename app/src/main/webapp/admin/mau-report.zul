@@ -21,6 +21,23 @@
 						${labels.adm.report_title}
 					</h2>
 					<p class="mb0">${labels.adm.report_text}</p>
+					<z:div>
+						<span class="pr1">
+							${labels.adm.select_month}
+						</span>
+						<z:listbox mold="select"
+							model="@load(vm.reportNames)"
+							onSelect="@command('monthChanged', month = self.selectedItem.value)"
+							sclass="gray" style="min-width:6rem"
+							selectedItem="@load(vm.month)">
+							<z:template name="model">
+								<z:listitem label="${each}" />
+							</z:template>
+						</z:listbox>
+					</z:div>
+
+
+
 					<div
 						class="${css.panel} flex flex-column justify-center">
 
@@ -44,17 +61,15 @@
 	<z:div self="@define(extra)">
 		<script>
 
-			function loadChartPlugins(jsonData) 
-			{ 
-				var ctx = document.getElementById('myChartPlugins'); 
-				var myChart = new Chart(ctx, jsonData);
+			function loadChartPlugins(jsonData) { var ctx =
+			document.getElementById('myChartPlugins'); var myChart = new
+			Chart(ctx, jsonData);
 
 			}
 
-			function loadChartCreds(jsonData) 
-			{ 
-				var ctx = document.getElementById('myChartCreds'); 
-				var myChart = new Chart(ctx, jsonData);
+			function loadChartCreds(jsonData1) { var ctx1 =
+			document.getElementById('myChartCreds'); var myChart1 = new
+			Chart(ctx1, jsonData1);
 
 			}
 		</script>
