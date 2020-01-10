@@ -1,6 +1,6 @@
 <?page language="xhtml"?>
 <?init class="org.gluu.casa.core.navigation.AdminProtectionInitiator"?>
-<?init class="org.zkoss.zk.ui.util.Composition" template="/general-reports.zul"?>
+<?init class="org.zkoss.zk.ui.util.Composition" template="/general.zul"?>
 <zk:zk xmlns:z="http://www.zkoss.org/2005/zul" xmlns:h="xhtml"
 	xmlns:zk="zk" xmlns:w="client" xmlns:ca="client/attribute"
 	xmlns="native">
@@ -38,14 +38,14 @@
 
 
 
-					<div
+					<div id="plugin-parent"
 						class="${css.panel} flex flex-column justify-center">
 
 						<canvas id="myChartPlugins" width="800px"
 							height="400px">
 						</canvas>
 					</div>
-					<div
+					<div id="cred-parent"
 						class="${css.panel} flex flex-column justify-center">
 
 						<canvas id="myChartCreds" width="800px"
@@ -61,15 +61,23 @@
 	<z:div self="@define(extra)">
 		<script>
 
-			function loadChartPlugins(jsonData) { var ctx =
-			document.getElementById('myChartPlugins'); var myChart = new
-			Chart(ctx, jsonData);
-
+			Chart.defaults.global.legend.display = false;
+			
+			function loadChartPlugins(jsonData) 
+			{ 
+				
+				$('#myChartPlugins').remove();
+				$('#plugin-parent').append('<canvas id="myChartPlugins"></canvas>');
+				var ctx = $('#myChartPlugins');
+				var myChart = new Chart(ctx, jsonData);
 			}
 
-			function loadChartCreds(jsonData1) { var ctx1 =
-			document.getElementById('myChartCreds'); var myChart1 = new
-			Chart(ctx1, jsonData1);
+			function loadChartCreds(jsonData1) 
+			{
+				$('#myChartCreds').remove();
+				$('#cred-parent').append('<canvas id="myChartCreds"></canvas>');
+				var ctx1 = $('#myChartCreds');
+				var myChart1 = new Chart(ctx1, jsonData1);
 
 			}
 		</script>
