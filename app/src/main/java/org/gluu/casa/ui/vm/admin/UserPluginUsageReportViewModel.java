@@ -77,6 +77,7 @@ public class UserPluginUsageReportViewModel extends MainViewModel {
 
 			columnList.add(new ColumnDatatables("userId", "Username"));
 			for (PluginWrapper wrapper : pluginSummary) {
+				// the title of the plugin is the same as the acr name
 				columnList.add(new ColumnDatatables(wrapper.getPluginId(), wrapper.getPluginId()));
 			}
 			columnList.add(new ColumnDatatables("lastLoginDate", "Recent Sign-in"));

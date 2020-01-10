@@ -73,6 +73,7 @@ public class UserCredEnrollmentReportViewModel extends MainViewModel {
 			// define the columns in the table
 			columnList.add(new ColumnDatatables("userId", "Username"));
 			for (String method : ConfigurationHandler.DEFAULT_SUPPORTED_METHODS) {
+				// the title of the column is the same as the acr name 
 				columnList.add(new ColumnDatatables(method, method));
 			}
 			columnList.add(new ColumnDatatables("lastLoginDate", "Recent Sign-in"));

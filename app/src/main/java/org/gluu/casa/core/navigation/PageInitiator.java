@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * This initiator helps implementing basic protection: if no user is in session, pages will render error message, see
- * template general.zul
+ * template general.zul / general-reports.zul
  * @author jgomer
  */
 public class PageInitiator extends CommonInitiator implements Initiator {
