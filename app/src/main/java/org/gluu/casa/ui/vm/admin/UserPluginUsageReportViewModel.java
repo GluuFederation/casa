@@ -16,6 +16,7 @@ import org.gluu.casa.core.ExtensionsManager;
 import org.gluu.casa.core.ITrackable;
 import org.gluu.casa.core.PersistenceService;
 import org.gluu.casa.core.model.PersonRecentLoginTime;
+import org.gluu.casa.core.pojo.ColumnDatatables;
 import org.gluu.casa.misc.Utils;
 import org.gluu.search.filter.Filter;
 import org.pf4j.PluginState;
@@ -44,9 +45,9 @@ public class UserPluginUsageReportViewModel extends MainViewModel {
 
 	@Init
 	public void init() {
-		// List<UserCredential> userCredentialData = new ArrayList<UserCredential>();
 		List<Map> userPluginData = new ArrayList<Map>();
-
+		List<ColumnDatatables> columnList = new ArrayList<ColumnDatatables>();
+		
 		List<PersonRecentLoginTime> activeUsers = Collections.emptyList();
 		long now = System.currentTimeMillis();
 		long todayStartAt = now - now % DAY_IN_MILLIS;
@@ -67,23 +68,28 @@ public class UserPluginUsageReportViewModel extends MainViewModel {
 			Filter filter = Filter.createANDFilter(Filter.createGreaterOrEqualFilter(LAST_LOGON_ATTR, startTime),
 					Filter.createLessOrEqualFilter(LAST_LOGON_ATTR, endTime));
 			activeUsers = persistenceService.find(PersonRecentLoginTime.class, peopleDN, filter);
+			
+			
+			List<PluginWrapper> pluginSummary = extManager.getPlugins().stream()
+					.filter(pw -> pw.getDescriptor().getPluginClass().startsWith("org.gluu.casa.plugins")
+							&& pw.getPluginState().equals(PluginState.STARTED))
+					.collect(Collectors.toList());
+
+			columnList.add(new ColumnDatatables("userId", "Username"));
+			for (PluginWrapper wrapper : pluginSummary) {
+				columnList.add(new ColumnDatatables(wrapper.getPluginId(), wrapper.getPluginId()));
+			}
+			columnList.add(new ColumnDatatables("lastLoginDate", "Recent Sign-in"));
+			
 			for (PersonRecentLoginTime user : activeUsers) {
 
 				Map<String, String> userPluginMap = new HashMap<String, String>();
 				userPluginMap.put("userId", user.getUid());
 
-				// Computes a temporary list with info (id + version) about plugins which are
-				// currently installed
-				List<PluginWrapper> pluginSummary = extManager.getPlugins().stream()
-						.filter(pw -> pw.getDescriptor().getPluginClass().startsWith("org.gluu.casa.plugins")
-								&& pw.getPluginState().equals(PluginState.STARTED))
-						.collect(Collectors.toList());
-
 				for (PluginWrapper wrapper : pluginSummary) {
 
 					try {
 						// Is plugin implementing ITrackable?
-						//String userId = (wrapper.getPluginId().contains("account-linking")) ? user.getUid() : user.getInum();
 						String pluginActivity = ITrackable.class.cast(wrapper.getPlugin()).getPluginActivity( user.getInum());
 						userPluginMap.put(wrapper.getPluginId(), pluginActivity);
 					} catch (ClassCastException e) {
@@ -100,11 +106,10 @@ public class UserPluginUsageReportViewModel extends MainViewModel {
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
-		// datatables doesnt have a way of dealing with dynamic column names at runtime.
-		// Hence using a hashmap and hard coding the data:"xyz" parameter for columns
-		// this however is not a good approach
+		
 		String jsonData = Utils.jsonFromObject(userPluginData);
-		Clients.evalJavaScript("loadReport(" + jsonData + ")");
+		String columnJsonData = Utils.jsonFromObject(columnList);
+		Clients.evalJavaScript("loadReport(" + jsonData + ","+columnJsonData+")");
 
 	}
 

@@ -37,41 +37,18 @@
 
 						<script>
 
-							function loadReport(reportData) {
-								var columns = [];
-								columns.push({data:"userId", title:"Username"});
-								
-								columns.push({data:"u2f",title:"U2F"});
-								columns.push({data:"fido2",title:"FIDO2"});
-								columns.push({data:"otp",title:"OTP"});
-								columns.push({data:"super_gluu",title:"Super Gluu"});
-								columns.push({data:"twilio_sms",title:"Twilio SMS"});
-							//	columns.push({data:"smpp",title:"SMPP"});
-								
-								columns.push({data:"lastLoginDate", title:"Last login date"});
-								
-								// this hardcoding of column names should be replaced with another solution. The code below doesnt work
-								/*var credMap_temp =  JSON.parse( JSON.stringify(reportData.data[0].credentials));
-								
-								
-								// this is not working, needs to be fixed.
-								Object.keys(credMap_temp).forEach(key => {
-								alert("JSON.stringify(reportData.data[0].credentials - "+JSON.stringify(reportData.data[0].credentials.key)+"no string "+reportData.data[0].credentials.key);
-										
-																		var col= {
-																			data:key, title:key
-																			}
-																			columns.push(col);
-																		});
-								*/
-							
+							function loadReport(reportData,columnsData) {
 								$('#example').DataTable( 
 								{
 								  "data": 	reportData,
-								  "columns": columns
+								  "columns": columnsData,
+								  "scrollY":        800,
+            					  "scrollCollapse": true,
+            					  "scroller":       true
 								  
 								}   ); 
 							} 
+							
 						</script>
 
 					</z:div>

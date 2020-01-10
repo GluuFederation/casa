@@ -34,20 +34,14 @@
 
 						<script>
 
-							function loadReport(reportData) {
-								var columns = [];
-								columns.push({data:"userId", title:"Username"});
-								
-								columns.push({data:"authorized-clients",title:"authorized-clients"});
-								columns.push({data:"account-linking",title:"account-linking"});
-								columns.push({data:"custom-branding",title:"custom-branding"});
-																
-								columns.push({data:"lastLoginDate", title:"Last login date"});
-							
+							function loadReport(reportData,columnsData) {
 								$('#example').DataTable( 
 								{
 								  "data": 	reportData,
-								  "columns": columns
+								  "columns": columnsData,
+								  "scrollY":        800,
+            					  "scrollCollapse": true,
+            					  "scroller":       true
 								  
 								}   ); 
 							} 
