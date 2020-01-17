@@ -77,10 +77,15 @@
             <version>${ox.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.python</groupId>
-                    <artifactId>jython-standalone</artifactId>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.gluu</groupId>
+            <artifactId>oxcore-cache</artifactId>
+            <version>${ox.version}</version>
         </dependency>
         <dependency>
             <groupId>org.gluu</groupId>
@@ -253,6 +258,13 @@
 			<version>2.3.7</version>
 		</dependency>
 
+        <!-- QUARTZ -->
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>2.3.2</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -306,7 +318,7 @@
                         </goals>
                         <configuration>
                             <fileset>
-                                <directory>${project.build.directory}/${project.build.finalName}.war/WEB-INF/lib/oxcore-service-${ox.version}.jar</directory>
+                                <directory>${project.build.directory}/${project.build.finalName}.war/WEB-INF/lib/oxcore-cache-${ox.version}.jar</directory>
                                 <includes>
                                     <include>META-INF/beans.xml</include>
                                 </includes>
