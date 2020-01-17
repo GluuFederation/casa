@@ -89,7 +89,7 @@
         </dependency>
         <dependency>
             <groupId>org.gluu</groupId>
-            <artifactId>oxcore-persistence-cdi</artifactId>
+            <artifactId>oxcore-persistence-hybrid</artifactId>
             <version>${ox.version}</version>
         </dependency>
         <dependency>
