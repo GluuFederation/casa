@@ -61,8 +61,7 @@ public class StoreFactory {
                         cacheConfiguration.getNativePersistenceConfiguration().setBaseDn(ps.getRootDn());
 
                         NativePersistenceCacheProvider naive = new NativePersistenceCacheProvider();
-                        naive.setCacheConfiguration(cacheConfiguration);
-                        naive.setEntryManager(ps.getEntryManager());
+                        naive.configure(cacheConfiguration, ps.getEntryManager());
 
                         naive.create();
                         store = naive;
@@ -70,7 +69,7 @@ public class StoreFactory {
 
                     } else if (type.equals(MEMCACHED)) {
                         MemcachedProvider memcached = new MemcachedProvider();
-                        memcached.setCacheConfiguration(cacheConfiguration);
+                        memcached.configure(cacheConfiguration);
                         memcached.init();
 
                         memcached.create();
@@ -88,7 +87,7 @@ public class StoreFactory {
 
             if (store == null) {
                 InMemoryCacheProvider imc = new InMemoryCacheProvider();
-                imc.setCacheConfiguration(cacheConfiguration);
+                imc.configure(cacheConfiguration);
                 imc.create();
 
                 store = imc;
