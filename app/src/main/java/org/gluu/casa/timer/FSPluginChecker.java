@@ -15,13 +15,13 @@ import javax.inject.Named;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author jgomer
@@ -138,8 +138,12 @@ public class FSPluginChecker extends JobListenerSupport {
 
 		List<Pair<String, File>> currContents = new ArrayList<>();
 		logger.info("Checking files in plugins directory {}", pluginsRoot);
-		try {
-			List<Path> list = Files.list(pluginsRoot).filter(Utils::isJarFile).collect(Collectors.toList());
+
+		List<Path> list;
+		//https://stackoverflow.com/questions/38652295/java-nio2-directory-is-not-closed-causes-too-many-open-files-error
+		try (Stream<Path> stream = Files.list(pluginsRoot).filter(Utils::isJarFile)) {
+			list = stream.collect(Collectors.toList());
+
 			Set<String> pluginIdsList = new HashSet<>();
 
 			for (Path p : list) {
@@ -147,9 +151,7 @@ public class FSPluginChecker extends JobListenerSupport {
 				String name = f.getName();
 
 				boolean delete = true;
-				JarInputStream jis = null;
-				try {
-					jis = new JarInputStream(new BufferedInputStream(new FileInputStream(f)), false);
+				try (JarInputStream jis = new JarInputStream(new BufferedInputStream(new FileInputStream(f)), false)) {
 					Manifest m = jis.getManifest();
 
 					if (m != null) {
@@ -171,16 +173,6 @@ public class FSPluginChecker extends JobListenerSupport {
 					}
 				} catch (Exception e) {
 					logger.error(e.getMessage());
-				} finally {
-					try {
-						if (jis != null)
-						{
-							jis.close();
-						}
-					} catch (IOException ioe) {
-						logger.info(ioe.getMessage());
-						// can't do anything about it
-					}
 				}
 
 				try {
