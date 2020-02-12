@@ -84,10 +84,8 @@ public class U2fService extends FidoService {
     public String generateJsonRegisterMessage(String userName, String enrollmentCode) throws Exception {
 
         RegisterRequestMessage message = registrationRequestService.startRegistration(userName, conf.getAppId(), null, enrollmentCode);
-        Map<String, Object> request = mapper.convertValue(message, new TypeReference<Map<String, Object>>() { });
-        request.remove("authenticateRequests"); //Needed, otherwise chrome complains
         logger.info("Beginning registration start with uid={}, app_id={}", userName, conf.getAppId());
-        return mapper.writeValueAsString(request);
+        return mapper.writeValueAsString(message);
 
     }
 
