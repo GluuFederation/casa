@@ -235,7 +235,7 @@ def delCasaFiles():
                 '/etc/gluu/conf/casa.json',
                 '/etc/default/casa',
                 '/etc/init.d/casa',
-                '/etc/init.d/casa.gluu-3.1.7~',
+                '/etc/init.d/casa.gluu-3.1.8~',
                 '/etc/rc0.d/K01casa',
                 '/etc/rc2.d/S01casa',
                 '/etc/rc3.d/S01casa',
