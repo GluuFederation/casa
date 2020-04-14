@@ -68,5 +68,8 @@ rm -rf $RPM_BUILD_ROOT
 /opt/gluu-server/lib/systemd/system/casa.service
 
 %changelog
+* Mon Apr 14 2020 Davit Nikoghosyan <davit@gluu.org> - gluu-casa 4.1.1
+- Release 4.1.1
+
 * Mon Dec 23 2019 Davit Nikoghosyan <davit@gluu.org> - gluu-casa 4.1.0
 - Release 4.1.0
