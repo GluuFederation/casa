@@ -8,7 +8,7 @@ from org.gluu.jsf2.service import FacesService
 from org.gluu.oxauth.model.config import ConfigurationFactory
 from org.gluu.oxauth.model.util import Base64Util
 from org.gluu.oxauth.security import Identity
-from org.gluu.oxauth.service import AuthenticationService, UserService, EncryptionService, AppInitializer
+from org.gluu.oxauth.service import AuthenticationService, UserService, EncryptionService
 from org.gluu.oxauth.service.custom import CustomScriptService
 from org.gluu.oxauth.service.net import HttpService
 from org.gluu.oxauth.util import ServerUtil
@@ -16,6 +16,7 @@ from org.gluu.config.oxtrust import LdapOxPassportConfiguration
 from org.gluu.model import SimpleCustomProperty
 from org.gluu.model.custom.script import CustomScriptType
 from org.gluu.model.custom.script.type.auth import PersonAuthenticationType
+from org.gluu.persist import PersistenceEntryManager
 from org.gluu.service.cdi.util import CdiUtil
 from org.gluu.util import StringHelper
 from org.oxauth.persistence.model.configuration import GluuConfiguration
@@ -307,7 +308,7 @@ class PersonAuthentication(PersonAuthenticationType):
 # Miscelaneous
 
     def getLocalPrimaryKey(self):
-        entryManager = CdiUtil.bean(AppInitializer).createPersistenceEntryManager()
+        entryManager = CdiUtil.bean(PersistenceEntryManager)
         config = GluuConfiguration()
         config = entryManager.find(config.getClass(), "ou=configuration,o=gluu")
         #Pick (one) attribute where user id is stored (e.g. uid/mail)
@@ -626,16 +627,16 @@ class PersonAuthentication(PersonAuthenticationType):
 # External authentication providers integration
 
     def getAuthzRequestUrl(self, providerName):
-    
+
         url = None
         if providerName in self.registeredProviders:
-        
-            print "Casa. getAuthzRequestUrl. Building an authz request URL for passport"            
+
+            print "Casa. getAuthzRequestUrl. Building an authz request URL for passport"
             isSaml = self.registeredProviders[providerName]["saml"]
-            
+
             params = ["response_type", "client_id", "scope", "redirect_uri", "state", "nonce"]
             attrs = CdiUtil.bean(Identity).getSessionId().getSessionAttributes()
-            
+
             authzParams = {}
             # use passport-* instead of casa
             authzParams["acr_values"] = self.getAcrFor(isSaml)
@@ -643,26 +644,26 @@ class PersonAuthentication(PersonAuthenticationType):
             authzParams[self.preSelParams["saml" if isSaml else "social"]] = self.encodeProvider(providerName)
             # avoids passport flow updating the profile of user if he has been provisioned previously
             authzParams["skipPassportProfileUpdate"] = "true"
-            
+
             # copy the params in the current casa request
             for param in params:
                 authzParams[param] = URLEncoder.encode(attrs.get(param), "UTF-8")
-        
+
             url = "/oxauth/restv1/authorize?"
             for param in authzParams:
                 url += "&" + param + "=" + authzParams[param]
-            
+
         else:
             print "Casa. getAuthzRequestUrl. Provider %s not recognized" % providerName
-            
+
         return url
-    
+
     def encodeProvider(self, name):
         enc = { "provider" : name }
         return Base64Util.base64urlencode(String(json.dumps(enc)).getBytes())
 
     def getPreselectionIDPParams(self):
-    
+
         param = { "saml": None, "social": None }
         acrs = [self.getAcrFor(True), self.getAcrFor(False)]
         custScriptService = CdiUtil.bean(CustomScriptService)
@@ -674,7 +675,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     if prop.getValue1() == "authz_req_param_provider" and StringHelper.isNotEmpty(prop.getValue2()):
                         param["saml" if customScript.getName() == "passport_saml" else "social"] = prop.getValue2()
                         break
-        
+
         if param["saml"] != None:
             print "Casa. getPreselectionIDPParams. Found oxAuth cust param for SAML IDPs authz requests '%s'" % param["saml"]
         else:
@@ -684,12 +685,12 @@ class PersonAuthentication(PersonAuthenticationType):
             print "Casa. getPreselectionIDPParams. Found oxAuth cust param for OAuth/OIDC providers' authz requests '%s'" % param["social"]
         else:
             print "Casa. getPreselectionIDPParams. oxAuth cust param for for OAuth/OIDC providers' authz requests not found. OPs won't be available"
-            
+
         return param
 
-    
+
     def getAcrFor(self, isSaml):
-        return "passport_saml" if isSaml else "passport_social"        
+        return "passport_saml" if isSaml else "passport_social"
 
 
     def getPassportConfigDN(self):
@@ -712,7 +713,7 @@ class PersonAuthentication(PersonAuthenticationType):
         preSelParams = self.getPreselectionIDPParams()
 
         try:
-            entryManager = CdiUtil.bean(AppInitializer).createPersistenceEntryManager()
+            entryManager = CdiUtil.bean(PersistenceEntryManager)
 
             config = LdapOxPassportConfiguration()
             config = entryManager.find(config.getClass(), self.passportDN).getPassportConfiguration()
