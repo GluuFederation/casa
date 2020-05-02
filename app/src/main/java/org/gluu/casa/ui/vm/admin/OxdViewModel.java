@@ -44,8 +44,6 @@ public class OxdViewModel extends MainViewModel {
         oxdSettings = (OxdSettings) Utils.cloneObject(getSettings().getOxdSettings(true));
     }
 
-   
-
     @NotifyChange("oxdSettings")
     @Command
     public void saveOxdSettings() {

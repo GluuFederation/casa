@@ -81,6 +81,9 @@ public class MainSettings {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String extraCssSnippet;
 
+    @JsonProperty("ha_allow_multiple_registrations")
+    private boolean multipleRegistrationsAllowed;
+
     @JsonProperty("oxd_config")
     private OxdSettings oxdSettings;
 
@@ -125,8 +128,12 @@ public class MainSettings {
         return getInMemoryValue("trustedDevicesSettings", TR_TRUSTED_DEVICES_SETTINGS);
     }
 
+    public boolean isMultipleRegistrationsAllowed() {
+        return multipleRegistrationsAllowed;
+    }
+
     public OxdSettings getOxdSettings() {
-        return getOxdSettings(false);
+        return getOxdSettings(multipleRegistrationsAllowed);
     }
 
     public OxdSettings getOxdSettings(boolean skipStore) {
@@ -175,6 +182,10 @@ public class MainSettings {
 
     public void setExtraCssSnippet(String extraCssSnippet) {
         this.extraCssSnippet = extraCssSnippet;
+    }
+
+    public void setMultipleRegistrationsAllowed(boolean multipleRegistrationsAllowed) {
+        this.multipleRegistrationsAllowed = multipleRegistrationsAllowed;
     }
 
     public void setOxdSettings(OxdSettings oxdSettings) {

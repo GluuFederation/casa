@@ -90,7 +90,9 @@ public class OxdService {
                     .map(OxdClientSettings::getOxdId).orElse(null);
 
             if (oxdId == null) {
-                if (storeService.get(OXD_SETTINGS_KEY) == null) {
+                if (settings.isMultipleRegistrationsAllowed()) {
+                    success = initialize(oxdSettings);
+                } else if (storeService.get(OXD_SETTINGS_KEY) == null) {
                     //temporarily take the ownership for attempting registration
                     storeService.put(REGISTRATION_WAIT_TIME, OXD_SETTINGS_KEY, true);   //Any non-null value is OK
                     success = initialize(oxdSettings);
