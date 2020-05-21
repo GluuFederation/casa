@@ -211,13 +211,18 @@ public class MainSettings {
 
     public void updateConfigFile() throws Exception {
 
-        //update file to disk: this provokes calling the getters of this object which in turn read the memory store
-        String contents = mapper.writeValueAsString(this);
-        int hash = contents.hashCode();
+        //Do a test retrieval first, if it passes, the whole update is attempted
+    	if (getLogLevel() == null) {
+            logger.warn("It seems it is not safe to update config file right now. Skipping...");
+    	} else {
+			//update file to disk: this provokes calling the getters of this object which in turn read the memory store
+			String contents = mapper.writeValueAsString(this);
+			int hash = contents.hashCode();
 
-        if (previousHash != hash) {
-            previousHash = hash;
-            Files.write(filePath, contents.getBytes(StandardCharsets.UTF_8));
+			if (previousHash != hash) {
+				previousHash = hash;
+				Files.write(filePath, contents.getBytes(StandardCharsets.UTF_8));
+			}
         }
 
     }

@@ -1,6 +1,5 @@
 package org.gluu.casa.timer;
 
-import org.gluu.casa.core.inmemory.IStoreService;
 import org.gluu.casa.conf.MainSettings;
 import org.gluu.casa.core.TimerService;
 import org.quartz.JobExecutionContext;
@@ -20,9 +19,6 @@ public class SyncSettingsTimer extends JobListenerSupport {
 
     @Inject
     private Logger logger;
-
-    @Inject
-    private IStoreService storeService;
 
     @Inject
     private TimerService timerService;
@@ -56,15 +52,7 @@ public class SyncSettingsTimer extends JobListenerSupport {
 
         try {
             logger.debug("SyncSettingsTimer timer running...");
-            //Do a test retrieval, if it passes, the actual update is made
-            storeService.put(2, "casa-dummy", true);
-            Thread.sleep(1000);	//CB safer?
-            
-            if (storeService.get("casa-dummy") == null) {
-            	logger.warn("It seems it is not safe to update config file right now. Skipping");
-            } else {
-            	mainSettings.updateConfigFile();
-            }
+            mainSettings.updateConfigFile();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
