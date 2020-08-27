@@ -1,6 +1,9 @@
 # Certificate Authentication Plugin
 ### Plugin allows enrollment and authentication via client certificates
 
+**Note**:
+This is a backport of the 4.2 cert-authn plugin by [Ikunalv](https://github.com/Ikunalv).
+
 Steps:
 
 - Enable "cert" custom script in oxTrust.
