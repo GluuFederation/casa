@@ -415,11 +415,7 @@
                 if (data.Success) {
                     console.log('task succeeded');
                     stop();
-                    // invoke VM so that the enrollment is persisted 
-                    notifyServerOfSuccess();
-                    doneCallback();
-                    
-                    
+                    doneCallback();                    
                 } else {
                     console.log('task failed', data.Error);
                     let err = data.Error ? data.Error : 'NotRecognized';
@@ -437,24 +433,6 @@
                 // redirect to caller with error response..
                 doneCallback(errorThrown);
             });
-        }
-        
-        // invoke VM so that the enrollment is persisted 
-        function notifyServerOfSuccess()
-        {
-        	 var widget = zk.$('$readyButton');
-        	 if(widget == null)
-        	 {
-        		 // edit button
-        		 widget = zk.$('$editButton');
-        		 zAu.send(new zk.Event(widget, "onEdit", "success", {toServer:true}));
-        	 }
-        	 else
-        	 {   //add button
-        		 zAu.send(new zk.Event(widget, "onData", "success", {toServer:true}));
-        	 }
-        	
-        	 console.log("notified server so that the enrollment can be persisted");
         }
 
         /*

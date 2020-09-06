@@ -38,39 +38,12 @@ public class BioidViewModel {
 	private String accessToken;
 	private String apiUrl;
 	private String task;
-	private String trait;
 
-	public String getAccessToken() {
-		return accessToken;
-	}
-
-	public void setAccessToken(String accessToken) {
-		this.accessToken = accessToken;
-	}
-
-	public String getApiUrl() {
-		return apiUrl;
-	}
-
-	public void setApiUrl(String apiUrl) {
-		this.apiUrl = apiUrl;
-	}
-
-	public String getTask() {
-		return task;
-	}
-
-	public void setTask(String task) {
-		this.task = task;
-	}
-
-	public String getTrait() {
-		return trait;
-	}
-
-	public void setTrait(String trait) {
-		this.trait = trait;
-	}
+	private static final String trait = BioIDService.TRAIT_FACE_PERIOCULAR;
+	private static BioIDService bioIdService;
+	
+	private String userName;
+	private String userId;
 
 	public BioIDCredential getNewDevice() {
 		return newDevice;
@@ -90,29 +63,33 @@ public class BioidViewModel {
 	@Init
 	public void init() {
 		logger.debug("init invoked");
-		sessionContext = Utils.managedBean(ISessionContext.class);
-		devices = BioIDService.getInstance().getBioIDDevices(sessionContext.getLoggedUser().getId());
+		userName = sessionContext.getLoggedUser().getUserName();
+		userId = sessionContext.getLoggedUser().getId();
+		bioIdService = BioIDService.getInstance();
+		reload();
+	}
+	
+	private void reload() {
+		devices = bioIdService.getBioIDDevices(userId);
+
 		try {
-			sessionContext = Utils.managedBean(ISessionContext.class);
-			apiUrl = BioIDService.getInstance().getScriptPropertyValue("ENDPOINT");
-			trait = BioIDService.TRAIT_FACE_PERIOCULAR;
+			//apiUrl = bioIdService.getScriptPropertyValue("ENDPOINT");
 
-			String bcid = BioIDService.getInstance().getScriptPropertyValue("STORAGE") + "."
-					+ BioIDService.getInstance().getScriptPropertyValue("PARTITION") + "."
-					+ sessionContext.getLoggedUser().getUserName().hashCode();
+			String bcid = bioIdService.getScriptPropertyValue("STORAGE") + "."
+					+ bioIdService.getScriptPropertyValue("PARTITION") + "."
+					+ userName.hashCode();
 			try {
-				if (BioIDService.getInstance().isEnrolled(bcid, BioIDService.TRAIT_FACE)
-						&& BioIDService.getInstance().isEnrolled(bcid, BioIDService.TRAIT_PERIOCULAR)) {
-					accessToken = BioIDService.getInstance().getAccessToken(bcid, BioIDService.TASK_VERIFY);
+				if (bioIdService.isEnrolled(bcid, BioIDService.TRAIT_FACE)
+						&& bioIdService.isEnrolled(bcid, BioIDService.TRAIT_PERIOCULAR)) {
 
+					accessToken = bioIdService.getAccessToken(bcid, BioIDService.TASK_VERIFY);
 					task = BioIDService.TASK_VERIFY;
 				} else {
-					accessToken = BioIDService.getInstance().getAccessToken(bcid, BioIDService.TASK_ENROLL);
+					accessToken = bioIdService.getAccessToken(bcid, BioIDService.TASK_ENROLL);
 					task = BioIDService.TASK_ENROLL;
 				}
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 			// values for task for the UI API are - enrollment , verification,
 			// identification and livenessdetection
@@ -126,29 +103,29 @@ public class BioidViewModel {
 			UIUtils.showMessageUI(false);
 			logger.error(e.getMessage(), e);
 		}
+		
 	}
 
 	@Command
 	public void show(String mode) {
 		logger.debug("showBioID");
 		try {
-			sessionContext = Utils.managedBean(ISessionContext.class);
-			apiUrl = BioIDService.getInstance().getScriptPropertyValue("ENDPOINT");
+			apiUrl = bioIdService.getScriptPropertyValue("ENDPOINT");
 			trait = BioIDService.TRAIT_FACE_PERIOCULAR;
 
-			String bcid = BioIDService.getInstance().getScriptPropertyValue("STORAGE") + "."
-					+ BioIDService.getInstance().getScriptPropertyValue("PARTITION") + "."
-					+ sessionContext.getLoggedUser().getUserName().hashCode();
+			String bcid = bioIdService.getScriptPropertyValue("STORAGE") + "."
+					+ bioIdService.getScriptPropertyValue("PARTITION") + "."
+					+ userName.hashCode();
 			try {
 				/*
-				 * if (BioIDService.getInstance().isEnrolled(bcid, BioIDService.TRAIT_FACE) &&
-				 * BioIDService.getInstance().isEnrolled(bcid, BioIDService.TRAIT_PERIOCULAR)) {
-				 * accessToken = BioIDService.getInstance().getAccessToken(bcid,
+				 * if (bioIdService.isEnrolled(bcid, BioIDService.TRAIT_FACE) &&
+				 * bioIdService.isEnrolled(bcid, BioIDService.TRAIT_PERIOCULAR)) {
+				 * accessToken = bioIdService.getAccessToken(bcid,
 				 * BioIDService.TASK_VERIFY);
 				 * 
 				 * task = BioIDService.TASK_VERIFY; } else {
 				 */
-				accessToken = BioIDService.getInstance().getAccessToken(bcid, BioIDService.TASK_ENROLL);
+				accessToken = bioIdService.getAccessToken(bcid, BioIDService.TASK_ENROLL);
 				task = BioIDService.TASK_ENROLL;
 				/*
 				 * }
@@ -195,38 +172,28 @@ public class BioidViewModel {
 				true ? Messagebox.EXCLAMATION : Messagebox.QUESTION, event -> {
 					if (Messagebox.ON_YES.equals(event.getName())) {
 						boolean success = false;
+						
 						try {
-							sessionContext = Utils.managedBean(ISessionContext.class);
-							apiUrl = BioIDService.getInstance().getScriptPropertyValue("ENDPOINT");
-							trait = BioIDService.TRAIT_FACE_PERIOCULAR;
-
-							String bcid = BioIDService.getInstance().getScriptPropertyValue("STORAGE") + "."
-									+ BioIDService.getInstance().getScriptPropertyValue("PARTITION") + "."
-									+ sessionContext.getLoggedUser().getUserName().hashCode();
+							String bcid = bioIdService.getScriptPropertyValue("STORAGE") + "."
+									+ bioIdService.getScriptPropertyValue("PARTITION") + "."
+									+ userName.hashCode();
 							try {
-								success = BioIDService.getInstance()
-										.deleteBioIDCredential(sessionContext.getLoggedUser().getUserName());
+								success = bis.deleteBioIDCredential(userName);
 								if (success) {
-									BioIDService.getInstance().removeFromPersistence(bcid,
-											BioIDService.TRAIT_FACE_PERIOCULAR, sessionContext.getLoggedUser().getId());
+									bioIdService.removeFromPersistence(bcid,
+											BioIDService.TRAIT_FACE_PERIOCULAR, userId);
 								}
 							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								success = false;
+								logger.error(e.getMessage(), e);
 							}
 
 						} catch (Exception e) {
-							UIUtils.showMessageUI(false);
+							// success is false here
 							logger.error(e.getMessage(), e);
 						}
-						if (success == false) {
-							UIUtils.showMessageUI(false);
-						} else {
-							
-							UIUtils.showMessageUI(true);
-							Executions.sendRedirect(null);
-						}
 
+						updateUI(success, BioidViewModel.this);
 					}
 				});
 
@@ -235,16 +202,16 @@ public class BioidViewModel {
 	@Listen("onEdit=#editButton")
 	public void onEdit(Event event) throws Exception {
 		logger.trace(" onEdit invoked");
-		persistEnrollment();
+		enroll();
 	}
 
 	private boolean persistEnrollment() throws Exception {
 		logger.debug("persistEnrollment onData=#readyButton");
-		String bcid = BioIDService.getInstance().getScriptPropertyValue("STORAGE") + "."
-				+ BioIDService.getInstance().getScriptPropertyValue("PARTITION") + "."
-				+ sessionContext.getLoggedUser().getUserName().hashCode();
-		boolean success = BioIDService.getInstance().writeToPersistence(bcid, "enroll",
-				BioIDService.TRAIT_FACE_PERIOCULAR, sessionContext.getLoggedUser().getId());
+		String bcid = bioIdService.getScriptPropertyValue("STORAGE") + "."
+				+ bioIdService.getScriptPropertyValue("PARTITION") + "."
+				+ userName.hashCode();
+		boolean success = bioIdService.writeToPersistence(bcid, "enroll",
+				BioIDService.TRAIT_FACE_PERIOCULAR, userId);
 		logger.debug("persistEnrollment onData=#readyButton : " + success);
 		return success;
 	}
@@ -252,11 +219,24 @@ public class BioidViewModel {
 	@Listen("onData=#readyButton")
 	public void onData(Event event) throws Exception {
 		logger.trace(" onData invoked");
-		persistEnrollment();
+		enroll();
+	}
+	
+	private void enroll() throws Exception {
+		updateUI(persistEnrollment(), this);
+	}
+	
+	private updateUI(boolean success, Object bean) {
+		UIUtils.showMessageUI(success);
+		if (success) {
+			reload();
+			BindUtils.postNotifyChange(null, null, bean, "devices");
+		}
 	}
 
 	@AfterCompose
 	public void afterCompose(@ContextParam(ContextType.VIEW) Component view) {
 		Selectors.wireEventListeners(view, this);
 	}
+
 }

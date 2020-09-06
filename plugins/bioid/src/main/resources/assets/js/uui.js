@@ -287,19 +287,31 @@ function onStart() {
             console.log('Current Execution: ' + currentExecution);
         } else {
             // done: redirect to caller ...
-            let url = returnURL ; /*+ '?access_token=' + token;*/
+            //let url = returnURL ; /*+ '?access_token=' + token;*/
             if (error !== undefined) {
-                url = url + '&error=' + error;
+                //url = url + '&error=' + error;
                 // show the error on UI
                 $('#uuierror').html(error);
             }
-            else
-            {
-            	 window.location.replace(url);
+            else {
+            	//window.location.replace(url);
+            	 
+            	// invoke VM so that the enrollment is persisted 
+	
+				 var widget = zk.$('$readyButton');
+				 if (widget == null) {				 
+					 // edit button
+					 widget = zk.$('$editButton');
+					 zAu.send(new zk.Event(widget, "onEdit", "success", {toServer:true}));
+				 } else {
+				 	 //add button
+					 zAu.send(new zk.Event(widget, "onData", "success", {toServer:true}));
+				 }
+				
+				 console.log("notified server so that the enrollment can be persisted");
             }
             /*url = url + '&state=' + state + '&skipintro=' + skipIntro;*/
-            
-           
+                       
         }
     }, function (status, message, dataURL) {
         let $msg;
