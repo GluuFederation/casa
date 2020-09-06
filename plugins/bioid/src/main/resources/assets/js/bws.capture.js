@@ -117,6 +117,13 @@
             recording(false);
             video.pause();
             clearInterval(processInterval);
+            /*
+            videoStream.getTracks().forEach(function(track) {
+				//if (track.readyState == 'live' && track.kind === 'video') {
+					track.stop();
+				//}
+			});
+    		*/
             videoStream = null;
         };
 

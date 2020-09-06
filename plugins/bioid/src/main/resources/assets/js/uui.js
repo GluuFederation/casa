@@ -310,8 +310,9 @@ function onStart() {
 				
 				 console.log("notified server so that the enrollment can be persisted");
             }
-            /*url = url + '&state=' + state + '&skipintro=' + skipIntro;*/
-                       
+            /*url = url + '&state=' + state + '&skipintro=' + skipIntro;*/                       
+            $('#uuiwebapp').hide();
+            
         }
     }, function (status, message, dataURL) {
         let $msg;
@@ -484,7 +485,8 @@ function stopRecording() {
     hideHead();
 
     bwsCapture.stopRecording();
-
+    //bwsCapture.stop();
+    
     for (let i = 1; i <= 4; i++) {
         $('#uuiimage' + i).hide();
     }
@@ -762,6 +764,5 @@ function hideHead() {
     resetHeadDisplay();
     console.log('hideHead');
 }
-function prepareAlert() {
-    alertRef = $('#feedback-bioid');
-}
+
+alertRef = $('#feedback-bioid');

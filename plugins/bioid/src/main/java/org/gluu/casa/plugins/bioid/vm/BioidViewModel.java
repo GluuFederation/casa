@@ -111,7 +111,6 @@ public class BioidViewModel {
 		logger.debug("showBioID");
 		try {
 			apiUrl = bioIdService.getScriptPropertyValue("ENDPOINT");
-			trait = BioIDService.TRAIT_FACE_PERIOCULAR;
 
 			String bcid = bioIdService.getScriptPropertyValue("STORAGE") + "."
 					+ bioIdService.getScriptPropertyValue("PARTITION") + "."
@@ -178,7 +177,7 @@ public class BioidViewModel {
 									+ bioIdService.getScriptPropertyValue("PARTITION") + "."
 									+ userName.hashCode();
 							try {
-								success = bis.deleteBioIDCredential(userName);
+								success = bioIdService.deleteBioIDCredential(userName);
 								if (success) {
 									bioIdService.removeFromPersistence(bcid,
 											BioIDService.TRAIT_FACE_PERIOCULAR, userId);
@@ -226,7 +225,7 @@ public class BioidViewModel {
 		updateUI(persistEnrollment(), this);
 	}
 	
-	private updateUI(boolean success, Object bean) {
+	private void updateUI(boolean success, Object bean) {
 		UIUtils.showMessageUI(success);
 		if (success) {
 			reload();

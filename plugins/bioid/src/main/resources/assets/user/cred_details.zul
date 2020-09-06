@@ -44,12 +44,12 @@
                                 </p>
                             </div>
                             <div class="pt2">
-                                <h:button  class="${css.editButton} mb2 mr2" w:onClick="initBioID();"  onClick="@command('show')"
+                                <h:button  class="${css.editButton} mb2 mr2" w:onClick="initBioID()"  onClick="@command('show')"
                                           data-original-title="${labels.general.edit}" data-toggle="tooltip" data-placement="top">
                                     <i class="fas fa-pencil-alt" />
                                 </h:button>
                                
-                                <h:button class="${css.deleteButton} mb2" w:onClick="prepareAlert()" onClick="@command('delete')"
+                                <h:button class="${css.deleteButton} mb2" onClick="@command('delete')"
                                           data-original-title="${labels.general.delete}" data-toggle="tooltip" data-placement="top">
                                     <i class="fas fa-trash-alt" />
                                 </h:button>
@@ -60,28 +60,26 @@
 						</z:div>
                     </zk:template>
                 </z:div>
-                <zk:zk if="${(vm.devices.size() eq 0) }">
                  <!-- add device -->
-                <div class="${css.panel} bg-near-white">
+                 
+                <z:div sclass="${css.panel} bg-near-white" visible="@load(vm.devices.size() eq 0)">
                 	
                     <h2 class="f5 dark-blue2 pt1">
-	                    	
 	                    		${labels.bioid_add.device.title}
-	                    	
                     </h2>
-                    <z:div sclass="pl3-ns">
+                    <div class="pl3-ns">
                     	<p>
 	                    		${labels.bioID_install_ready}
                     	</p>
 	                    <div class="mb2">
 	                        <!-- do not change id of this button, see uui.js -->
 	                        <z:button id="readyButton" label="${labels.general.ready}" sclass="${css.primaryButton} mr2" disabled="false"
-	                                  w:onClick="initBioID();" onClick="@command('show')" />
+	                                  w:onClick="initBioID()" onClick="@command('show')" />
 	                    </div>
-                    </z:div>
+                    </div>
                     <div class="alert alert-success dn" id="feedback-device" role="alert" />
-                </div>
-                </zk:zk>
+                </z:div>
+                
 			</section>
 			
 			 <z:div class="f7 pl3-ns gray" >
@@ -249,7 +247,5 @@
     	<z:script src="/pl/bioid-plugin/js/bws.capture.js" />
     	<z:script src="/pl/bioid-plugin/js/uui.js" />
     </z:div>
-    
-   
 			    
 </zk:zk>
