@@ -7,9 +7,8 @@ import org.zkoss.bind.annotation.Init;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author jgomer
@@ -35,7 +34,7 @@ public class LogLevelViewModel extends MainViewModel {
     @Init
     public void init() {
         //it seems ZK doesn't like ummodifiable lists
-        logLevels = Stream.of("ERROR", "WARN", "INFO", "DEBUG", "TRACE").collect(Collectors.toList());  //SLF4J_LEVELS
+        logLevels = new ArrayList(LogService.SLF4J_LEVELS);
         selectedLogLevel = getSettings().getLogLevel();
     }
 
