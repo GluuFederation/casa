@@ -34,9 +34,11 @@ public class ScopeService {
     }
 
     public List<Scope> getNonUMAScopes() {
+    	
         List<Filter> filters = Stream.of(ScopeType.values()).filter(st -> !st.equals(ScopeType.UMA))
-        	.map(ScopeType::getValue).map(value -> Filter.createEqualityFilter(SCOPE_TYPE_ATTR, value))
-        	.collect(Collectors.toList());
+            .map(ScopeType::getValue).map(value -> Filter.createEqualityFilter(SCOPE_TYPE_ATTR, value))
+            .collect(Collectors.toList());
+                
         Filter filter = Filter.createORFilter(filters.toArray(new Filter[0]));
         return persistenceService.find(Scope.class, scopesDN, filter);
     }
