@@ -28,19 +28,17 @@ public class ScopeService {
     private String scopesDN;
 
     public List<String> getDNsFromIds(List<String> oxIds) {
-    	
+        List<Filter> filters = oxIds.stream().map(oxId -> Filter.createEqualityFilter("oxId", oxId)).collect(Collectors.toList());
+        List<Scope> scopes = persistenceService.find(Scope.class, scopesDN, Filter.createORFilter(filters.toArray(new Filter[0])));
+        return scopes.stream().map(Scope::getDn).collect(Collectors.toList());
+    }
+
+    public List<Scope> getNonUMAScopes() {
         List<Filter> filters = Stream.of(ScopeType.values()).filter(st -> !st.equals(ScopeType.UMA))
         	.map(ScopeType::getValue).map(value -> Filter.createEqualityFilter(SCOPE_TYPE_ATTR, value))
         	.collect(Collectors.toList());
         Filter filter = Filter.createORFilter(filters.toArray(new Filter[0]));
         return scopes.stream().map(Scope::getDn).collect(Collectors.toList());
-    }
-
-    public List<Scope> getNonUMAScopes() {
-        Filter filter = Filter.createORFilter(
-                Filter.createEqualityFilter(SCOPE_TYPE_ATTR, "openid"),
-                Filter.createEqualityFilter(SCOPE_TYPE_ATTR, "dynamic"));
-        return persistenceService.find(Scope.class, scopesDN, filter);
     }
 
     @PostConstruct
