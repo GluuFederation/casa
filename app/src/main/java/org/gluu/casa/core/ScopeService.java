@@ -38,7 +38,7 @@ public class ScopeService {
         	.map(ScopeType::getValue).map(value -> Filter.createEqualityFilter(SCOPE_TYPE_ATTR, value))
         	.collect(Collectors.toList());
         Filter filter = Filter.createORFilter(filters.toArray(new Filter[0]));
-        return scopes.stream().map(Scope::getDn).collect(Collectors.toList());
+        return persistenceService.find(Scope.class, scopesDN, filter);
     }
 
     @PostConstruct
