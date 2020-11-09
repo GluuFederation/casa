@@ -1,0 +1,74 @@
+<?page language="xhtml"?>
+<?init class="org.zkoss.zk.ui.util.Composition" template="/general.zul"?>
+<?script src="/pl/duo-plugin/js/duo_web.js"?>
+<?script src="/pl/duo-plugin/js/duo_casa.js"?>
+
+<zk:zk xmlns:z="http://www.zkoss.org/2005/zul" xmlns:h="xhtml"
+	xmlns:zk="zk" xmlns:w="client" xmlns:ca="client/attribute"
+	xmlns="native">
+
+	<h:title self="@define(title)">
+		${zkService.appName} - ${labels.duo_title}
+	</h:title>
+
+	<z:div if="${empty pageScope.error}"
+		viewModel="@id('vm') @init('org.gluu.casa.plugins.duo.vm.DuoViewModel')"
+		self="@define(maincontent)">
+		<z:include src="/back-home.zul" />
+		<div class="ph4 mb2">
+			<div class="alert alert-success dn" id="feedback-duo"
+				role="alert" />
+		</div>
+
+		<div class="${css['sectionsWrapper']}">
+			<section class="${css.section}">
+
+				<div class="${css.panel}">
+					<h2 class="f4 dark-blue2">${labels.duo_title}</h2>
+					<p>${labels.duo_text}</p>
+				</div>
+
+				<zk:zk if="${(not empty vm.device) }">
+					<!-- device  -->
+					<div class="${css.panel} flex justify-between">
+						<div class="flex items-start">
+							<img
+								src="/casa/pl/duo-plugin/images/duo.png" />
+							<p class="ml3 mb0">
+								${labels.duo_credentials}
+							</p>
+						</div>
+						<div class="pl2 pt2">
+
+							<h:button class="${css.deleteButton} mb2"
+								w:onClick="prepareAlert()" onClick="@command('delete')"
+								data-original-title="${labels.general.delete}"
+								data-toggle="tooltip" data-placement="top">
+								<i class="fas fa-trash-alt" />
+							</h:button>
+						</div>
+					</div>
+				</zk:zk>
+				<div class="${css.panel} bg-near-white">
+					<div class="alert alert-success dn"
+						id="feedback-duo" role="alert" />
+					<!-- this could have been better written but zk choose tag seems not to work in zhtml -->
+
+					<z:div>
+
+						<iframe id="duo_iframe" width="100%"
+							height="300" frameborder="0">
+						</iframe>
+					</z:div>
+
+
+				</div>
+			</section>
+		</div>
+
+
+		<script type="text/javascript">
+			initialize('${vm.host}','${vm.sigRequest}');
+		</script>
+	</z:div>
+</zk:zk>
