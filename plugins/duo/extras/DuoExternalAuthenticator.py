@@ -201,7 +201,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
     def getPageForStep(self, configurationAttributes, step):
         if (step == 2):
-            return "/auth/duo/duologin.xhtml"
+            return "/casa/duologin.xhtml"
         return ""
 
     def getNextStep(self, configurationAttributes, requestParameters, step):
