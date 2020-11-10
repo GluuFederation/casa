@@ -57,7 +57,7 @@
 					<z:div>
 
 						<iframe id="duo_iframe" width="100%"
-							height="300" frameborder="0">
+							height="350" frameborder="0">
 						</iframe>
 					</z:div>
 
