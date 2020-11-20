@@ -66,10 +66,9 @@ public class DuoExtension implements AuthnMethod {
 
 	public List<BasicCredential> getEnrolledCreds(String id) {
 		//pass user name or anything that uniquely identifies a user 
-		String userName = sessionContext.getLoggedUser().getUserName();
 		List<BasicCredential> creds = new ArrayList<BasicCredential>();
 		try {
-			DuoCredential device = DuoService.getInstance().getDuoCredentials(sessionContext.getLoggedUser().getId());
+			DuoCredential device = DuoService.getInstance().getDuoCredentials(sessionContext.getLoggedUser());
 			if(device != null)
 			{
 				creds.add(new BasicCredential(device.getNickName(), device.getAddedOn()));
@@ -84,8 +83,7 @@ public class DuoExtension implements AuthnMethod {
 
 	public int getTotalUserCreds(String id) {
 		//pass user name or anything that uniquely identifies a user 
-		String userName = sessionContext.getLoggedUser().getUserName();
-		return DuoService.getInstance().getDeviceTotal(sessionContext.getLoggedUser().getId());
+		return DuoService.getInstance().getDeviceTotal(sessionContext.getLoggedUser());
 	}
 
 	public void reloadConfiguration() {

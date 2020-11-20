@@ -1,30 +1,23 @@
 package org.gluu.casa.plugins.duo;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
+import org.gluu.casa.core.pojo.User;
 import org.gluu.casa.misc.Utils;
 import org.gluu.casa.plugins.duo.model.DuoCredential;
+import org.gluu.casa.plugins.duo.model.DuoResponse;
 import org.gluu.casa.plugins.duo.model.PersonDuo;
+import org.gluu.casa.plugins.duo.model.Response;
 import org.gluu.casa.service.IPersistenceService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.duosecurity.client.Base64;
 import com.duosecurity.client.Http;
-import com.duosecurity.client.Util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -99,27 +92,46 @@ public class DuoService {
 		return properties.get(value);
 	}
 
-	public int getDeviceTotal(String uniqueIdOfTheUser) {
+	public int getDeviceTotal(User user) {
 
-		return (getDuoCredentials(uniqueIdOfTheUser) == null) ? 0 : 1;
+		return (getDuoCredentials(user) == null) ? 0 : 1;
 	}
 
-	public DuoCredential getDuoCredentials(String userId) {
+	public DuoCredential getDuoCredentials(User user) {
 
+		DuoCredential device = null;
 		try {
-			PersonDuo person = persistenceService.get(PersonDuo.class, persistenceService.getPersonDn(userId));
+			PersonDuo person = persistenceService.get(PersonDuo.class, persistenceService.getPersonDn(user.getId()));
 			if (person != null) {
 				String json = person.getDuoDevices();
-				DuoCredential device = Utils.isEmpty(json) ? null : mapper.readValue(json, new TypeReference<DuoCredential>() {
+				device = Utils.isEmpty(json) ? null : mapper.readValue(json, new TypeReference<DuoCredential>() {
 				});
 
-				return device;
+				if (device == null) {
+					// query DUO only if local copy is not present
+					String duoUserId = DuoService.getInstance().getUserId(user.getUserName());
+					if (duoUserId != null) {
+						try {
+							// this write will be the local copy of the "duoUserId"
+							boolean write = DuoService.getInstance().writeToPersistence(duoUserId, user.getId());
+							if (write) {
+								device = new DuoCredential();
+								device.setDuoUserId(duoUserId);
+								device.setNickName("DUO credential");
+								device.setAddedOn(System.currentTimeMillis());
+							}
+						} catch (JsonProcessingException e) {
+							logger.error("Failed to initialize " + e.getMessage());
+						}
+					}
+				}
+
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 
-		return null;
+		return device;
 
 	}
 
@@ -218,5 +230,44 @@ public class DuoService {
 			return false;
 		}
 		return false;
+	}
+
+	public Response getUser(String username) {
+		JSONObject result;
+		// JSONObject metadata;
+		try {
+			// Prepare request.
+			Http request = new Http("GET", getScriptPropertyValue("duo_host"), "/admin/v1/users");
+			String limit = "10";
+
+			request.addParam("username", username);
+			request.signRequest(getScriptPropertyValue("admin_api_ikey"), getScriptPropertyValue("admin_api_skey"));
+
+			// Use proxy if one was specified.
+			/*
+			 * if (proxy_host != null) { request.setProxy(proxy_host, proxy_port); }
+			 */
+
+			result = (JSONObject) request.executeJSONRequest();
+			/*
+			 * Although we have a way to serialize a Java object to JSON string, there is no
+			 * way to convert it back using this library.If we want that kind of
+			 * flexibility, we can switch to other libraries such as Jackson.
+			 */
+			DuoResponse duoResponse = mapper.readValue(result.toString(), DuoResponse.class);
+			if (duoResponse != null)
+			{
+				if ("OK".equals(duoResponse.getStat()) && duoResponse.getResponse().size() == 1) {
+
+					logger.info(duoResponse.toString());
+					return duoResponse.getResponse().get(0);
+				}
+			}
+				
+
+		} catch (Exception e) {
+			logger.error(e.toString());
+		}
+		return null;
 	}
 }

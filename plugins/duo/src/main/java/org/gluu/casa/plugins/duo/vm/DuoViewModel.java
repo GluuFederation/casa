@@ -5,14 +5,13 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 import org.gluu.casa.misc.Utils;
-import org.gluu.casa.plugins.bioid.BioIDService;
-import org.gluu.casa.plugins.bioid.vm.BioidViewModel;
 import org.gluu.casa.plugins.duo.DuoService;
 import org.gluu.casa.plugins.duo.model.DuoCredential;
+import org.gluu.casa.plugins.duo.model.DuoResponse;
+import org.gluu.casa.plugins.duo.model.Response;
 import org.gluu.casa.service.ISessionContext;
 import org.gluu.casa.service.SndFactorAuthenticationUtils;
 import org.gluu.casa.ui.UIUtils;
-import org.pf4j.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zkoss.bind.BindUtils;
@@ -23,14 +22,14 @@ import org.zkoss.bind.annotation.ContextType;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.util.Pair;
 import org.zkoss.util.resource.Labels;
+import org.zkoss.zk.au.out.AuInvoke;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.Session;
 import org.zkoss.zk.ui.Sessions;
-import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.select.Selectors;
-import org.zkoss.zk.ui.select.annotation.Listen;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
+import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.Messagebox;
 
 import com.duosecurity.duoweb.DuoWeb;
@@ -42,11 +41,20 @@ public class DuoViewModel {
 	@WireVariable
 	private ISessionContext sessionContext;
 	private DuoCredential device;
+	private Response duoCreds;
 	private DuoCredential newDevice;
 	private SndFactorAuthenticationUtils sndFactorUtils;
 	private String host;
 	private String sigRequest;
 	private String postAction;
+
+	public Response getDuoCreds() {
+		return duoCreds;
+	}
+
+	public void setDuoCreds(Response duoCreds) {
+		this.duoCreds = duoCreds;
+	}
 
 	public DuoCredential getNewDevice() {
 		return newDevice;
@@ -97,32 +105,76 @@ public class DuoViewModel {
 		sessionContext = Utils.managedBean(ISessionContext.class);
 		host = DuoService.getInstance().getScriptPropertyValue("duo_host");
 
-		Session session = Sessions.getCurrent();
-		String sigResponse = (String) session.getAttribute("sig_response");
-		// after enrollment has been completed
+		String sigResponse = Executions.getCurrent().getParameter("sig_response");
+		// sig response indicates that login was sucessful or unsuccessful
+		// after this step, leave the duo_iframe open, send a javascript to the client.
+		if (sigResponse != null) {
 
-		device = DuoService.getInstance().getDuoCredentials(sessionContext.getLoggedUser().getId());
-
-		if (device == null) {
-			// query DUO only if local copy is not present
-			String duoUserId = DuoService.getInstance().getUserId(sessionContext.getLoggedUser().getUserName());
-			if (duoUserId != null) {
-				try {
-					// this write will be the local copy of the "duoUserId"
-					boolean write = DuoService.getInstance().writeToPersistence(duoUserId,
-							sessionContext.getLoggedUser().getId());
-					if (write) {
-						device = DuoService.getInstance().getDuoCredentials(sessionContext.getLoggedUser().getId());
-					}
-				} catch (JsonProcessingException e) {
-					logger.error("Failed to initialize " + e.getMessage());
-				}
+			try {
+				String authenticated_username = DuoWeb.verifyResponse(
+						DuoService.getInstance().getScriptPropertyValue("ikey"),
+						DuoService.getInstance().getScriptPropertyValue("skey"),
+						DuoService.getInstance().getScriptPropertyValue("akey"), sigResponse);
+				/*
+				 * if(sessionContext.getLoggedUser().getUserName().equals(authenticated_username
+				 * )) {
+				 * 
+				 * } else {
+				 * 
+				 * }
+				 */
+				Clients.response(new AuInvoke("showIframe"));
+			} catch (InvalidKeyException e) {
+				logger.error(e.getMessage());
+			} catch (NoSuchAlgorithmException e) {
+				logger.error(e.getMessage());
+			} catch (DuoWebException e) {
+				logger.error(e.getMessage());
+			} catch (IOException e) {
+				logger.error(e.getMessage());
 			}
+			Session session = Sessions.getCurrent();
+			sigRequest = session.getAttribute("sigRequest").toString();
 		}
 
-		sigRequest = DuoWeb.signRequest(DuoService.getInstance().getScriptPropertyValue("ikey"),
-				DuoService.getInstance().getScriptPropertyValue("skey"),
-				DuoService.getInstance().getScriptPropertyValue("akey"), sessionContext.getLoggedUser().getUserName());
+		else {
+			device = DuoService.getInstance().getDuoCredentials(sessionContext.getLoggedUser());
+
+			if (device == null) {
+				// query DUO only if local copy is not present
+				String duoUserId = DuoService.getInstance().getUserId(sessionContext.getLoggedUser().getUserName());
+				if (duoUserId != null) {
+					try {
+						// this write will be the local copy of the "duoUserId"
+						boolean write = DuoService.getInstance().writeToPersistence(duoUserId,
+								sessionContext.getLoggedUser().getId());
+						if (write) {
+							device = DuoService.getInstance().getDuoCredentials(sessionContext.getLoggedUser());
+						}
+					} catch (JsonProcessingException e) {
+						logger.error("Failed to initialize " + e.getMessage());
+					}
+				}
+				else
+				{
+					// enrollment pending, show iframe
+					Clients.response(new AuInvoke("showIframe"));
+				}
+			}
+			// if credentials exists against the user, fetch credentials
+			if (device != null) {
+				duoCreds = DuoService.getInstance().getUser(sessionContext.getLoggedUser().getUserName());
+			}
+			sigRequest = DuoWeb.signRequest(DuoService.getInstance().getScriptPropertyValue("ikey"),
+					DuoService.getInstance().getScriptPropertyValue("skey"),
+					DuoService.getInstance().getScriptPropertyValue("akey"),
+					sessionContext.getLoggedUser().getUserName());
+			Session session = Sessions.getCurrent();
+			session.setAttribute("sigRequest", sigRequest);
+			
+			//
+
+		}
 
 		logger.debug("init invoked");
 
@@ -178,5 +230,11 @@ public class DuoViewModel {
 
 		return new Pair<>(Labels.getLabel("duo_del_title"), text.toString());
 
+	}
+
+	@Command
+	public boolean edit() {
+		logger.info("edit invoked");
+		return true;
 	}
 }
