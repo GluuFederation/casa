@@ -8,7 +8,6 @@ import org.gluu.casa.misc.Utils;
 import org.gluu.casa.plugins.bioid.BioIDService;
 import org.gluu.casa.plugins.bioid.BioidPlugin;
 import org.gluu.casa.plugins.bioid.model.BioIDCredential;
-import org.gluu.casa.plugins.cert.CertAuthenticationExtension;
 import org.gluu.casa.plugins.credentials.extensions.BioidExtension;
 import org.gluu.casa.service.ISessionContext;
 import org.gluu.casa.service.SndFactorAuthenticationUtils;
