@@ -167,7 +167,7 @@ public class BioidViewModel {
 		logger.debug("delete invoked");
 		String resetMessages = sndFactorUtils.removalConflict(BioIDService.ACR, 1, user).getY();
 		boolean reset = resetMessages != null;
-		Pair<String, String> delMessages = getDeleteMessages(resetMessages);
+		Pair<String, String> delMessages = getDeleteMessages(resetMessages,null);
 		Messagebox.show(delMessages.getY(), delMessages.getX(), Messagebox.YES | Messagebox.NO,
 				true ? Messagebox.EXCLAMATION : Messagebox.QUESTION, event -> {
 					if (Messagebox.ON_YES.equals(event.getName())) {
