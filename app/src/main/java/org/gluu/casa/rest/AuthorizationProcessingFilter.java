@@ -1,6 +1,5 @@
 package org.gluu.casa.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gluu.casa.core.PersistenceService;
 import org.gluu.casa.misc.Utils;
 import org.gluu.oxauth.client.ClientInfoClient;
@@ -18,7 +17,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
-import java.net.URL;
 
 /**
  * @author jgomer
@@ -64,7 +62,7 @@ public class AuthorizationProcessingFilter implements ContainerRequestFilter {
                 token = token.replaceFirst("Bearer\\s+", "");
                 logger.debug("Validating token {}", token);
 
-                ClientInfoClient clientInfoClient = new ClientInfoClient(clientInfoEndpoint);
+                ClientInfoClient clientInfoClient = new ClientInfoClient(persistenceService.getClientInfoEndpoint());
                 ClientInfoResponse clientInfoResponse = clientInfoClient.execClientInfo(token);
                 if (clientInfoResponse.getErrorType() != null) {
                     logger.error("Invalid token");
@@ -76,18 +74,6 @@ public class AuthorizationProcessingFilter implements ContainerRequestFilter {
             logger.info("Authorization passed");   //If authorization passed, proceed with actual processing of request
         } else {
             requestContext.abortWith(failureResponse.build());
-        }
-
-    }
-
-    @PostConstruct
-    private void init() {
-
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            clientInfoEndpoint = mapper.readTree(new URL(persistenceService.getOIDCEndpoint())).get("clientinfo_endpoint").asText();
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
         }
 
     }
