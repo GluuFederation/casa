@@ -78,7 +78,6 @@ public class OxdViewModel extends MainViewModel {
     }
 
     @NotifyChange("oxdSettings")
-    @Command
     public void saveOxdSettings() {
 
         int oxdPort = oxdSettings.getPort();
@@ -116,7 +115,6 @@ public class OxdViewModel extends MainViewModel {
     }
 
     @NotifyChange("oxdSettings")
-    @Command
     public void cancel() {
         reloadConfig();
     }
@@ -137,21 +135,18 @@ public class OxdViewModel extends MainViewModel {
     }
 
     @NotifyChange("oxdSettings")
-    @Command
     public void dropScope(@BindingParam("id") String scope) {
         oxdSettings.getScopes().remove(scope);
         logger.debug("New scope list is {}", oxdSettings.getScopes());
     }
 
     @NotifyChange({"uiEditingScopes", "selectableScopes"})
-    @Command
     public void preAddScopes() {
         uiEditingScopes = true;
         computeSelectableScopes();
         selectedScopes = new HashSet<>();
     }
 
-    @Command
     public void scopeChecked(@BindingParam("checked") boolean checked, @BindingParam("scope") String scope) {
         if (checked) {
             selectedScopes.add(scope);
@@ -161,7 +156,6 @@ public class OxdViewModel extends MainViewModel {
     }
 
     @NotifyChange("uiEditingScopes")
-    @Command
     public void cancelAddScopes(@BindingParam("event") Event event) {
         uiEditingScopes = false;
         if (event != null && event.getName().equals(Events.ON_CLOSE)) {
@@ -170,7 +164,6 @@ public class OxdViewModel extends MainViewModel {
     }
 
     @NotifyChange({"uiEditingScopes", "oxdSettings"})
-    @Command
     public void addScopes() {
         uiEditingScopes = false;
         oxdSettings.getScopes().addAll(selectedScopes);

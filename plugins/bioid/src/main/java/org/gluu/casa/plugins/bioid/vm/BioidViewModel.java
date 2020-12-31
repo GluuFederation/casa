@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zkoss.bind.BindUtils;
 import org.zkoss.bind.annotation.AfterCompose;
-import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
 import org.zkoss.bind.annotation.ContextType;
 import org.zkoss.bind.annotation.Init;
@@ -112,7 +111,6 @@ public class BioidViewModel {
 	}
 
 	@NotifyChange("uiBioidShown")
-	@Command
 	public void show(String mode) {
 		logger.debug("showBioID");
 		uiBioidShown = true;
@@ -162,7 +160,6 @@ public class BioidViewModel {
 
 	}
 
-	@Command
 	public void delete() {
 		logger.debug("delete invoked");
 		String resetMessages = sndFactorUtils.removalConflict(BioIDService.ACR, 1, user).getY();

@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zkoss.bind.BindUtils;
 import org.zkoss.bind.annotation.AfterCompose;
-import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
 import org.zkoss.bind.annotation.ContextType;
 import org.zkoss.bind.annotation.Init;
@@ -186,7 +185,6 @@ public class DuoViewModel {
 		Selectors.wireEventListeners(view, this);
 	}
 
-	@Command
 	public boolean delete() {
 
 		logger.debug("delete invoked");
@@ -232,7 +230,6 @@ public class DuoViewModel {
 
 	}
 
-	@Command
 	public boolean edit() {
 		logger.info("edit invoked");
 		return true;
