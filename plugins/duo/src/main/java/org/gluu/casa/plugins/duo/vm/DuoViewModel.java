@@ -203,7 +203,7 @@ public class DuoViewModel {
 									.deleteDUOCredential(sessionContext.getLoggedUser().getUserName());
 							if (result == true) {
 								DuoService.getInstance().removeFromPersistence(sessionContext.getLoggedUser().getId());
-								BindUtils.postNotifyChange(null, null, DuoViewModel.this, "device");
+								BindUtils.postNotifyChange(DuoViewModel.this, "device");
 							}
 						} catch (Exception e) {
 							logger.error("Error during delete - " + e.getMessage());
