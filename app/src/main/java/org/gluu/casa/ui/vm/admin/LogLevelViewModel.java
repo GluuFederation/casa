@@ -7,9 +7,7 @@ import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.bind.annotation.NotifyChange;
-import org.zkoss.zk.ui.select.annotation.VariableResolver;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
-import org.zkoss.zkplus.cdi.DelegatingVariableResolver;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +16,6 @@ import java.util.stream.Stream;
 /**
  * @author jgomer
  */
-@VariableResolver(DelegatingVariableResolver.class)
 public class LogLevelViewModel extends MainViewModel {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
