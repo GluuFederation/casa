@@ -46,14 +46,14 @@
 						<div style="flex-basis: 15%" class="pl2 pt2">
 							<h:button class="${css.editButton} mb2"
 								w:onClick="prepareAlert();initialize('${vm.host}','${vm.sigRequest}','true');"
-								onClick="@command('edit')"
+								onClick="@('edit')"
 								data-original-title="${labels.general.edit}"
 								data-toggle="collapse" data-target="#duoDiv" data-placement="top">
 								<i class="fas fa-pencil-alt" />
 							</h:button>
 
 							<h:button class="${css.deleteButton} mb2"
-								w:onClick="prepareAlert();" onClick="@command('delete')"
+								w:onClick="prepareAlert();" onClick="@('delete')"
 								data-original-title="${labels.general.delete}"
 								data-toggle="tooltip" data-placement="top">
 								<i class="fas fa-trash-alt" />
