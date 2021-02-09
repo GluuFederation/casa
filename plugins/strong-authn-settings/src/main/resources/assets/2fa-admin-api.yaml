@@ -1,7 +1,7 @@
 swagger: '2.0'
 
 info:
-  version: "5.0.0"
+  version: "4.3.0"
   title: Strong Authentication Settings admin API
   description: Allows to configure 2FA settings programmatically
   license:
@@ -15,8 +15,8 @@ basePath: /casa/rest/pl/strong-authn-settings
 schemes:
  - https
 
-#security:
-#  - casa_auth: []
+security:
+  - casa_auth: [casa.config]
   
 consumes:
   - application/json
@@ -158,7 +158,6 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/TrustedDevicesSettings'
-    
 
 securityDefinitions:
   casa_auth:
