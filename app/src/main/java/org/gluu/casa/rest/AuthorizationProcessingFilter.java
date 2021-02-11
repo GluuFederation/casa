@@ -1,6 +1,5 @@
 package org.gluu.casa.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gluu.casa.core.PersistenceService;
 import org.gluu.casa.misc.Utils;
 import org.gluu.oxauth.client.service.ClientFactory;
@@ -9,8 +8,9 @@ import org.gluu.oxauth.model.common.IntrospectionResponse;
 import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.net.URL;
+import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -100,28 +100,25 @@ public class AuthorizationProcessingFilter implements ContainerRequestFilter {
 
     private Set<String> computeExpectedScopes(ResourceInfo resourceInfo) {
     	
-    	String scopes[] = annotationScopes(resourceInfo.getResourceClass().getAnnotation(ProtectedApi.class));
-    	if (scopes == null) {
-    		scopes = annotationScopes(resourceInfo.getResourceMethod().getAnnotation(ProtectedApi.class));
-    		//scopes won't ever be null at this point...
-    		scopes = Optional.ofNullable(scopes).orElse(new String[0]);
+    	//Scopes at the method level override those at class level
+    	List<String> scopes = annotationScopes(resourceInfo.getResourceMethod());
+    	if (scopes.size() == 0) {
+    		scopes = annotationScopes(resourceInfo.getResourceClass());
     	}
-    	return new HashSet(Arrays.asList(scopes));
+    	return new HashSet(scopes);
     	
     }
-    
-    private String[] annotationScopes(ProtectedApi annotation) {
-    	//Null annotation means there was no annotation
-    	return annotation == null ? null : annotation.scopes();
-    }
-    
+
+	private List<String> annotationScopes(AnnotatedElement elem) {		
+		return Optional.ofNullable(elem.getAnnotation(ProtectedApi.class)).map(ProtectedApi::scopes)
+		    .map(Arrays::asList).orElse(Collections.emptyList());
+	}
+
     @PostConstruct
     private void init() {
 
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            String introspectionEndpoint = mapper.readTree(new URL(persistenceService.getOIDCEndpoint())).get("introspection_endpoint").asText();            
-            introspectionService = ClientFactory.instance().createIntrospectionService(introspectionEndpoint);
+            introspectionService = ClientFactory.instance().createIntrospectionService(persistenceService.getIntrospectionEndpoint());
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

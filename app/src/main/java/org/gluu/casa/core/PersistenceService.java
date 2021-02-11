@@ -235,8 +235,8 @@ public class PersistenceService implements IPersistenceService {
 
     }
 
-    public String getClientInfoEndpoint() {
-        return oxAuthConfDynamic.get("clientInfoEndpoint").asText();
+    public String getIntrospectionEndpoint() {
+        return oxAuthConfDynamic.get("introspectionEndpoint").asText();
     }
 
     public int getDynamicClientExpirationTime() {
