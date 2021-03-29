@@ -98,7 +98,11 @@ public class UserService implements SndFactorAuthenticationUtils {
     }
 
     public boolean turn2faOn(User user) {
-        return setPreferredMethod(user, Long.toString(System.currentTimeMillis()));
+        return turn2faOn(user, null);
+    }
+    
+    public boolean turn2faOn(User user, String method) {
+        return setPreferredMethod(user, method == null ? Long.toString(System.currentTimeMillis()) : method);
     }
 
     public boolean turn2faOff(User user) {
