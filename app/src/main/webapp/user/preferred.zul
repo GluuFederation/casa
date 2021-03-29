@@ -28,12 +28,10 @@
                 <div class="alert alert-success dn" id="feedback-preferred" role="alert" />
             </div>
 
-            <zk:zk unless="${empty vm.availMethods}">
-                <div class="${css.panel}">
-                    <z:a label="${labels.usr.method.preferred_short}" sclass="underline dark-blue2"
-					     onClick="@('prepareSelection')" />
-                </div>
-            </zk:zk>
+			<z:div visible="@load(vm.mfaEnabled and not empty vm.availMethods)" sclass="${css.panel}">
+				<z:a label="${labels.usr.method.preferred_short}" sclass="underline dark-blue2"
+					 onClick="@('prepareSelection')" />
+			</z:div>
             
             <z:div visible="@load(vm.mfaEnabled and not empty vm.preferredFragments)" children="@load(vm.preferredFragments)">
                 <zk:template name="children">

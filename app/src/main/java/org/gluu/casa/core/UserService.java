@@ -296,7 +296,6 @@ public class UserService implements SndFactorAuthenticationUtils {
      */
     private boolean administrationAllowed() {
         return Files.isReadable(Paths.get(BASE_PATH, ADMIN_LOCK_FILE));
-        
     }
 
 }
