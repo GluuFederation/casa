@@ -6,7 +6,7 @@ import org.apache.logging.log4j.status.StatusLogger;
 import org.apache.logging.log4j.Level;
 import org.gluu.model.casa.ApplicationConfiguration;
 import org.gluu.persist.PersistenceEntryManager;
-import org.gluu.persist.couchbase.impl.CouchbaseEntryManagerFactory;
+import org.gluu.orm.couchbase.impl.CouchbaseEntryManagerFactory;
 import org.gluu.persist.ldap.impl.LdapEntryManagerFactory;
 import org.gluu.util.security.PropertiesDecrypter;
 import org.gluu.util.security.StringEncrypter;
