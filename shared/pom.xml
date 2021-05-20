@@ -19,12 +19,12 @@
         <!-- GLUU -->
         <dependency>
             <groupId>org.gluu</groupId>
-            <artifactId>oxcore-persistence-model</artifactId>
+            <artifactId>gluu-orm-model</artifactId>
             <version>${ox.version}</version>
         </dependency>
         <dependency>
             <groupId>org.gluu</groupId>
-            <artifactId>oxcore-persistence-filter</artifactId>
+            <artifactId>gluu-orm-filter</artifactId>
             <version>${ox.version}</version>
         </dependency>
         <dependency>
