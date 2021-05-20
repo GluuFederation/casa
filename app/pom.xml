@@ -107,6 +107,11 @@
         </dependency>
         <dependency>
             <groupId>org.gluu</groupId>
+            <artifactId>oxcore-util</artifactId>
+            <version>${ox.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.gluu</groupId>
             <artifactId>oxtrust-model</artifactId>
             <version>${ox.version}</version>
             <exclusions>
