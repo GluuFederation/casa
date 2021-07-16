@@ -27,6 +27,7 @@ import java.util.stream.Stream;
  */
 public class OxdViewModel extends MainViewModel {
 
+	private static final List<String> PROTOCOLS = Arrays.asList("https", "http");
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @WireVariable
@@ -63,6 +64,11 @@ public class OxdViewModel extends MainViewModel {
     public Set<String> getRequiredScopes() {
         return requiredScopes;
     }
+    
+    @Immutable
+    public List<String> getProtocols() {
+    	return PROTOCOLS;
+    }
 
     @Init
     public void init() {
@@ -89,7 +95,7 @@ public class OxdViewModel extends MainViewModel {
             boolean connected = false;    //Try to guess if it looks like an oxd-server
             try {
                 oxdHost = oxdHost.trim();
-                connected = Utils.urlAvailabilityCheck(new URL("https", oxdHost, oxdPort, "/health-check"));
+                connected = Utils.urlAvailabilityCheck(new URL(oxdSettings.getProtocol(), oxdHost, oxdPort, "/health-check"));
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -169,6 +175,10 @@ public class OxdViewModel extends MainViewModel {
         oxdSettings.getScopes().addAll(selectedScopes);
     }
 
+    public void switchProtocol(String protocol) {
+        oxdSettings.setProtocol(protocol);
+    }
+    
     private void computeSelectableScopes() {
         selectableScopes = scopeService.getNonUMAScopes().stream().map(Scope::getId).collect(Collectors.toSet());
         //Remove already checked ones
