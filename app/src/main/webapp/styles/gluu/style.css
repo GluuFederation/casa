@@ -161,6 +161,8 @@ button:disabled {
 /* Overrides some default bootstrap stylings */
 body {
     font-family: 'Lato', sans-serif;
+	height: initial;	/* auto ? */
+	position: relative;
 }
 
 a:hover {
