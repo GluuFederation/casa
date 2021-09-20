@@ -2,7 +2,7 @@ lazy val root = (project in file(".")).
   settings(
     organization := "org.gluu",
     name := "casa-config-client",
-    version := "4.3.0-SNAPSHOT",
+    version := "4.3.0.Final",
     scalaVersion := "2.11.4",
     scalacOptions ++= Seq("-feature"),
     javacOptions in compile ++= Seq("-Xlint:deprecation"),

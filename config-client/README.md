@@ -40,7 +40,7 @@ Add this dependency to your project's POM:
 <dependency>
   <groupId>org.gluu</groupId>
   <artifactId>casa-config-client</artifactId>
-  <version>4.3.0-SNAPSHOT</version>
+  <version>4.3.0.Final</version>
   <scope>compile</scope>
 </dependency>
 ```
@@ -50,7 +50,7 @@ Add this dependency to your project's POM:
 Add this dependency to your project's build file:
 
 ```groovy
-compile "org.gluu:casa-config-client:4.3.0-SNAPSHOT"
+compile "org.gluu:casa-config-client:4.3.0.Final"
 ```
 
 ### Others
@@ -63,7 +63,7 @@ mvn clean package
 
 Then manually install the following JARs:
 
-* `target/casa-config-client-4.3.0-SNAPSHOT.jar`
+* `target/casa-config-client-4.3.0.Final.jar`
 * `target/lib/*.jar`
 
 ## Getting Started
