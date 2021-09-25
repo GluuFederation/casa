@@ -301,6 +301,7 @@ public class PersistenceService implements IPersistenceService {
         CustomScript script = new CustomScript();
         script.setDisplayName(acr);
         script.setBaseDn(getCustomScriptsDn());
+        script.setEnabled(true);
 
         List<CustomScript> scripts = find(script);
         if (scripts.size() == 0) {
