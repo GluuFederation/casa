@@ -9,7 +9,6 @@ import org.gluu.persist.annotation.JsonObject;
 import org.gluu.persist.annotation.ObjectClass;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * A basic representation of a Gluu Server custom script. Use this class in conjuction with
@@ -48,14 +47,6 @@ public class CustomScript extends Entry {
 
     public Boolean getEnabled() {
         return enabled;
-    }
-
-    /**
-     * A convenience method.
-     * @return False if {@link #getEnabled()} returns null or false. True otherwise
-     */
-    public boolean isEnabled() {
-        return Optional.ofNullable(enabled).orElse(false);
     }
 
     public List<SimpleCustomProperty> getConfigurationProperties() {
