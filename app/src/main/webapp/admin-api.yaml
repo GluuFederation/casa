@@ -1,7 +1,7 @@
 swagger: '2.0'
 
 info:
-  version: "5.0.0"
+  version: "4.3.0"
   title: Gluu casa admin API
   description: Allows to configure Casa programmatically. Note that plugins may also expose endpoints to
     apply configurations relevant to their topics. Check plugins' docs for more information
@@ -18,7 +18,7 @@ schemes:
  - https
 
 security:
-  - config_auth: ['https://jans.io/casa.config']
+  - config_auth: [casa.config]
   
 consumes:
   - application/json
@@ -454,4 +454,4 @@ securityDefinitions:
     flow: application
     tokenUrl: https://test-casa.gluu.org/oxauth/restv1/token
     scopes: 
-      'https://jans.io/casa.config': Grants access to this API
+      casa.config: Grants access to this API

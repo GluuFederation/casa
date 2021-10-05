@@ -1,6 +1,6 @@
 package org.gluu.casa.plugins.strongauthn.rest;
 
-import org.gluu.casa.conf.Basic2FASettings;
+import org.gluu.casa.core.pojo.Basic2FASettings;
 import org.gluu.casa.misc.Utils;
 import org.gluu.casa.plugins.strongauthn.conf.Configuration;
 import org.gluu.casa.plugins.strongauthn.conf.EnforcementPolicy;
@@ -24,7 +24,7 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 
 @Path("/config")
-@ProtectedApi( scopes = "https://jans.io/casa.config" )
+@ProtectedApi( scopes = "casa.config" )
 public class StrongAuthnSettingsWS {
 
     private Logger logger = LoggerFactory.getLogger(getClass());

@@ -86,7 +86,7 @@ public class PassportLinkingService {
     @POST
     @Path("{provider}")
     public Response doLink(@FormParam("user") String userJwt, @PathParam("provider") String provider) throws Exception {
-
+        
     	logger.trace("doLink POST handler called");
         LinkingSummary summary = new LinkingSummary();
         String msg = null;

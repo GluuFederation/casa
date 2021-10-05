@@ -6,6 +6,7 @@ import org.gluu.casa.core.ScopeService;
 import org.gluu.casa.core.model.Scope;
 import org.gluu.casa.misc.Utils;
 import org.gluu.casa.service.IPersistenceService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zkoss.bind.BindUtils;
@@ -44,9 +45,9 @@ public class OxdViewModel extends MainViewModel {
     private Set<String> selectedScopes;
 
     private Set<String> requiredScopes;
-    
-    private String issuerUrl;
 
+    private String issuerUrl;
+    
     public OxdSettings getOxdSettings() {
         return oxdSettings;
     }
@@ -71,7 +72,7 @@ public class OxdViewModel extends MainViewModel {
 
     @Init
     public void init() {
-        issuerUrl = Utils.managedBean(IPersistenceService.class).getIssuerUrl();
+    	issuerUrl = Utils.managedBean(IPersistenceService.class).getIssuerUrl();
         requiredScopes = new HashSet<>(OxdService.REQUIRED_SCOPES);
         reloadConfig();
     }

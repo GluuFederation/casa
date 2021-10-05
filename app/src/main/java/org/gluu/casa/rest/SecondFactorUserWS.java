@@ -21,7 +21,7 @@ import static org.gluu.casa.rest.SecondFactorUserData.StatusCode.*;
 import static javax.ws.rs.core.Response.Status.*;
 
 @ApplicationScoped
-@ProtectedApi( scopes = "https://jans.io/casa.2fa" )
+@ProtectedApi( scopes = "casa.2fa" )
 @Path("/2fa")
 public class SecondFactorUserWS {
 
@@ -50,7 +50,7 @@ public class SecondFactorUserWS {
                 List<Pair<AuthnMethod, Integer>> methodsCount = userService.getUserMethodsCount(userId);
 
                 result.setEnrolledMethods(methodsCount.stream().map(Pair::getX)
-                        .map(AuthnMethod::getAcr).collect(Collectors.toList()));
+                        .map(AuthnMethod::getAcr).collect(Collectors.toList()));                	
                 result.setTotalCreds(methodsCount.stream().mapToInt(Pair::getY).sum());
                 result.setTurnedOn(person.getPreferredMethod() != null);
                 result.setCode(SUCCESS);

@@ -27,7 +27,7 @@ import static org.gluu.casa.plugins.authnmethod.service.SMSDeliveryStatus.SUCCES
 /**
  * @author jgomer
  */
-@ProtectedApi( scopes = "https://jans.io/casa.enroll" )
+@ProtectedApi( scopes = "casa.enroll" )
 public class MobilePhoneEnrollingWS {
 
     private static final String SEPARATOR = ",";

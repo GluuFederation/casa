@@ -33,7 +33,7 @@ import static javax.ws.rs.core.Response.Status.OK;
 
 @ApplicationScoped
 @Path(PluginsWS.PLUGINWS_ROOT_URL)
-@ProtectedApi( scopes = "https://jans.io/casa.config" )
+@ProtectedApi( scopes = "casa.config" )
 public class PluginsWS extends BaseWS {
     
     public static final String PLUGINWS_ROOT_URL = "/config/plugins";

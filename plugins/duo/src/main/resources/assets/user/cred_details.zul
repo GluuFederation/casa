@@ -1,0 +1,196 @@
+<?page language="xhtml"?>
+<?init class="org.zkoss.zk.ui.util.Composition" template="/general.zul"?>
+<?script src="/pl/duo-plugin/js/duo_web.js"?>
+<?script src="/pl/duo-plugin/js/duo_casa.js"?>
+<?link rel="stylesheet" type="text/css" href="/pl/duo-plugin/css/duo-casa.css"?>
+
+<zk:zk xmlns:z="http://www.zkoss.org/2005/zul" xmlns:h="xhtml"
+	xmlns:zk="zk" xmlns:w="client" xmlns:ca="client/attribute"
+	xmlns="native">
+
+	<h:title self="@define(title)">
+		${zkService.appName} - ${labels.duo_title}
+	</h:title>
+
+	<z:div if="${empty pageScope.error}"
+		viewModel="@('org.gluu.casa.plugins.duo.vm.DuoViewModel')"
+		self="@define(maincontent)">
+		<z:include src="/back-home.zul" />
+		<div class="ph4 mb2">
+			<div class="alert alert-success dn" id="feedback-duo"
+				role="alert" />
+		</div>
+
+		<div class="${css['sectionsWrapper']}">
+			<section class="${css.section}">
+
+				<zk:zk if="${( empty vm.device) }">
+					<div class="${css.panel}">
+						<h2 class="f4 dark-blue2">
+							${labels.duo_title}
+						</h2>
+						<p>${labels.duo_text}</p>
+					</div>
+				</zk:zk>
+				<zk:zk if="${(not empty vm.device) }">
+					<!-- device  -->
+					<div class="${css.panel} flex justify-between">
+						<div style="flex-basis: 85%">
+
+							<h2 class="f4 dark-blue2">
+								${labels.duo_title}
+							</h2>
+							<br />
+							<p>${labels.duo_text}</p>
+						</div>
+						<div style="flex-basis: 15%" class="pl2 pt2">
+							<h:button class="${css.editButton} mb2"
+								w:onClick="prepareAlert();initialize('${vm.host}','${vm.sigRequest}','true');"
+								onClick="@('edit')"
+								data-original-title="${labels.general.edit}"
+								data-toggle="collapse" data-target="#duoDiv" data-placement="top">
+								<i class="fas fa-pencil-alt" />
+							</h:button>
+
+							<h:button class="${css.deleteButton} mb2"
+								w:onClick="prepareAlert();" onClick="@('delete')"
+								data-original-title="${labels.general.delete}"
+								data-toggle="tooltip" data-placement="top">
+								<i class="fas fa-trash-alt" />
+							</h:button>
+						</div>
+					</div>
+
+					<div class="${css.panel}">
+						<zk:zk
+							if="${(not empty vm.duoCreds.phones) }">
+							<h4 class="f4 dark-blue2">
+								${labels.duo.phone.list}
+							</h4>
+							<h:table class="table table-hover table-sm"
+								visible="@load(not empty vm.duoCreds.phones)">
+								<thead>
+									<tr>
+										<th scope="col">
+											${labels.duo.device_number}
+										</th>
+										<th scope="col">
+											${labels.duo.platform}
+										</th>
+										<th scope="col">
+											${labels.duo.model}
+										</th>
+									</tr>
+								</thead>
+								<h:tbody
+									children="@load(vm.duoCreds.phones)" sclass="f7">
+									<zk:template name="children">
+										<h:tr>
+											<td class="dn dtc-ns">
+												<z:label
+													value="@load(each.number)" />
+											</td>
+											<td class="dn dtc-ns">
+												<z:label
+													value="@load(each.platform)" />
+											</td>
+											<td class="dn dtc-ns">
+												<z:label
+													value="@load(each.model)" />
+											</td>
+										</h:tr>
+									</zk:template>
+								</h:tbody>
+							</h:table>
+						</zk:zk>
+						<zk:zk
+							if="${(not empty vm.duoCreds.u2ftokens) }">
+							<h4 class="f4 dark-blue2">
+								${labels.duo.u2f.list}
+							</h4>
+							<h:table class="table table-hover table-sm"
+								visible="@load(not empty vm.duoCreds.u2ftokens)">
+								<thead>
+									<tr>
+										<th scope="col">
+											${labels.duo.u2f.registrationID}
+										</th>
+										<th scope="col">
+											${labels.duo.u2f.dateAdded}
+										</th>
+									</tr>
+								</thead>
+								<h:tbody
+									children="@load(vm.duoCreds.u2ftokens)" sclass="f7">
+									<zk:template name="children">
+										<h:tr>
+											<td>
+												<z:label
+													value="@load(each.registrationId)" />
+											</td>
+											<td> 
+											
+												<z:label
+													value="@load(each.dateAdded) @converter('org.gluu.casa.ui.CustomDateConverter',
+                                        format='MMM d yyyy', offset = sessionContext.zoneOffset)" />
+
+											</td>
+										</h:tr>
+									</zk:template>
+								</h:tbody>
+							</h:table>
+						</zk:zk>
+						<zk:zk
+							if="${(not empty vm.duoCreds.tokens) }">
+							<h4 class="f4 dark-blue2">
+								${labels.duo.token.list}
+							</h4>
+							<h:table class="table table-hover table-sm"
+								visible="@load(not empty vm.duoCreds.tokens)">
+								<thead>
+									<tr>
+										<th scope="col" class="w4-ns">
+											${labels.duo.token.id}
+										</th>
+										<th scope="col" class="w4-ns">
+											${labels.duo.token.type}
+										</th>
+									</tr>
+								</thead>
+								<h:tbody
+									children="@load(vm.duoCreds.u2ftokens)" sclass="f7">
+									<zk:template name="children">
+										<h:tr>
+											<td class="dn dtc-ns">
+												<z:label
+													value="@load(each.tokenId)" />
+											</td>
+											<td class="dn dtc-ns">
+												<z:label
+													value="@load(each.type)" />
+											</td>
+										</h:tr>
+									</zk:template>
+								</h:tbody>
+							</h:table>
+						</zk:zk>
+					</div>
+
+				</zk:zk>
+				<div id="duoDiv" class="${css.panel} bg-near-white collapse" >
+					<div class="alert alert-success dn"
+						id="feedback-duo" role="alert" />
+						<form method="post" id="duo_form" >
+					<iframe id="duo_iframe"></iframe></form>
+				</div>
+			</section>
+		</div>
+
+
+		<zk:zk if="${(empty vm.device) }">
+			<script type="text/javascript">
+				initialize('${vm.host}','${vm.sigRequest}');
+			</script>
+		</zk:zk>
+	</z:div>
+</zk:zk>
