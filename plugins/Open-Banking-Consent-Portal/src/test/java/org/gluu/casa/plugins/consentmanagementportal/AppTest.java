@@ -1,4 +1,4 @@
-package org.gluu.casa.plugins.consent-management-portal;
+package org.gluu.casa.plugins.consentmanagementportal;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
