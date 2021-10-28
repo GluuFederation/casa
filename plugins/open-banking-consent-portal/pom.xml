@@ -80,5 +80,23 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+      <dependency>
+          <groupId>org.jboss.resteasy</groupId>
+          <artifactId>resteasy-client-api</artifactId>
+          <version>4.7.2.Final</version>
+          <scope>compile</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.gluu</groupId>
+          <artifactId>casa</artifactId>
+          <version>4.3.1-SNAPSHOT</version>
+          <scope>compile</scope>
+      </dependency>
+      <dependency>
+          <groupId>jakarta.ws.rs</groupId>
+          <artifactId>jakarta.ws.rs-api</artifactId>
+          <version>2.1.6</version>
+          <scope>compile</scope>
+      </dependency>
   </dependencies>
 </project>
