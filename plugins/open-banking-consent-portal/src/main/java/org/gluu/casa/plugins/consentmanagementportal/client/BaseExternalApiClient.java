@@ -20,6 +20,7 @@ import java.net.URI;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+
 public class BaseExternalApiClient {
 
 
@@ -66,7 +67,7 @@ public class BaseExternalApiClient {
         response.close();
         return value;
     }
-    public <T> T doPost(T t,String cep, Class<T> clazz, String url, String path, String payload) {
+    public <T> T doPost(T t,Class<T> clazz, String url, String path) {
 
         ResteasyClient client = new ResteasyClientBuilderImpl()
                 .connectionPoolSize(30)

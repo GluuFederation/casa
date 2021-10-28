@@ -24,6 +24,7 @@ public class ConsentClientImpl extends BaseExternalApiClient implements ConsentC
     @Inject
     private Logger logger;
 
+    @Inject
     private BaseExternalApiClient externalApiClient;
 
 
@@ -33,5 +34,9 @@ public class ConsentClientImpl extends BaseExternalApiClient implements ConsentC
     public Consent getConsentById(String id, String url, String path){
         return (Consent) externalApiClient.doGet(Consent.class, url, path);
     }
+    public Consent createConsent(Consent consent, String url, String path){
+        return (Consent) externalApiClient.doPost(consent,Consent.class, url, path);
+    }
+
 
 }
