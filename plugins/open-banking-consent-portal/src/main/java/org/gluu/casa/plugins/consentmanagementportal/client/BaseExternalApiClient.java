@@ -34,15 +34,8 @@ public class BaseExternalApiClient {
 
         resteasyClient = RSUtils.getClient();
     }
-    public void doGet(String targetUrl){
-
-    }
 
 
-
-    public void doPost(String targetUrl){
-
-    }
     public  <T> T getClient(Class<T> serviceInterface, String url)
     {
         ResteasyWebTarget target = resteasyClient.target(url);
@@ -67,17 +60,17 @@ public class BaseExternalApiClient {
         response.close();
         return value;
     }
-    public <T> T doPost(T t,Class<T> clazz, String url, String path) {
+    public <Req,Res> Res doPost(Req req,Class<Res> clazz, String url, String path) {
 
         ResteasyClient client = new ResteasyClientBuilderImpl()
                 .connectionPoolSize(30)
                 .connectTimeout(20, TimeUnit.SECONDS)
                 .build();
         ResteasyWebTarget target = client.target(url).path(path);
-        Response response = target.request().post(Entity.json(t));
+        Response response = target.request().post(Entity.json(req));
         String value = response.readEntity(String.class);
         response.close();
-        T data = new Gson().fromJson(value, clazz);
+        Res data = new Gson().fromJson(value, clazz);
         return data;
     }
 

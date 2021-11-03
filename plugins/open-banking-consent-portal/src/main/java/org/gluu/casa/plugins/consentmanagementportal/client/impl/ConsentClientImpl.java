@@ -5,6 +5,8 @@ package org.gluu.casa.plugins.consentmanagementportal.client.impl;
 import org.gluu.casa.plugins.consentmanagementportal.client.BaseExternalApiClient;
 import org.gluu.casa.plugins.consentmanagementportal.client.ConsentClient;
 import org.gluu.casa.plugins.consentmanagementportal.model.Consent;
+import org.gluu.casa.plugins.consentmanagementportal.model.ConsentRequest;
+import org.gluu.casa.plugins.consentmanagementportal.model.ConsentResponse;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -30,8 +32,8 @@ public class ConsentClientImpl extends BaseExternalApiClient implements ConsentC
     public Consent getConsentById(String id, String url, String path){
         return (Consent) doGet(Consent.class, url, path);
     }
-    public Consent createConsent(Consent consent, String url, String path){
-        return (Consent) doPost(consent,Consent.class, url, path);
+    public ConsentResponse createConsent(ConsentRequest consentRequest, String url, String path){
+        return (ConsentResponse) doPost(consentRequest,ConsentResponse.class, url, path);
     }
 
 
