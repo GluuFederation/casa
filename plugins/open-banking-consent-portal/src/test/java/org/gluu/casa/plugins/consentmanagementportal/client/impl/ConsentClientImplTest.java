@@ -22,6 +22,7 @@ public class ConsentClientImplTest {
         ConsentClient client = givenClient();
         ConsentRequest consentRequest = givenConsentRequest();
         ConsentResponse consent = client.getAllConsents(consentRequest, URL, PATH);
+        System.out.println("consent " + consent);
         Assert.assertTrue( consent!=null);
     }
 
