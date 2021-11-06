@@ -1,5 +1,7 @@
 package org.gluu.casa.plugins.consentmanagementportal.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.gluu.casa.rest.RSUtils;
@@ -10,10 +12,9 @@ import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.client.*;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
@@ -48,29 +49,32 @@ public class BaseExternalApiClient {
     }
 
 
-    public <T> T doGet( Class<T> clazz, String url, String path, String ...param) {
+    public <T> T doGet( Class<T> clazz, String url, String path, String ...param) throws JsonProcessingException {
 
         ResteasyClient client = new ResteasyClientBuilderImpl()
                 .connectionPoolSize(30)
                 .connectTimeout(20, TimeUnit.SECONDS)
                 .build();
         ResteasyWebTarget target = client.target(url).path(path);
-        Response response = target.request().get();
-        T value = response.readEntity(clazz);
-        response.close();
-        return value;
-    }
-    public <Req,Res> Res doPost(Req req,Class<Res> clazz, String url, String path) {
-
-        ResteasyClient client = new ResteasyClientBuilderImpl()
-                .connectionPoolSize(30)
-                .connectTimeout(20, TimeUnit.SECONDS)
-                .build();
-        ResteasyWebTarget target = client.target(url).path(path);
-        Response response = target.request().post(Entity.json(req));
+        Response response = target.request().header("Content-Type", MediaType.APPLICATION_JSON).get();
         String value = response.readEntity(String.class);
         response.close();
-        Res data = new Gson().fromJson(value, clazz);
+        ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        T data= mapper.readValue(value, clazz);
+        return data;
+    }
+    public <Req,Res> Res doPost(Req req,Class<Res> clazz, String url, String path) throws JsonProcessingException {
+
+        ResteasyClient client = new ResteasyClientBuilderImpl()
+                .connectionPoolSize(30)
+                .connectTimeout(20, TimeUnit.SECONDS)
+                .build();
+        ResteasyWebTarget target = client.target(url).path(path);
+        ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        Response response = target.request().header("Content-Type", MediaType.APPLICATION_JSON).post(Entity.json(req));
+        String value = response.readEntity(String.class);
+        response.close();
+        Res data= mapper.readValue(value, clazz);
         return data;
     }
 

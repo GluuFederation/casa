@@ -2,6 +2,7 @@ package org.gluu.casa.plugins.consentmanagementportal.client.impl;
 
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.gluu.casa.plugins.consentmanagementportal.client.BaseExternalApiClient;
 import org.gluu.casa.plugins.consentmanagementportal.client.ConsentClient;
 import org.gluu.casa.plugins.consentmanagementportal.model.Consent;
@@ -26,13 +27,13 @@ public class ConsentClientImpl extends BaseExternalApiClient implements ConsentC
     @Inject
     private Logger logger;
 
-    public List<Consent> getAllConsents(String url, String path){
-        return  (List<Consent>) doGet(Consent.class,url, path);
+    public ConsentResponse getAllConsents(ConsentRequest consentRequest,String url, String path) throws JsonProcessingException {
+        return  (ConsentResponse) doPost(consentRequest,ConsentResponse.class, url, path);
     }
-    public Consent getConsentById(String id, String url, String path){
+    public Consent getConsentById(String id, String url, String path) throws JsonProcessingException {
         return (Consent) doGet(Consent.class, url, path);
     }
-    public ConsentResponse createConsent(ConsentRequest consentRequest, String url, String path){
+    public ConsentResponse createConsent(ConsentRequest consentRequest, String url, String path) throws JsonProcessingException {
         return (ConsentResponse) doPost(consentRequest,ConsentResponse.class, url, path);
     }
 
