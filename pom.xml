@@ -10,7 +10,7 @@
     <version>4.4.0-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
-	<url>http://www.gluu.org</url>
+	<url>https://www.gluu.org</url>
 
     <prerequisites>
         <maven>${maven.min-version}</maven>
@@ -42,11 +42,11 @@
         <repository>
             <id>ZK CE</id>
             <name>ZK CE Repository</name>
-            <url>http://mavensync.zkoss.org/maven2</url>
+            <url>https://mavensync.zkoss.org/maven2</url>
         </repository>
         <repository>
             <id>jboss</id>
-            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+            <url>https://repository.jboss.org/nexus/content/groups/public/</url>
         </repository>
     </repositories>
 
