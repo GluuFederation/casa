@@ -37,7 +37,7 @@
         <repository>
             <id>gluu</id>
             <name>Gluu repository</name>
-            <url>http://ox.gluu.org/maven</url>
+            <url>https://maven.gluu.org/maven</url>
         </repository>
         <repository>
             <id>ZK CE</id>
