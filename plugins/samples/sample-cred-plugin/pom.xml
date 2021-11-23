@@ -21,7 +21,7 @@
 		<repository>
 			<id>gluu</id>
 			<name>Gluu repository</name>
-			<url>http://ox.gluu.org/maven</url>
+			<url>https://ox.gluu.org/maven</url>
 		</repository>
 	</repositories>
 
@@ -44,7 +44,7 @@
 							<Plugin-Description>
 								This is a sample plugin used for enrolling a 2fa credential
 							</Plugin-Description>
-							<Plugin-License>Available under the MIT License. See http://opensource.org/licenses/MIT for full text</Plugin-License>
+							<Plugin-License>Available under the MIT License. See https://opensource.org/licenses/MIT for full text</Plugin-License>
 							<Logger-Name>org.gluu.casa.plugins</Logger-Name>
 						</manifestEntries>
 					</archive>

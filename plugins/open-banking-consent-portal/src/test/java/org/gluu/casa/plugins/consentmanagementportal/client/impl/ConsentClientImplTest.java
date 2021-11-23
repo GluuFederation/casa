@@ -26,7 +26,7 @@ public class ConsentClientImplTest {
         Assert.assertTrue( consent!=null);
     }
 
-    @Test
+//    @Test
     public void createConsent() throws Exception{
         // fill out a query param and execute a get request
         ConsentClient client = givenClient();

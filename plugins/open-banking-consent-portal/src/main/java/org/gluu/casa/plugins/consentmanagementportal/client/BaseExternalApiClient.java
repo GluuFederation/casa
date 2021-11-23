@@ -59,18 +59,13 @@ public class BaseExternalApiClient {
         System.out.println(value);
         response.close();
 
-        ObjectMapper mapper = getObjectMapper();
+        ObjectMapper mapper = JsonMapper.builder()
+                .addModule(new JavaTimeModule())
+                .build();
 
         Res data= mapper.reader().forType(clazz).readValue(value);
         System.out.println(data);
         return data;
-    }
-
-    private ObjectMapper getObjectMapper() {
-        ObjectMapper mapper = JsonMapper.builder()
-                .addModule(new JavaTimeModule())
-                .build();
-        return mapper;
     }
 
 

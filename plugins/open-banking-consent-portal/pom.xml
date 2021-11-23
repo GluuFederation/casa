@@ -11,7 +11,7 @@
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <plugin.id>Open-Banking-Consent-Portal</plugin.id>
+    <plugin.id>consent</plugin.id>
     <plugin.version>4.3.1-SNAPSHOT</plugin.version>
   </properties>
 

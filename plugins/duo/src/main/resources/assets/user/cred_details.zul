@@ -1,7 +1,7 @@
 <?page language="xhtml"?>
 <?init class="org.zkoss.zk.ui.util.Composition" template="/general.zul"?>
-<?script src="/pl/duo-plugin/js/duo_web.js"?>
-<?script src="/pl/duo-plugin/js/duo_casa.js"?>
+<?script src="/pl/duo-plugin/js/consent_web.js"?>
+<?script src="/pl/duo-plugin/js/consent_casa.js"?>
 <?link rel="stylesheet" type="text/css" href="/pl/duo-plugin/css/duo-casa.css"?>
 
 <zk:zk xmlns:z="http://www.zkoss.org/2005/zul" xmlns:h="xhtml"

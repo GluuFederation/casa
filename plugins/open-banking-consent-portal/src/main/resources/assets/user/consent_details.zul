@@ -1,0 +1,40 @@
+<?page language="xhtml"?>
+<?init class="org.zkoss.zk.ui.util.Composition" template="/general.zul"?>
+<?script src="/pl/consent-plugin/js/consent_web.js"?>
+<?script src="/pl/consent-plugin/js/consent_casa.js"?>
+<?link rel="stylesheet" type="text/css" href="/pl/consent-plugin/css/consent-casa.css"?>
+
+<zk:zk xmlns:z="http://www.zkoss.org/2005/zul" xmlns:h="xhtml"
+	xmlns:zk="zk" xmlns:w="client" xmlns:ca="client/attribute"
+	xmlns="native">
+
+	<h:title self="@define(title)">
+		${zkService.appName} - Consent
+	</h:title>
+
+	<z:div if="${empty pageScope.error}"
+		viewModel="@('org.gluu.casa.plugins.consentmanagementportal.vm.ConsentViewModel')"
+		self="@define(maincontent)">
+		<z:include src="/back-home.zul" />
+		<div class="ph4 mb2">
+			<div class="alert alert-success dn" id="feedback-consent"
+				role="alert" />
+		</div>
+
+		<div class="${css['sectionsWrapper']}">
+			<section class="${css.section}">
+
+				<zk:zk >
+					<div class="${css.panel}">
+						<h2 class="f4 dark-blue2">
+							Hello Consent
+						</h2>
+						<p>Hello Labels Consent</p>
+					</div>
+				</zk:zk>
+
+
+			</section>
+		</div>
+	</z:div>
+</zk:zk>
