@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.gluu.casa.plugins.consentmanagementportal.enums.ConsentStatus;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -14,9 +14,12 @@ public class Consent {
 
         private String consentId;
         private ConsentStatus status;
-        private OffsetDateTime createdDate;
-        private OffsetDateTime updatedDate;
-        private OffsetDateTime expirationDate;
+
+        private LocalDateTime createdDate;
+
+        private LocalDateTime updatedDate;
+
+        private LocalDateTime expirationDate;
         private List<Account> accounts;
 
 

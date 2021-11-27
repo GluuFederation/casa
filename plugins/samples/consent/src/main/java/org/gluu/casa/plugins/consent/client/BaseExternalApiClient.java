@@ -1,4 +1,5 @@
-package org.gluu.casa.plugins.consentmanagementportal.client;
+package org.gluu.casa.plugins.consent.client;
+
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,12 +14,22 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.concurrent.TimeUnit;
 
+//import org.gluu.casa.rest.RSUtils;
+
 
 public class BaseExternalApiClient {
 
 
-
-
+//    private ResteasyClient resteasyClient;
+//    public final ResteasyClient CLIENT = new ResteasyClientBuilderImpl()
+//            .connectionPoolSize(30)
+//            .connectTimeout(20, TimeUnit.SECONDS)
+//            .build();
+//    @PostConstruct
+//    public void inited() {
+//
+//        resteasyClient = RSUtils.getClient();
+//    }
 
 
     public <T> T doGet( Class<T> clazz, String url, String path, String ...param) throws JsonProcessingException {
@@ -31,7 +42,7 @@ public class BaseExternalApiClient {
         Response response = target.request().header("Content-Type", MediaType.APPLICATION_JSON).get();
         String value = response.readEntity(String.class);
         response.close();
-        ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
         T data= mapper.readValue(value, clazz);
         return data;
     }
@@ -58,5 +69,10 @@ public class BaseExternalApiClient {
     }
 
 
-
+//    @PreDestroy
+//    private void destroy() {
+//        if (resteasyClient != null) {
+//            resteasyClient.close();
+//        }
+//    }
 }
