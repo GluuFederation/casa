@@ -15,6 +15,7 @@
                         <label>
                             ${labels.consent.user_message} ${sessionContext.user.userName}
                             <z:textbox class="${css.textInput} ml2" value="@bind(vm.message)" onOK="@('loadOrgName')" />
+                            <z:textbox  class="${css.textInput} ml2" value="@bind(vm.consent.consent[0].consentId)" onOK="@('loadOrgName')" />
                         </label>
                     </div>
                     <z:button label="${labels.consent.button_label}" class="${css.primaryButton}" onClick="@('loadOrgName')" />
