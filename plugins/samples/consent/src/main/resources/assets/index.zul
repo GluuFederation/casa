@@ -18,28 +18,33 @@
                                 <div class="items-start">
                                     <p class="ml3 mb0">
                                         <p>${labels.consent.access.provider}</p>
-                                        <z:label sclass="f5 dark-blue2 uppercaseStyle" value="@load(each.provider)" />
+                                        <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.provider)" />
                                     </p>
                                     <p class="ml3 mb0">
                                         <p>${labels.consent.access.status}</p>
-                                        <z:label sclass="f5 dark-blue2 uppercaseStyle" value="@load(each.status)" />
+                                        <zk:zk if="${each.status == 'REVOKED'}">
+                                            <z:label sclass="dark-blue2 uppercaseStyle textRed" value="@load(each.status)" />
+                                        </zk:zk>
+                                        <zk:zk if="${each.status == 'ACTIVE'}">
+                                            <z:label sclass="dark-blue2 uppercaseStyle textGreen" value="@load(each.status)" />
+                                        </zk:zk>
                                     </p>
                                         <br />
                                     <p class="ml3 mb0">
                                         <p>${labels.consent.access.accountNumber}</p>
-                                        <z:label sclass="f5 dark-blue2 uppercaseStyle" value="@load(empty each.accounts ? '-' : each.accounts[0].accountId)"  />
+                                        <z:label sclass="dark-blue2 uppercaseStyle" value="@load(empty each.accounts ? '-' : each.accounts[0].accountId)"  />
                                     </p>
                                     <p class="ml3 mb0">
                                         <p>${labels.consent.access.createdDate}</p>
-                                        <z:label sclass="f5 dark-blue2 uppercaseStyle" value="@load(each.createdDate)" />
+                                        <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.createdDate)" />
                                     </p>
                                     <p class="ml3 mb0">
                                         <p>${labels.consent.access.expirationDate}</p>
-                                        <z:label sclass="f5 dark-blue2 uppercaseStyle" value="@load(each.expirationDate)" />
+                                        <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.expirationDate)" />
                                     </p>
                                     <p class="ml3 mb0">
                                         <p>${labels.consent.access.softCode}</p>
-                                        <z:label sclass="f5 dark-blue2" value="@load(each.consentId)" />
+                                        <z:label sclass="dark-blue2" value="@load(each.consentId)" />
                                         <br />
                                     </p>
                                 </div>
