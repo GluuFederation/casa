@@ -17,12 +17,14 @@ public class DummyConsent extends ConsentResponse{
         setConsentList(consentList);
         Consent consent1 = new Consent();
         consent1.setConsentId("lBs6uhzghfs4FZ85zwKXQYG3oRcbkBu_ufVN3_1VQMk");
+        consent1.setProvider("yodlee");
         consent1.setStatus(ConsentStatus.REVOKED);
         consent1.setCreatedDate(OffsetDateTime.now());
         consent1.setUpdatedDate(OffsetDateTime.now());
         getConsentList().add(consent1);
         Consent consent2 = new Consent();
         consent2.setConsentId("c725eb5a-6dff-4943-a712-5b960aa39bf8");
+        consent2.setProvider("jans");
         consent2.setStatus(ConsentStatus.REVOKED);
         consent2.setCreatedDate(OffsetDateTime.now());
         consent2.setUpdatedDate(OffsetDateTime.now());

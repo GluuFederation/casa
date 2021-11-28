@@ -1,5 +1,6 @@
 <?page language="xhtml"?>
 <?init class="org.zkoss.zk.ui.util.Composition" template="/general.zul"?>
+<?link rel="stylesheet" type="text/css" href="/css/consent.css"?>
 <zk:zk xmlns:z="http://www.zkoss.org/2005/zul" xmlns:h="xhtml" xmlns:zk="zk" xmlns="native">
 
     <h:title self="@define(title)">${zkService.appName} - ${labels.consent.title}</h:title>
@@ -15,6 +16,10 @@
                         <zk:template name="children">
                             <div class="${css.panel} flex justify-between">
                                 <div class="flex items-start">
+                                    <p class="ml3 mb0">
+                                        <z:label sclass="f5 dark-blue2 uppercaseStyle" value="@load(each.provider)" />
+                                        <br />
+                                    </p>
                                     <p class="ml3 mb0">
                                         <z:label sclass="f5 dark-blue2" value="@load(each.consentId)" />
                                         <br />

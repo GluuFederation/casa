@@ -13,6 +13,7 @@ public class Consent {
 
 
         private String consentId;
+        private String provider;
         private ConsentStatus status;
         private OffsetDateTime createdDate;
         private OffsetDateTime updatedDate;
