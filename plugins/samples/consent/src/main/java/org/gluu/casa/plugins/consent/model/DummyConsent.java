@@ -1,5 +1,6 @@
 package org.gluu.casa.plugins.consent.model;
 
+import org.gluu.casa.plugins.consent.enums.AccountStatus;
 import org.gluu.casa.plugins.consent.enums.ConsentStatus;
 
 import java.time.OffsetDateTime;
@@ -21,6 +22,13 @@ public class DummyConsent extends ConsentResponse{
         consent1.setStatus(ConsentStatus.REVOKED);
         consent1.setCreatedDate(OffsetDateTime.now());
         consent1.setUpdatedDate(OffsetDateTime.now());
+        consent1.setExpirationDate(OffsetDateTime.now());
+        List<Account> accountList1 = new ArrayList<>();
+        Account account1 = new Account();
+        account1.setAccountId("aefea590-0e68-4d8f-b8e3-781a1df49fc0");
+        account1.setStatus(AccountStatus.AUTHORIZED);
+        accountList1.add(account1);
+        consent1.setAccounts(accountList1);
         getConsentList().add(consent1);
         Consent consent2 = new Consent();
         consent2.setConsentId("c725eb5a-6dff-4943-a712-5b960aa39bf8");
@@ -28,6 +36,13 @@ public class DummyConsent extends ConsentResponse{
         consent2.setStatus(ConsentStatus.REVOKED);
         consent2.setCreatedDate(OffsetDateTime.now());
         consent2.setUpdatedDate(OffsetDateTime.now());
+        consent2.setExpirationDate(OffsetDateTime.now());
+        Account account2 = new Account();
+        account2.setAccountId("09a31f10-dbf5-4975-9b93-713657413360");
+        account2.setStatus(AccountStatus.AUTHORIZED);
+        List<Account> accountList2 = new ArrayList<>();
+        accountList2.add(account2);
+        consent2.setAccounts(accountList2);
         getConsentList().add(consent2);
     }
 }
