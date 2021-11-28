@@ -29,7 +29,6 @@
                                             <z:label sclass="dark-blue2 uppercaseStyle textGreen" value="@load(each.status)" />
                                         </zk:zk>
                                     </p>
-                                        <br />
                                     <p class="ml3 mb0">
                                         <p>${labels.consent.access.accountNumber}</p>
                                         <z:label sclass="dark-blue2 uppercaseStyle" value="@load(empty each.accounts ? '-' : each.accounts[0].accountId)"  />
@@ -45,8 +44,8 @@
                                     <p class="ml3 mb0">
                                         <p>${labels.consent.access.softCode}</p>
                                         <z:label sclass="dark-blue2" value="@load(each.consentId)" />
-                                        <br />
                                     </p>
+                                    <z:button label="${labels.consent.button_label}" class="btnBordered" onClick="@('loadOrgName')" />
                                 </div>
                             </div>
                         </zk:template>
