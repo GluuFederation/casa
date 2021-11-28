@@ -32,7 +32,7 @@ public class ConsentVM {
     private String organizationName;
     private IPersistenceService persistenceService;
     private ISessionContext sessionContext;
-    private ConsentResponse consent;
+    private ConsentResponse consentResponse;
     private  ConsentClient client;
     private ConsentRequest consentRequest;
     /**
@@ -60,13 +60,12 @@ public class ConsentVM {
         this.message = message;
     }
 
-
-    public ConsentResponse getConsent() {
-        return consent;
+    public ConsentResponse getConsentResponse() {
+        return consentResponse;
     }
 
-    public ConsentVM setConsent(ConsentResponse consent) {
-        this.consent = consent;
+    public ConsentVM setConsentResponse(ConsentResponse consentResponse) {
+        this.consentResponse = consentResponse;
         return this;
     }
 
@@ -86,7 +85,7 @@ public class ConsentVM {
         consentRequest = givenConsentRequest();
 //        TODO  - dependency  resteasy-jaxb-provider not working maybe is excluded
 //        consent = client.getAllConsents(consentRequest, URL, PATH);
-          consent = new DummyConsent();
+          consentResponse = new DummyConsent();
     }
     public ConsentClient givenClient(){
         return new ConsentClientImpl();

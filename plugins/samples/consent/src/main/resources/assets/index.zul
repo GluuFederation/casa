@@ -11,14 +11,18 @@
             <section class="${css.section}">
                 <div class="${css.panel}">
                     <h2 class="f4 dark-blue2">${labels.consent.title}</h2>
-                    <div class="mb2">
-                        <label>
-                            ${labels.consent.user_message} ${sessionContext.user.userName}
-                            <z:textbox class="${css.textInput} ml2" value="@bind(vm.message)" onOK="@('loadOrgName')" />
-                            <z:textbox  class="${css.textInput} ml2" value="@bind(vm.consent.consent[0].consentId)" onOK="@('loadOrgName')" />
-                        </label>
-                    </div>
-                    <z:button label="${labels.consent.button_label}" class="${css.primaryButton}" onClick="@('loadOrgName')" />
+                    <z:div  children="@load(vm.consentResponse.consentList)">
+                        <zk:template name="children">
+                            <div class="${css.panel} flex justify-between">
+                                <div class="flex items-start">
+                                    <p class="ml3 mb0">
+                                        <z:label sclass="f5 dark-blue2" value="@load(each.consentId)" />
+                                        <br />
+                                    </p>
+                                </div>
+                            </div>
+                        </zk:template>
+                    </z:div>
                 </div>
 
                 <z:div class="${css.panel} w-100 tc" visible="@load(not empty vm.organizationName)">

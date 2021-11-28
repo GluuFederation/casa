@@ -11,7 +11,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ConsentResponse {
     @JsonProperty("Consent")
-    private List<Consent> consent;
+    private List<Consent> consentList;
 
 
 }
