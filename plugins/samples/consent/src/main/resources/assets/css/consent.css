@@ -9,13 +9,10 @@
 }
 .textRed
 {
-
     background: red;
 }
 
-.blockView{
-    display: block;
-}
+
 .btnBordered {
     border: 2px solid cyan;
     background-color: white;
