@@ -1,6 +1,6 @@
 <?page language="xhtml"?>
 <?init class="org.zkoss.zk.ui.util.Composition" template="/general.zul"?>
-<?link rel="stylesheet" type="text/css" href="/css/consent.css"?>
+<?link rel="stylesheet" type="text/css" href="/pl/consent-plugin/css/consent.css"?>
 <zk:zk xmlns:z="http://www.zkoss.org/2005/zul" xmlns:h="xhtml" xmlns:zk="zk" xmlns="native">
 
     <h:title self="@define(title)">${zkService.appName} - ${labels.consent.title}</h:title>
