@@ -38,6 +38,10 @@
                                         <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.createdDate)" />
                                     </p>
                                     <p class="ml3 mb0">
+                                        <p>${labels.consent.access.updatedDate}</p>
+                                        <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.updatedDate)" />
+                                    </p>
+                                    <p class="ml3 mb0">
                                         <p>${labels.consent.access.expirationDate}</p>
                                         <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.expirationDate)" />
                                     </p>
