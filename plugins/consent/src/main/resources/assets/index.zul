@@ -1,0 +1,62 @@
+<?page language="xhtml"?>
+<?init class="org.zkoss.zk.ui.util.Composition" template="/general.zul"?>
+<?link rel="stylesheet" type="text/css" href="/pl/consent-plugin/css/consent.css"?>
+<zk:zk xmlns:z="http://www.zkoss.org/2005/zul" xmlns:h="xhtml" xmlns:zk="zk" xmlns="native">
+
+    <h:title self="@define(title)">${zkService.appName} - ${labels.consent.title}</h:title>
+
+    <z:div if="${empty pageScope.error}" viewModel="@('org.gluu.casa.plugins.consent.ConsentVM')"
+           self="@define(maincontent)">
+
+        <div class="${css['sectionsWrapper']} pt3">
+            <section class="${css.section}">
+                <div class="${css.panel}">
+                    <h2 class="f4 dark-blue2">${labels.consent.title}</h2>
+                    <z:div  children="@load(vm.consentResponse.consentList)">
+                        <zk:template name="children">
+                            <div class="${css.panel} flex justify-between">
+                                <div class="items-start">
+                                    <p class="ml3 mb0">
+                                        <p>${labels.consent.access.provider}</p>
+                                        <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.provider)" />
+                                    </p>
+                                    <p class="ml3 mb0">
+                                        <p>${labels.consent.access.status}</p>
+                                        <zk:zk if="${each.status == 'REVOKED' || each.status == 'REJECTED'}">
+                                            <z:label sclass="dark-blue2 uppercaseStyle textRed" value="@load(each.status)" />
+                                        </zk:zk>
+                                        <zk:zk if="${each.status == 'AUTHORIZED' || each.status == 'ACTIVE'}">
+                                            <z:label sclass="dark-blue2 uppercaseStyle textGreen" value="@load(each.status)" />
+                                        </zk:zk>
+                                    </p>
+                                    <p class="ml3 mb0">
+                                        <p>${labels.consent.access.accountNumber}</p>
+                                        <z:label sclass="dark-blue2 uppercaseStyle" value="@load(empty each.accounts ? '-' : each.accounts[0].accountId)"  />
+                                    </p>
+                                    <p class="ml3 mb0">
+                                        <p>${labels.consent.access.createdDate}</p>
+                                        <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.createdDate)" />
+                                    </p>
+                                    <p class="ml3 mb0">
+                                        <p>${labels.consent.access.expirationDate}</p>
+                                        <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.expirationDate)" />
+                                    </p>
+                                    <p class="ml3 mb0">
+                                        <p>${labels.consent.access.softCode}</p>
+                                        <z:label sclass="dark-blue2" value="@load(each.consentId)" />
+                                    </p>
+                                    <z:button label="${labels.consent.button_label}" class="btnBordered" onClick="@('loadOrgName')" />
+                                </div>
+                            </div>
+                        </zk:template>
+                    </z:div>
+                </div>
+
+                <z:div class="${css.panel} w-100 tc" visible="@load(not empty vm.organizationName)">
+                    <z:label class="i f4" value="@load(c:cat3(c:l('consent.org_name'), ' ', c:toUpperCase(vm.organizationName)))" />
+                </z:div>
+            </section>
+        </div>
+    </z:div>
+
+</zk:zk>

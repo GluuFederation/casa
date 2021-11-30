@@ -1,0 +1,23 @@
+.uppercaseStyle
+{
+    text-transform:uppercase;
+}
+.textGreen
+{
+
+    background: cyan;
+}
+.textRed
+{
+    background: red;
+}
+
+
+.btnBordered {
+    border: 2px solid cyan;
+    background-color: white;
+    color: black;
+    padding: 14px 28px;
+    font-size: 16px;
+    cursor: pointer;
+}
