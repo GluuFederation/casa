@@ -14,13 +14,13 @@
                     <h2 class="f4 dark-blue2">${labels.consent.title}</h2>
                     <z:div  children="@load(vm.consentResponse.consentList)">
                         <zk:template name="children">
-                            <div class="${css.panel} flex justify-between">
+                            <div class="${css.panel} flex justify-between ">
                                 <div class="items-start">
-                                    <p class="ml3 mb0">
+                                    <div class="${css.panel}">
                                         <p>${labels.consent.access.provider}</p>
                                         <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.provider)" />
-                                    </p>
-                                    <p class="ml3 mb0">
+                                    </div>
+                                    <div class="${css.panel}">
                                         <p>${labels.consent.access.status}</p>
                                         <zk:zk if="${each.status == 'REVOKED' || each.status == 'REJECTED'}">
                                             <z:label sclass="dark-blue2 uppercaseStyle textRed" value="@load(each.status)" />
@@ -28,16 +28,16 @@
                                         <zk:zk if="${each.status == 'AUTHORIZED' || each.status == 'ACTIVE'}">
                                             <z:label sclass="dark-blue2 uppercaseStyle textGreen" value="@load(each.status)" />
                                         </zk:zk>
-                                    </p>
-                                    <p class="ml3 mb0">
+                                    </div>
+                                    <div class="${css.panel}">
                                         <p>${labels.consent.access.createdDate}</p>
                                         <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.createdDate)" />
-                                    </p>
-                                    <p class="ml3 mb0">
+                                    </div>
+                                    <div class="${css.panel}">
                                         <p>${labels.consent.access.updatedDate}</p>
                                         <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.updatedDate)" />
-                                    </p>
-                                    <p class="ml3 mb0">
+                                    </div>
+                                    <div class="${css.panel}">
                                         <p>${labels.consent.access.expirationDate}</p>
                                         <zk:zk if="${not empty each.expirationDate}">
                                         <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.expirationDate)" />
@@ -45,12 +45,14 @@
                                         <zk:zk if="${empty each.expirationDate}">
                                             <z:label sclass="dark-blue2 uppercaseStyle" value="-" />
                                         </zk:zk>
-                                    </p>
-                                    <p class="ml3 mb0">
+                                    </div>
+                                    <div class="${css.panel}">
                                         <p>${labels.consent.access.softCode}</p>
                                         <z:label sclass="dark-blue2" value="@load(each.consentId)" />
-                                    </p>
+                                    </div>
+                                    <div class="${css.panel}">
                                     <z:button label="${labels.consent.button_label}" class="btnBordered" onClick="@('loadOrgName')" />
+                                    </div>
                                 </div>
                             </div>
                         </zk:template>
