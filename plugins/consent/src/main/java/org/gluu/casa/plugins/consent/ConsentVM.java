@@ -1,12 +1,14 @@
 package org.gluu.casa.plugins.consent;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import org.gluu.casa.core.pojo.User;
 import org.gluu.casa.misc.Utils;
 import org.gluu.casa.plugins.consent.client.ConsentClient;
 import org.gluu.casa.plugins.consent.client.impl.ConsentClientImpl;
 import org.gluu.casa.plugins.consent.model.ConsentRequest;
 import org.gluu.casa.plugins.consent.model.ConsentResponse;
-import org.gluu.casa.plugins.consent.model.DummyConsent;
+
 import org.gluu.casa.service.IPersistenceService;
 import org.gluu.casa.service.ISessionContext;
 import org.slf4j.Logger;
@@ -35,6 +37,7 @@ public class ConsentVM {
     private ConsentResponse consentResponse;
     private  ConsentClient client;
     private ConsentRequest consentRequest;
+    private User user;
     /**
      * Getter of private class field <code>organizationName</code>.
      * @return A string with the value of the organization name found in your Gluu installation. Find this value in
@@ -80,20 +83,27 @@ public class ConsentVM {
         sessionContext = Utils.managedBean(ISessionContext.class);
         if (sessionContext.getLoggedUser() != null) {
             logger.info("There is a user logged in!");
+            user = sessionContext.getLoggedUser();
+            logger.info("User data !" + user.getClaim("email"));
+            client = givenClient();
+            String email = user.getClaim("email");
+            // TODO remove this after adding new user
+            if(email == null){
+                email = CUSTOMERID;
+            }
+            consentRequest = createConsentRequest(email);
+            consentResponse = client.getAllConsents(consentRequest, URL, PATH);
+
         }
-        client = givenClient();
-        consentRequest = givenConsentRequest();
-//        TODO  - dependency  resteasy-jaxb-provider not working maybe is excluded
-        consentResponse = client.getAllConsents(consentRequest, URL, PATH);
-        logger.info("after reading response");
-       //   consentResponse = new DummyConsent();
+
+
     }
     public ConsentClient givenClient(){
         return new ConsentClientImpl();
     }
-    public ConsentRequest givenConsentRequest(){
+    public ConsentRequest createConsentRequest(String email){
         ConsentRequest consentRequest = new ConsentRequest();
-        consentRequest.setCustomerid(CUSTOMERID);
+        consentRequest.setCustomerid(email);
         return consentRequest;
     }
 
