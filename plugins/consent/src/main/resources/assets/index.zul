@@ -30,10 +30,6 @@
                                         </zk:zk>
                                     </p>
                                     <p class="ml3 mb0">
-                                        <p>${labels.consent.access.accountNumber}</p>
-                                        <z:label sclass="dark-blue2 uppercaseStyle" value="@load(empty each.accounts ? '-' : each.accounts[0].accountId)"  />
-                                    </p>
-                                    <p class="ml3 mb0">
                                         <p>${labels.consent.access.createdDate}</p>
                                         <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.createdDate)" />
                                     </p>
