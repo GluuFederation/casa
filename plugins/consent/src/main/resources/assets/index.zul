@@ -39,7 +39,12 @@
                                     </p>
                                     <p class="ml3 mb0">
                                         <p>${labels.consent.access.expirationDate}</p>
+                                        <zk:zk if="${not empty each.expirationDate}">
                                         <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.expirationDate)" />
+                                        </zk:zk>
+                                        <zk:zk if="${empty each.expirationDate}">
+                                            <z:label sclass="dark-blue2 uppercaseStyle" value="-" />
+                                        </zk:zk>
                                     </p>
                                     <p class="ml3 mb0">
                                         <p>${labels.consent.access.softCode}</p>
