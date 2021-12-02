@@ -137,11 +137,7 @@
                 <version>${tika.version}</version>
             </dependency>
 		
-	    <dependency>
-           	<groupId>com.fasterxml</groupId>
-            	<artifactId>aalto-xml</artifactId>
-            	<version>1.2.1</version>
-            </dependency>
+	    
         </dependencies>
     </dependencyManagement>
 
