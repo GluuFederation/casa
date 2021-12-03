@@ -81,10 +81,11 @@ public class ConsentVM {
         persistenceService = Utils.managedBean(IPersistenceService.class);
 
         sessionContext = Utils.managedBean(ISessionContext.class);
+        logger.info("There is a user logged in! " + sessionContext.getLoggedUser());
         if (sessionContext.getLoggedUser() != null) {
             logger.info("There is a user logged in!");
             user = sessionContext.getLoggedUser();
-            logger.info("User data !" + user.getClaim("email"));
+            logger.info("User data ! " + user.getClaim("email"));
             client = givenClient();
             String email = user.getClaim("email");
             // TODO remove this after adding new user
