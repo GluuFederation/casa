@@ -12,51 +12,51 @@
             <section class="${css.section}">
                 <div class="${css.panel}">
                     <h2 class="f4 dark-blue2">${labels.consent.title}</h2>
-                    <z:div  children="@load(vm.consentResponse.consentList)">
-                        <zk:template name="children">
-                            <div class="${css.panel} flex justify-between ">
-                                <div class="items-start">
-                                    <div class="${css.panel}">
-                                        <p>${labels.consent.access.provider}</p>
-                                        <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.provider)" />
-                                    </div>
-                                    <div class="${css.panel}">
-                                        <p>${labels.consent.access.status}</p>
-                                        <zk:zk if="${each.status == 'REVOKED' || each.status == 'REJECTED'}">
-                                            <z:label sclass="dark-blue2 uppercaseStyle textRed" value="@load(each.status)" />
-                                        </zk:zk>
+                    <h:table class="table table-hover table-sm" visible="@load(not empty vm.consentResponse.consentList)">
+
+                        <h:tbody children="@load(vm.consentResponse.consentList)" sclass="f7">
+                            <zk:template name="children">
+                                <h:tr >
+                                    <td><p>${labels.consent.access.provider}</p></td>
+                                    <td> <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.provider)" /></td>
+                                </h:tr>
+                                <h:tr >
+                                    <td><p>${labels.consent.access.status}</p></td>
+                                    <td> <zk:zk if="${each.status == 'REVOKED' || each.status == 'REJECTED'}">
+                                        <z:label sclass="dark-blue2 uppercaseStyle textRed" value="@load(each.status)" />
+                                    </zk:zk>
                                         <zk:zk if="${each.status == 'AUTHORIZED' || each.status == 'ACTIVE'}">
                                             <z:label sclass="dark-blue2 uppercaseStyle textGreen" value="@load(each.status)" />
-                                        </zk:zk>
-                                    </div>
-                                    <div class="${css.panel}">
-                                        <p>${labels.consent.access.createdDate}</p>
-                                        <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.createdDate)" />
-                                    </div>
-                                    <div class="${css.panel}">
-                                        <p>${labels.consent.access.updatedDate}</p>
-                                        <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.updatedDate)" />
-                                    </div>
-                                    <div class="${css.panel}">
-                                        <p>${labels.consent.access.expirationDate}</p>
-                                        <zk:zk if="${not empty each.expirationDate}">
+                                        </zk:zk></td>
+                                </h:tr>
+                                <h:tr >
+                                    <td><p>${labels.consent.access.createdDate}</p></td>
+                                    <td><z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.createdDate)" /></td>
+                                </h:tr>
+                                <h:tr >
+                                    <td><p>${labels.consent.access.updatedDate}</p></td>
+                                    <td><z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.updatedDate)" /></td>
+                                </h:tr>
+                                <h:tr >
+                                    <td><p>${labels.consent.access.expirationDate}</p></td>
+                                    <td> <zk:zk if="${not empty each.expirationDate}">
                                         <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.expirationDate)" />
-                                        </zk:zk>
+                                    </zk:zk>
                                         <zk:zk if="${empty each.expirationDate}">
                                             <z:label sclass="dark-blue2 uppercaseStyle" value="-" />
-                                        </zk:zk>
-                                    </div>
-                                    <div class="${css.panel}">
-                                        <p>${labels.consent.access.softCode}</p>
-                                        <z:label sclass="dark-blue2" value="@load(each.consentId)" />
-                                    </div>
-                                    <div class="${css.panel}">
-                                    <z:button label="${labels.consent.button_label}" class="btnBordered" onClick="@('loadOrgName')" />
-                                    </div>
-                                </div>
-                            </div>
-                        </zk:template>
-                    </z:div>
+                                        </zk:zk></td>
+                                </h:tr>
+                                <h:tr >
+                                    <td>${labels.consent.access.softCode}</td>
+                                    <td><z:label sclass="dark-blue2" value="@load(each.consentId)" /></td>
+                                </h:tr>
+                                <h:tr >
+                                    <td> <z:button label="${labels.consent.button_label}" class="btnBordered" onClick="@('loadOrgName')" /></td>
+                                    <td></td>
+                                </h:tr>
+                            </zk:template>
+                        </h:tbody>
+                    </h:table>
                 </div>
 
                 <z:div class="${css.panel} w-100 tc" visible="@load(not empty vm.organizationName)">
