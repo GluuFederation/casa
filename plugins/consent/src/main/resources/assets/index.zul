@@ -12,7 +12,7 @@
             <section class="${css.section}">
                 <div class="${css.panel}">
                     <h2 class="f4 dark-blue2">${labels.consent.title}</h2>
-                    <h:table class="table table-hover table-sm" visible="@load(not empty vm.consentResponse.consentList)">
+                    <h:table class="table table-hover table-sm table-borderless" visible="@load(not empty vm.consentResponse.consentList)">
 
                         <h:tbody children="@load(vm.consentResponse.consentList)" sclass="f7">
                             <zk:template name="children">
