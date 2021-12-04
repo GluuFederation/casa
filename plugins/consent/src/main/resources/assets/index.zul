@@ -38,6 +38,25 @@
                                     <td><z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.updatedDate)" /></td>
                                 </h:tr>
                                 <h:tr >
+                                    <td><p>${labels.consent.access.accounts}</p></td>
+                                <td>
+                                    <h:table class="table table-hover table-sm table-borderless" visible="@load(not empty each.accounts)">
+                                        <h:tbody children="@load(each.accounts)" sclass="f7">
+                                        <zk:template name="children">
+                                        <h:tr>
+                                            <td><p>${labels.consent.access.accountNumber}</p></td>
+                                            <td><z:label value="${each.accountId}"/></td>
+                                        </h:tr>
+                                        <h:tr>
+                                            <td> <p>${labels.consent.access.accountStatus}</p></td>
+                                            <td>  <z:label value="${each.status}"/></td>
+                                        </h:tr>
+                                        </zk:template>
+                                        </h:tbody>
+                                    </h:table>
+                                </td>
+                                </h:tr>
+                                <h:tr >
                                     <td><p>${labels.consent.access.expirationDate}</p></td>
                                     <td> <zk:zk if="${not empty each.expirationDate}">
                                         <z:label sclass="dark-blue2 uppercaseStyle" value="@load(each.expirationDate)" />
