@@ -72,7 +72,7 @@
         <module>plugins/cert-authn</module>
 		<module>plugins/bioid</module>
 		<module>plugins/duo</module>
-		<module>config-client</module>
+		
     </modules>
 
     <dependencyManagement>
