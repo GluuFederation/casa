@@ -70,7 +70,8 @@
                                     <td><z:label sclass="dark-blue2" value="@load(each.consentId)" /></td>
                                 </h:tr>
                                 <h:tr >
-                                    <td> <z:button label="${labels.consent.button_label}" class="btnBordered" onClick="@('loadOrgName')" /></td>
+                                    <td> <z:button label="${labels.consent.button_label}" class="btnBordered"
+                                                   onClick="@('openConsent',each)"  href="consent-details.zul"/></td>
                                     <td></td>
                                 </h:tr>
                             </zk:template>
