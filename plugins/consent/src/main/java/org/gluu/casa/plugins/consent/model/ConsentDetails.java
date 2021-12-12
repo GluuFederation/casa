@@ -2,6 +2,7 @@ package org.gluu.casa.plugins.consent.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,5 +19,7 @@ public class ConsentDetails {
     private String status;
     private String expirationDate;
     private String consentId;
+    private String provider;
+    private String accessGrantedDate;
 
 }

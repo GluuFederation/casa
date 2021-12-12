@@ -6,6 +6,7 @@ import org.gluu.casa.core.pojo.User;
 import org.gluu.casa.misc.Utils;
 import org.gluu.casa.plugins.consent.client.ConsentClient;
 import org.gluu.casa.plugins.consent.client.impl.ConsentClientImpl;
+import org.gluu.casa.plugins.consent.enums.ConsentStatus;
 import org.gluu.casa.plugins.consent.model.Consent;
 import org.gluu.casa.plugins.consent.model.ConsentDetails;
 import org.gluu.casa.plugins.consent.model.ConsentRequest;
@@ -63,7 +64,12 @@ public class ConsentDetailsVM {
             //todo populate after calling api
             consentDetails = new ConsentDetails();
             consentDetails.setConsentId("lBs6uhzghfs4FZ85zwKXQYG3oRcbkBu_ufVN3_1VQMk=");
-
+            consentDetails.setProvider("Yodlee");
+            consentDetails.setStatus(ConsentStatus.REVOKED.name());
+            consentDetails.setExpirationDate("-");
+            consentDetails.setAccountId("No account found");
+            consentDetails.setAccessGrantedDate("2021-11-25T13:01:24Z");
+            logger.info("consent details {}",consentDetails.toString());
         }
 
 

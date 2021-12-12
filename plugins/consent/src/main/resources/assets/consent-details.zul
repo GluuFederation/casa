@@ -29,31 +29,10 @@
                         </h:tr>
                         <h:tr >
                             <td><p>${labels.consent.access.createdDate}</p></td>
-                            <td><z:label sclass="dark-blue2 uppercaseStyle" value="@load(vm.consentDetails.createdDate)" /></td>
+                            <td><z:label sclass="dark-blue2 uppercaseStyle" value="@load(vm.consentDetails.accessGrantedDate)" /></td>
                         </h:tr>
-                        <h:tr >
-                            <td><p>${labels.consent.access.updatedDate}</p></td>
-                            <td><z:label sclass="dark-blue2 uppercaseStyle" value="@load(vm.consentDetails.updatedDate)" /></td>
-                        </h:tr>
-                        <h:tr >
-                            <td><p>${labels.consent.access.accounts}</p></td>
-                            <td>
-                                <h:table class="table table-hover table-sm table-borderless" visible="@load(not empty vm.consentDetails.accounts)">
-                                    <h:tbody children="@load(vm.consentDetails.accounts)" sclass="f7">
-                                        <zk:template name="children">
-                                            <h:tr>
-                                                <td><p>${labels.consent.access.accountNumber}</p></td>
-                                                <td><z:label value="${vm.consentDetails.accountId}"/></td>
-                                            </h:tr>
-                                            <h:tr>
-                                                <td> <p>${labels.consent.access.accountStatus}</p></td>
-                                                <td>  <z:label value="${vm.consentDetails.status}"/></td>
-                                            </h:tr>
-                                        </zk:template>
-                                    </h:tbody>
-                                </h:table>
-                            </td>
-                        </h:tr>
+
+
                         <h:tr >
                             <td><p>${labels.consent.access.expirationDate}</p></td>
                             <td> <zk:zk if="${not empty vm.consentDetails.expirationDate}">
@@ -67,7 +46,6 @@
                             <td>${labels.consent.access.softCode}</td>
                             <td><z:label sclass="dark-blue2" value="@load(vm.consentDetails.consentId)" /></td>
                         </h:tr>
-
                     </zk:template>
                 </h:tbody>
             </h:table>
