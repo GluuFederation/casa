@@ -3,9 +3,9 @@
 <?link rel="stylesheet" type="text/css" href="/pl/consent-plugin/css/consent.css"?>
 <zk:zk xmlns:z="http://www.zkoss.org/2005/zul" xmlns:h="xhtml" xmlns:zk="zk" xmlns="native">
 
-    <h:title self="@define(title)">${zkService.appName} - ${labels.consent.title}</h:title>
+    <h:title self="@define(title)">${zkService.appName} - ${labels.consent.details.title}</h:title>
 
-    <z:div if="${empty pageScope.error}" viewModel="@('org.gluu.casa.plugins.consent.ConsentDetailsVM')"
+    <z:div if="${empty pageScope.error}" viewModel="@('org.gluu.casa.plugins.consent.ConsentVM')"
            self="@define(maincontent)">
 
         <div class="${css.panel}">

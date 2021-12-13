@@ -6,7 +6,9 @@ import org.gluu.casa.extension.AuthnMethod;
 import org.gluu.casa.misc.Utils;
 import org.gluu.casa.plugins.consent.client.ConsentClient;
 import org.gluu.casa.plugins.consent.client.impl.ConsentClientImpl;
+import org.gluu.casa.plugins.consent.enums.ConsentStatus;
 import org.gluu.casa.plugins.consent.model.Consent;
+import org.gluu.casa.plugins.consent.model.ConsentDetails;
 import org.gluu.casa.plugins.consent.model.ConsentRequest;
 import org.gluu.casa.plugins.consent.model.ConsentResponse;
 
@@ -39,6 +41,7 @@ public class ConsentVM {
     private  ConsentClient client;
     private ConsentRequest consentRequest;
     private User user;
+    private ConsentDetails consentDetails;
     /**
      * Getter of private class field <code>organizationName</code>.
      * @return A string with the value of the organization name found in your Gluu installation. Find this value in
@@ -73,6 +76,35 @@ public class ConsentVM {
         return this;
     }
 
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
+
+    public ConsentRequest getConsentRequest() {
+        return consentRequest;
+    }
+
+    public void setConsentRequest(ConsentRequest consentRequest) {
+        this.consentRequest = consentRequest;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public ConsentDetails getConsentDetails() {
+        return consentDetails;
+    }
+
+    public void setConsentDetails(ConsentDetails consentDetails) {
+        this.consentDetails = consentDetails;
+    }
+
     /**
      * Initialization method for this ViewModel.
      */
@@ -95,7 +127,7 @@ public class ConsentVM {
             }
             consentRequest = createConsentRequest(email);
             consentResponse = client.getAllConsents(consentRequest, URL, PATH);
-
+            consentDetails = createDummyConsentDetails();
         }
 
 
@@ -115,6 +147,17 @@ public class ConsentVM {
 
     public void openConsent(Consent consent) {
         logger.info("You opened consent {}",consent.getConsentId());
+    }
+
+    public ConsentDetails createDummyConsentDetails(){
+        consentDetails = new ConsentDetails();
+        consentDetails.setConsentId("lBs6uhzghfs4FZ85zwKXQYG3oRcbkBu_ufVN3_1VQMk=");
+        consentDetails.setProvider("Yodlee");
+        consentDetails.setStatus(ConsentStatus.REVOKED.name());
+        consentDetails.setExpirationDate("-");
+        consentDetails.setAccountId("No account found");
+        consentDetails.setAccessGrantedDate("2021-11-25T13:01:24Z");
+        return consentDetails;
     }
 
 }
