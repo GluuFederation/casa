@@ -9,7 +9,7 @@
            self="@define(maincontent)">
 
         <div class="${css.panel}">
-            <h2 class="f4 dark-blue2">${labels.consent.title}</h2>
+            <h2 class="f4 dark-blue2">${labels.consent.details.title}</h2>
             <h:table class="table table-hover table-sm table-borderless" >
 
                 <h:tbody children="@load(vm.consentDetails)" sclass="f7">

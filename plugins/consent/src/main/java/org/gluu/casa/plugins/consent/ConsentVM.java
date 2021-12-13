@@ -145,10 +145,22 @@ public class ConsentVM {
      * The method called when the button on page <code>index.zul</code> is pressed. It redirects to page with consent details
      */
 
-    public void openConsent(Consent consent) {
-        logger.info("You opened consent {}",consent.getConsentId());
-    }
+    public void openConsent(Consent consentFromUI) {
+        logger.info("You opened consent {}",consentFromUI.getConsentId());
+        consentDetails = new ConsentDetails();
+        consentDetails.setConsentId(consentFromUI.getConsentId()!=null?consentFromUI.getConsentId():"-");
+        consentDetails.setProvider(consentFromUI.getProvider()!=null?consentFromUI.getProvider():"-");
+        consentDetails.setStatus(consentFromUI.getStatus()!=null?consentFromUI.getStatus().name():"-");
+        consentDetails.setExpirationDate(consentFromUI.getExpirationDate()!=null?consentFromUI.getExpirationDate().toString():"-");
+        consentDetails.setAccountId(consentFromUI.getAccounts()!=null&&consentFromUI.getAccounts().size()>0?consentFromUI.getAccounts().get(0).getAccountId():"No account found");
+        consentDetails.setAccessGrantedDate(consentFromUI.getCreatedDate()!=null?consentFromUI.getCreatedDate().toString():"-");
 
+     }
+
+    /**
+     * remove after receive endpoint
+     * @return
+     */
     public ConsentDetails createDummyConsentDetails(){
         consentDetails = new ConsentDetails();
         consentDetails.setConsentId("lBs6uhzghfs4FZ85zwKXQYG3oRcbkBu_ufVN3_1VQMk=");
