@@ -25,7 +25,7 @@
         <pf4j.version>3.2.0</pf4j.version>
         <casa.version>4.2.3.sp2</casa.version>
         <ox.version>4.2.3.sp2</ox.version>
-        <log4j.version>2.11.2</log4j.version>
+        <log4j.version>2.15.0</log4j.version>
         <jackson.version>2.10.1</jackson.version>
         <zk.version>9.5.0.2</zk.version>
         <ldapsdk.version>4.0.14</ldapsdk.version>
