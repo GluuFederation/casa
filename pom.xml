@@ -130,6 +130,7 @@
                 <artifactId>tika-core</artifactId>
                 <version>${tika.version}</version>
             </dependency>
+	    
         </dependencies>
     </dependencyManagement>
 
