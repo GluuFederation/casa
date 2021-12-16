@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Named
@@ -83,12 +84,10 @@ public class Fido2Service extends BaseService {
 
             for (Fido2RegistrationEntry entry : list) {
             	FidoDevice device = null;
-            	if(entry.getRegistrationData().getAttenstationRequest().contains("platform") )
-            	{
-            		 device = new PlatformAuthenticator();
-            	}
-            	else
-            	{
+            	if (Optional.ofNullable(entry.getRegistrationData().getAttenstationRequest())
+            	       .map(ar -> ar.contains("platform")).orElse(false)) {
+            	    device = new PlatformAuthenticator();
+            	} else {
             		device = new SecurityKey();
             	}
             	device.setId(entry.getId());
