@@ -1,0 +1,672 @@
+[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.gluu.casa.plugins:account-linking:jar:4.1.3.Final
+[WARNING] 'artifactId' contains an expression but should be a constant. @ org.gluu.casa.plugins:${plugin.id}:${plugin.version}, V:\Workspaces\gluu.release\4.1.3\casa\plugins\account-linking\pom.xml, line 8, column 17
+[WARNING] 'version' contains an expression but should be a constant. @ org.gluu.casa.plugins:${plugin.id}:${plugin.version}, V:\Workspaces\gluu.release\4.1.3\casa\plugins\account-linking\pom.xml, line 9, column 14
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.gluu.casa.plugins:authorized-clients:jar:4.1.3.Final
+[WARNING] 'artifactId' contains an expression but should be a constant. @ org.gluu.casa.plugins:${plugin.id}:${plugin.version}, V:\Workspaces\gluu.release\4.1.3\casa\plugins\client-authorizations\pom.xml, line 8, column 17
+[WARNING] 'version' contains an expression but should be a constant. @ org.gluu.casa.plugins:${plugin.id}:${plugin.version}, V:\Workspaces\gluu.release\4.1.3\casa\plugins\client-authorizations\pom.xml, line 9, column 14
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.gluu.casa.plugins:custom-branding:jar:4.1.3.Final
+[WARNING] 'artifactId' contains an expression but should be a constant. @ org.gluu.casa.plugins:${plugin.id}:${plugin.version}, V:\Workspaces\gluu.release\4.1.3\casa\plugins\custom-branding\pom.xml, line 8, column 17
+[WARNING] 'version' contains an expression but should be a constant. @ org.gluu.casa.plugins:${plugin.id}:${plugin.version}, V:\Workspaces\gluu.release\4.1.3\casa\plugins\custom-branding\pom.xml, line 9, column 14
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.gluu.casa.plugins:strong-authn-settings:jar:4.1.3.Final
+[WARNING] 'artifactId' contains an expression but should be a constant. @ org.gluu.casa.plugins:${plugin.id}:${plugin.version}, V:\Workspaces\gluu.release\4.1.3\casa\plugins\strong-authn-settings\pom.xml, line 8, column 17
+[WARNING] 'version' contains an expression but should be a constant. @ org.gluu.casa.plugins:${plugin.id}:${plugin.version}, V:\Workspaces\gluu.release\4.1.3\casa\plugins\strong-authn-settings\pom.xml, line 9, column 14
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[WARNING] The project org.gluu:casa-base:pom:4.1.3.Final uses prerequisites which is only intended for maven-plugin projects but not for non maven-plugin projects. For such purposes you should use the maven-enforcer-plugin. See https://maven.apache.org/enforcer/enforcer-rules/requireMavenVersion.html
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] casa-base                                                          [pom]
+[INFO] casa-shared                                                        [jar]
+[INFO] casa                                                               [war]
+[INFO] account-linking                                                    [jar]
+[INFO] authorized-clients                                                 [jar]
+[INFO] custom-branding                                                    [jar]
+[INFO] strong-authn-settings                                              [jar]
+[INFO] 
+[INFO] -------------------------< org.gluu:casa-base >-------------------------
+[INFO] Building casa-base 4.1.3.Final                                     [1/7]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ casa-base ---
+[INFO] org.gluu:casa-base:pom:4.1.3.Final
+[INFO] 
+[INFO] ------------------------< org.gluu:casa-shared >------------------------
+[INFO] Building casa-shared 4.1.3.Final                                   [2/7]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ casa-shared ---
+[INFO] org.gluu:casa-shared:jar:4.1.3.Final
+[INFO] +- org.gluu:oxcore-persistence-model:jar:4.1.3.Final:compile
+[INFO] |  +- org.gluu:oxcore-persistence-annotation:jar:4.1.3.Final:compile
+[INFO] |  \- org.gluu:oxcore-util:jar:4.1.3.Final:compile
+[INFO] |     +- javax.persistence:persistence-api:jar:1.0.2:compile
+[INFO] |     +- org.apache.logging.log4j:log4j-api:jar:2.11.2:compile
+[INFO] |     +- org.apache.logging.log4j:log4j-1.2-api:jar:2.11.2:compile
+[INFO] |     |  \- org.apache.logging.log4j:log4j-core:jar:2.11.2:compile
+[INFO] |     +- org.apache.logging.log4j:log4j-slf4j-impl:jar:2.11.2:compile
+[INFO] |     +- commons-codec:commons-codec:jar:1.12:compile
+[INFO] |     +- commons-configuration:commons-configuration:jar:1.10:compile
+[INFO] |     |  \- commons-lang:commons-lang:jar:2.6:compile
+[INFO] |     +- org.apache.commons:commons-text:jar:1.6:compile
+[INFO] |     |  \- org.apache.commons:commons-lang3:jar:3.8.1:compile
+[INFO] |     +- commons-httpclient:commons-httpclient:jar:3.1:compile
+[INFO] |     +- org.apache.commons:commons-exec:jar:1.3:compile
+[INFO] |     +- org.apache.httpcomponents:httpcore:jar:4.4.11:compile
+[INFO] |     +- org.apache.httpcomponents:httpclient:jar:4.5.8:compile
+[INFO] |     \- org.jboss.resteasy:resteasy-jackson2-provider:jar:3.7.0.Final:compile
+[INFO] |        +- com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:jar:2.9.8:compile
+[INFO] |        |  +- com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:jar:2.9.8:compile
+[INFO] |        |  \- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:jar:2.9.8:compile
+[INFO] |        +- com.github.fge:json-patch:jar:1.9:compile
+[INFO] |        |  \- com.github.fge:jackson-coreutils:jar:1.6:compile
+[INFO] |        |     \- com.github.fge:msg-simple:jar:1.1:compile
+[INFO] |        |        \- com.github.fge:btf:jar:1.2:compile
+[INFO] |        \- org.jboss.logging:jboss-logging:jar:3.3.2.Final:compile
+[INFO] +- org.gluu:oxcore-persistence-filter:jar:4.1.3.Final:compile
+[INFO] +- org.pf4j:pf4j:jar:2.5.0:compile
+[INFO] |  +- org.slf4j:slf4j-api:jar:1.7.5:compile
+[INFO] |  \- com.github.zafarkhaja:java-semver:jar:0.9.0:compile
+[INFO] +- org.jboss.weld.servlet:weld-servlet-shaded:jar:3.1.0.Final:compile
+[INFO] +- com.unboundid:unboundid-ldapsdk:jar:4.0.14:compile
+[INFO] +- org.zkoss.zk:zk:jar:8.6.0.1:compile
+[INFO] |  +- org.zkoss.common:zweb:jar:8.6.0.1:compile
+[INFO] |  +- com.google.javascript:closure-compiler-unshaded:jar:v20170626:compile
+[INFO] |  |  +- com.google.javascript:closure-compiler-externs:jar:v20170626:compile
+[INFO] |  |  +- args4j:args4j:jar:2.33:compile
+[INFO] |  |  +- com.google.errorprone:error_prone_annotations:jar:2.0.18:compile
+[INFO] |  |  +- com.google.guava:guava:jar:20.0:compile
+[INFO] |  |  +- com.google.protobuf:protobuf-java:jar:3.0.2:compile
+[INFO] |  |  +- com.google.code.gson:gson:jar:2.7:compile
+[INFO] |  |  +- com.google.code.findbugs:jsr305:jar:3.0.1:compile
+[INFO] |  |  \- com.google.jsinterop:jsinterop-annotations:jar:1.0.0:compile
+[INFO] |  \- org.zkoss.zk:zkwebfragment:jar:8.6.0.1:compile
+[INFO] +- org.zkoss.common:zcommon:jar:8.6.0.1:compile
+[INFO] |  +- commons-fileupload:commons-fileupload:jar:1.3.3:compile
+[INFO] |  +- org.zkoss.common:zel:jar:8.6.0.1:compile
+[INFO] |  \- org.apache-extras.beanshell:bsh:jar:2.0b6:compile
+[INFO] +- org.zkoss.zk:zkbind:jar:8.6.0.1:compile
+[INFO] |  +- org.zkoss.zk:zul:jar:8.6.0.1:compile
+[INFO] |  \- org.javassist:javassist:jar:3.18.2-GA:compile
+[INFO] +- com.fasterxml.jackson.core:jackson-databind:jar:2.10.1:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.10.1:compile
+[INFO] |  \- com.fasterxml.jackson.core:jackson-core:jar:2.10.1:compile
+[INFO] +- net.sf.jmimemagic:jmimemagic:jar:0.1.5:compile
+[INFO] |  +- commons-io:commons-io:jar:2.1:compile
+[INFO] |  \- log4j:log4j:jar:1.2.8:runtime
+[INFO] +- commons-beanutils:commons-beanutils:jar:1.8.3:compile
+[INFO] |  \- commons-logging:commons-logging:jar:1.1.1:compile
+[INFO] +- javax.servlet:javax.servlet-api:jar:3.0.1:compile
+[INFO] \- org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:jar:1.0.3.Final:compile
+[INFO] 
+[INFO] ---------------------------< org.gluu:casa >----------------------------
+[INFO] Building casa 4.1.3.Final                                          [3/7]
+[INFO] --------------------------------[ war ]---------------------------------
+Downloading from gluu: http://ox.gluu.org/maven/org/gluu/oxd-common/4.1.3.Final/oxd-common-4.1.3.Final.pom
+Progress (1): 4.1/5.4 kBProgress (1): 5.4 kB    [WARNING] Could not validate integrity of download from http://ox.gluu.org/maven/org/gluu/oxd-common/4.1.3.Final/oxd-common-4.1.3.Final.pom: Checksum validation failed, no checksums available
+                    [WARNING] Checksum validation failed, no checksums available from gluu for http://ox.gluu.org/maven/org/gluu/oxd-common/4.1.3.Final/oxd-common-4.1.3.Final.pom
+Downloaded from gluu: http://ox.gluu.org/maven/org/gluu/oxd-common/4.1.3.Final/oxd-common-4.1.3.Final.pom (5.4 kB at 2.8 kB/s)
+Downloading from gluu: http://ox.gluu.org/maven/org/gluu/oxd/4.1.3.Final/oxd-4.1.3.Final.pom
+Progress (1): 4.1/23 kBProgress (1): 8.2/23 kBProgress (1): 12/23 kB Progress (1): 16/23 kBProgress (1): 20/23 kBProgress (1): 23 kB   [WARNING] Could not validate integrity of download from http://ox.gluu.org/maven/org/gluu/oxd/4.1.3.Final/oxd-4.1.3.Final.pom: Checksum validation failed, no checksums available
+                   [WARNING] Checksum validation failed, no checksums available from gluu for http://ox.gluu.org/maven/org/gluu/oxd/4.1.3.Final/oxd-4.1.3.Final.pom
+Downloaded from gluu: http://ox.gluu.org/maven/org/gluu/oxd/4.1.3.Final/oxd-4.1.3.Final.pom (23 kB at 14 kB/s)
+Downloading from jboss: http://repository.jboss.org/nexus/content/groups/public/net/minidev/json-smart/maven-metadata.xml
+Downloading from ZK CE: http://mavensync.zkoss.org/maven2/net/minidev/json-smart/maven-metadata.xml
+Downloading from gluu: http://ox.gluu.org/maven/net/minidev/json-smart/maven-metadata.xml
+Downloading from central: https://repo.maven.apache.org/maven2/net/minidev/json-smart/maven-metadata.xml
+Progress (1): 1.1 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/net/minidev/json-smart/maven-metadata.xml (1.1 kB at 2.9 kB/s)
+Downloading from repository.jboss.org: https://repository.jboss.org/nexus/content/groups/public-jboss/net/minidev/json-smart/maven-metadata.xml
+Downloading from bouncycastle: https://repo2.maven.org/maven2/org/bouncycastle/net/minidev/json-smart/maven-metadata.xml
+Downloading from mavencentral: https://repo1.maven.org/maven2/net/minidev/json-smart/maven-metadata.xml
+Progress (1): 1.1 kB                    Downloaded from mavencentral: https://repo1.maven.org/maven2/net/minidev/json-smart/maven-metadata.xml (1.1 kB at 3.5 kB/s)
+Progress (1): 849 B                   Downloaded from repository.jboss.org: https://repository.jboss.org/nexus/content/groups/public-jboss/net/minidev/json-smart/maven-metadata.xml (849 B at 821 B/s)
+[WARNING] Could not transfer metadata net.minidev:json-smart/maven-metadata.xml from/to bouncycastle (https://repo2.maven.org/maven2/org/bouncycastle): Transfer failed for https://repo2.maven.org/maven2/org/bouncycastle/net/minidev/json-smart/maven-metadata.xml
+Downloading from gluu: http://ox.gluu.org/maven/org/gluu/oxtrust-model/4.1.3.Final/oxtrust-model-4.1.3.Final.pom
+Progress (1): 2.7 kB[WARNING] Could not validate integrity of download from http://ox.gluu.org/maven/org/gluu/oxtrust-model/4.1.3.Final/oxtrust-model-4.1.3.Final.pom: Checksum validation failed, no checksums available
+                    [WARNING] Checksum validation failed, no checksums available from gluu for http://ox.gluu.org/maven/org/gluu/oxtrust-model/4.1.3.Final/oxtrust-model-4.1.3.Final.pom
+Downloaded from gluu: http://ox.gluu.org/maven/org/gluu/oxtrust-model/4.1.3.Final/oxtrust-model-4.1.3.Final.pom (2.7 kB at 1.8 kB/s)
+Downloading from gluu: http://ox.gluu.org/maven/org/gluu/oxtrust/4.1.3.Final/oxtrust-4.1.3.Final.pom
+Progress (1): 4.1/27 kBProgress (1): 8.2/27 kBProgress (1): 12/27 kB Progress (1): 16/27 kBProgress (1): 20/27 kBProgress (1): 25/27 kBProgress (1): 27 kB   [WARNING] Could not validate integrity of download from http://ox.gluu.org/maven/org/gluu/oxtrust/4.1.3.Final/oxtrust-4.1.3.Final.pom: Checksum validation failed, no checksums available
+                   [WARNING] Checksum validation failed, no checksums available from gluu for http://ox.gluu.org/maven/org/gluu/oxtrust/4.1.3.Final/oxtrust-4.1.3.Final.pom
+Downloaded from gluu: http://ox.gluu.org/maven/org/gluu/oxtrust/4.1.3.Final/oxtrust-4.1.3.Final.pom (27 kB at 16 kB/s)
+Downloading from gluu: http://ox.gluu.org/maven/com/lochbridge/oath/oath-otp/0.0.1-SNAPSHOT/maven-metadata.xml
+Downloading from jboss: http://repository.jboss.org/nexus/content/groups/public/com/lochbridge/oath/oath-otp/0.0.1-SNAPSHOT/maven-metadata.xml
+Downloading from ZK CE: http://mavensync.zkoss.org/maven2/com/lochbridge/oath/oath-otp/0.0.1-SNAPSHOT/maven-metadata.xml
+Downloading from gluu: http://ox.gluu.org/maven/com/lochbridge/oath/oath-parent/0.0.1-SNAPSHOT/maven-metadata.xml
+Downloading from ZK CE: http://mavensync.zkoss.org/maven2/com/lochbridge/oath/oath-parent/0.0.1-SNAPSHOT/maven-metadata.xml
+Downloading from jboss: http://repository.jboss.org/nexus/content/groups/public/com/lochbridge/oath/oath-parent/0.0.1-SNAPSHOT/maven-metadata.xml
+Downloading from gluu: http://ox.gluu.org/maven/com/lochbridge/oath/oath-otp-keyprovisioning/0.0.1-SNAPSHOT/maven-metadata.xml
+Downloading from ZK CE: http://mavensync.zkoss.org/maven2/com/lochbridge/oath/oath-otp-keyprovisioning/0.0.1-SNAPSHOT/maven-metadata.xml
+Downloading from jboss: http://repository.jboss.org/nexus/content/groups/public/com/lochbridge/oath/oath-otp-keyprovisioning/0.0.1-SNAPSHOT/maven-metadata.xml
+Downloading from gluu: http://ox.gluu.org/maven/org/gluu/casa-shared/4.1.3.Final/casa-shared-4.1.3.Final.jar
+Downloading from gluu: http://ox.gluu.org/maven/org/gluu/oxtrust-model/4.1.3.Final/oxtrust-model-4.1.3.Final.jar
+Downloading from gluu: http://ox.gluu.org/maven/org/gluu/oxd-common/4.1.3.Final/oxd-common-4.1.3.Final.jar
+Progress (1): 4.1/31 kBProgress (1): 8.2/31 kBProgress (1): 12/31 kB Progress (1): 16/31 kBProgress (1): 20/31 kBProgress (1): 25/31 kBProgress (1): 29/31 kBProgress (1): 31 kB   Progress (2): 31 kB | 4.1/115 kBProgress (2): 31 kB | 8.2/115 kBProgress (3): 31 kB | 8.2/115 kB | 4.1/91 kBProgress (3): 31 kB | 12/115 kB | 4.1/91 kB Progress (3): 31 kB | 12/115 kB | 8.2/91 kBProgress (3): 31 kB | 16/115 kB | 8.2/91 kBProgress (3): 31 kB | 16/115 kB | 12/91 kB Progress (3): 31 kB | 16/115 kB | 16/91 kBProgress (3): 31 kB | 20/115 kB | 16/91 kBProgress (3): 31 kB | 25/115 kB | 16/91 kBProgress (3): 31 kB | 25/115 kB | 20/91 kBProgress (3): 31 kB | 29/115 kB | 20/91 kBProgress (3): 31 kB | 29/115 kB | 25/91 kBProgress (3): 31 kB | 33/115 kB | 25/91 kBProgress (3): 31 kB | 33/115 kB | 29/91 kBProgress (3): 31 kB | 33/115 kB | 33/91 kBProgress (3): 31 kB | 37/115 kB | 33/91 kBProgress (3): 31 kB | 41/115 kB | 33/91 kBProgress (3): 31 kB | 45/115 kB | 33/91 kBProgress (3): 31 kB | 49/115 kB | 33/91 kBProgress (3): 31 kB | 53/115 kB | 33/91 kBProgress (3): 31 kB | 57/115 kB | 33/91 kBProgress (3): 31 kB | 61/115 kB | 33/91 kBProgress (3): 31 kB | 66/115 kB | 33/91 kBProgress (3): 31 kB | 66/115 kB | 37/91 kBProgress (3): 31 kB | 66/115 kB | 41/91 kBProgress (3): 31 kB | 66/115 kB | 45/91 kBProgress (3): 31 kB | 66/115 kB | 49/91 kBProgress (3): 31 kB | 66/115 kB | 53/91 kBProgress (3): 31 kB | 66/115 kB | 57/91 kBProgress (3): 31 kB | 66/115 kB | 61/91 kBProgress (3): 31 kB | 66/115 kB | 66/91 kBProgress (3): 31 kB | 66/115 kB | 70/91 kBProgress (3): 31 kB | 66/115 kB | 74/91 kBProgress (3): 31 kB | 66/115 kB | 78/91 kBProgress (3): 31 kB | 66/115 kB | 82/91 kBProgress (3): 31 kB | 66/115 kB | 86/91 kBProgress (3): 31 kB | 66/115 kB | 90/91 kBProgress (3): 31 kB | 66/115 kB | 91 kB   Progress (3): 31 kB | 70/115 kB | 91 kBProgress (3): 31 kB | 74/115 kB | 91 kBProgress (3): 31 kB | 78/115 kB | 91 kBProgress (3): 31 kB | 82/115 kB | 91 kBProgress (3): 31 kB | 86/115 kB | 91 kBProgress (3): 31 kB | 90/115 kB | 91 kBProgress (3): 31 kB | 94/115 kB | 91 kBProgress (3): 31 kB | 98/115 kB | 91 kBProgress (3): 31 kB | 102/115 kB | 91 kBProgress (3): 31 kB | 106/115 kB | 91 kBProgress (3): 31 kB | 111/115 kB | 91 kBProgress (3): 31 kB | 115/115 kB | 91 kBProgress (3): 31 kB | 115 kB | 91 kB    [WARNING] Could not validate integrity of download from http://ox.gluu.org/maven/org/gluu/casa-shared/4.1.3.Final/casa-shared-4.1.3.Final.jar: Checksum validation failed, no checksums available
+                                    [WARNING] Checksum validation failed, no checksums available from gluu for http://ox.gluu.org/maven/org/gluu/casa-shared/4.1.3.Final/casa-shared-4.1.3.Final.jar
+Downloaded from gluu: http://ox.gluu.org/maven/org/gluu/casa-shared/4.1.3.Final/casa-shared-4.1.3.Final.jar (31 kB at 25 kB/s)
+[WARNING] Could not validate integrity of download from http://ox.gluu.org/maven/org/gluu/oxtrust-model/4.1.3.Final/oxtrust-model-4.1.3.Final.jar: Checksum validation failed, no checksums available
+[WARNING] Checksum validation failed, no checksums available from gluu for http://ox.gluu.org/maven/org/gluu/oxtrust-model/4.1.3.Final/oxtrust-model-4.1.3.Final.jar
+Downloaded from gluu: http://ox.gluu.org/maven/org/gluu/oxtrust-model/4.1.3.Final/oxtrust-model-4.1.3.Final.jar (115 kB at 54 kB/s)
+[WARNING] Could not validate integrity of download from http://ox.gluu.org/maven/org/gluu/oxd-common/4.1.3.Final/oxd-common-4.1.3.Final.jar: Checksum validation failed, no checksums available
+[WARNING] Checksum validation failed, no checksums available from gluu for http://ox.gluu.org/maven/org/gluu/oxd-common/4.1.3.Final/oxd-common-4.1.3.Final.jar
+Downloaded from gluu: http://ox.gluu.org/maven/org/gluu/oxd-common/4.1.3.Final/oxd-common-4.1.3.Final.jar (91 kB at 40 kB/s)
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ casa ---
+[WARNING] Failure to transfer net.minidev:json-smart/maven-metadata.xml from https://repo2.maven.org/maven2/org/bouncycastle was cached in the local repository, resolution will not be reattempted until the update interval of bouncycastle has elapsed or updates are forced. Original error: Could not transfer metadata net.minidev:json-smart/maven-metadata.xml from/to bouncycastle (https://repo2.maven.org/maven2/org/bouncycastle): Transfer failed for https://repo2.maven.org/maven2/org/bouncycastle/net/minidev/json-smart/maven-metadata.xml
+[INFO] org.gluu:casa:war:4.1.3.Final
+[INFO] +- org.gluu:casa-shared:jar:4.1.3.Final:compile
+[INFO] |  +- org.gluu:oxcore-persistence-model:jar:4.1.3.Final:compile
+[INFO] |  +- org.gluu:oxcore-persistence-filter:jar:4.1.3.Final:compile
+[INFO] |  +- org.zkoss.zk:zk:jar:8.6.0.1:compile
+[INFO] |  |  +- org.zkoss.common:zweb:jar:8.6.0.1:compile
+[INFO] |  |  +- com.google.javascript:closure-compiler-unshaded:jar:v20170626:compile
+[INFO] |  |  |  +- com.google.javascript:closure-compiler-externs:jar:v20170626:compile
+[INFO] |  |  |  +- args4j:args4j:jar:2.33:compile
+[INFO] |  |  |  +- com.google.errorprone:error_prone_annotations:jar:2.0.18:compile
+[INFO] |  |  |  +- com.google.protobuf:protobuf-java:jar:3.0.2:compile
+[INFO] |  |  |  +- com.google.code.gson:gson:jar:2.7:compile
+[INFO] |  |  |  +- com.google.code.findbugs:jsr305:jar:3.0.1:compile
+[INFO] |  |  |  \- com.google.jsinterop:jsinterop-annotations:jar:1.0.0:compile
+[INFO] |  |  \- org.zkoss.zk:zkwebfragment:jar:8.6.0.1:compile
+[INFO] |  +- org.zkoss.common:zcommon:jar:8.6.0.1:compile
+[INFO] |  |  +- commons-fileupload:commons-fileupload:jar:1.3.3:compile
+[INFO] |  |  \- org.apache-extras.beanshell:bsh:jar:2.0b6:compile
+[INFO] |  +- org.zkoss.zk:zkbind:jar:8.6.0.1:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:2.10.1:compile
+[INFO] |  +- commons-beanutils:commons-beanutils:jar:1.8.3:compile
+[INFO] |  |  \- commons-logging:commons-logging:jar:1.1.1:compile
+[INFO] |  +- javax.servlet:javax.servlet-api:jar:3.0.1:compile
+[INFO] |  \- org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:jar:1.0.3.Final:compile
+[INFO] +- org.gluu:oxd-common:jar:4.1.3.Final:compile
+[INFO] +- org.gluu:oxauth-model:jar:4.1.3.Final:compile
+[INFO] |  +- com.google.guava:guava:jar:19.0:compile
+[INFO] |  +- org.gluu:oxeleven-client:jar:4.1.1.Final:compile
+[INFO] |  +- org.gluu:oxeleven-model:jar:4.1.1.Final:compile
+[INFO] |  +- org.jboss.resteasy:resteasy-jaxb-provider:jar:3.5.1.Final:compile
+[INFO] |  |  +- com.sun.xml.bind:jaxb-core:jar:2.3.0:compile
+[INFO] |  |  \- com.sun.xml.bind:jaxb-impl:jar:2.3.0:compile
+[INFO] |  +- org.gluu:oxcore-persistence-annotation:jar:4.1.3.Final:compile
+[INFO] |  +- org.gluu:oxcore-util:jar:4.1.3.Final:compile
+[INFO] |  |  +- javax.persistence:persistence-api:jar:1.0.2:compile
+[INFO] |  |  +- org.apache.commons:commons-text:jar:1.6:compile
+[INFO] |  |  |  \- org.apache.commons:commons-lang3:jar:3.8.1:compile
+[INFO] |  |  \- org.apache.commons:commons-exec:jar:1.3:compile
+[INFO] |  +- org.gluu:oxcore-model:jar:4.1.3.Final:compile
+[INFO] |  +- org.json:json:jar:20180813:compile
+[INFO] |  +- com.fasterxml.jackson.datatype:jackson-datatype-json-org:jar:2.10.1:compile
+[INFO] |  +- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:jar:2.10.1:compile
+[INFO] |  |  +- jakarta.xml.bind:jakarta.xml.bind-api:jar:2.3.2:compile
+[INFO] |  |  \- jakarta.activation:jakarta.activation-api:jar:1.2.1:compile
+[INFO] |  +- commons-codec:commons-codec:jar:1.7:compile
+[INFO] |  +- commons-lang:commons-lang:jar:2.6:compile
+[INFO] |  +- commons-io:commons-io:jar:2.6:compile
+[INFO] |  +- org.apache.logging.log4j:log4j-1.2-api:jar:2.11.2:compile
+[INFO] |  +- com.nimbusds:nimbus-jose-jwt:jar:8.2:compile
+[INFO] |  |  \- net.minidev:json-smart:jar:2.3:compile (version selected from constraint [1.3.1,2.3])
+[INFO] |  |     \- net.minidev:accessors-smart:jar:1.2:compile
+[INFO] |  |        \- org.ow2.asm:asm:jar:5.0.4:compile
+[INFO] |  \- javax.validation:validation-api:jar:2.0.1.Final:compile
+[INFO] +- org.gluu:oxauth-client:jar:4.1.3.Final:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-core:jar:2.10.1:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.10.1:compile
+[INFO] |  +- commons-cli:commons-cli:jar:1.3.1:compile
+[INFO] |  +- org.apache.httpcomponents:httpclient:jar:4.5.11:compile
+[INFO] |  +- org.apache.httpcomponents:httpcore:jar:4.4.13:compile
+[INFO] |  +- org.bouncycastle:bcprov-jdk15on:jar:1.64:compile
+[INFO] |  \- org.bouncycastle:bcpkix-jdk15on:jar:1.64:compile
+[INFO] +- org.gluu:oxauth-fido2-server:jar:4.1.3.Final:compile
+[INFO] +- org.gluu:oxauth-fido2-client:jar:4.1.3.Final:compile
+[INFO] +- org.gluu:oxcore-service:jar:4.1.3.Final:compile
+[INFO] +- org.gluu:oxcore-cache:jar:4.1.3.Final:compile
+[INFO] |  +- org.gluu:oxcore-persistence-core:jar:4.1.3.Final:compile
+[INFO] |  +- javax.inject:javax.inject:jar:1:compile
+[INFO] |  +- net.spy:spymemcached:jar:2.12.3:compile
+[INFO] |  +- redis.clients:jedis:jar:2.10.2:compile
+[INFO] |  |  \- org.apache.commons:commons-pool2:jar:2.4.3:compile
+[INFO] |  \- net.jodah:expiringmap:jar:0.5.9:compile
+[INFO] +- org.gluu:oxcore-document-store:jar:4.1.3.Final:compile
+[INFO] |  +- javax.jcr:jcr:jar:2.0:compile
+[INFO] |  +- org.apache.jackrabbit:jackrabbit-core:jar:2.21.0:compile
+[INFO] |  |  +- concurrent:concurrent:jar:1.3.4:compile
+[INFO] |  |  +- commons-dbcp:commons-dbcp:jar:1.4:compile
+[INFO] |  |  |  \- commons-pool:commons-pool:jar:1.5.4:compile
+[INFO] |  |  +- org.apache.jackrabbit:oak-jackrabbit-api:jar:1.24.0:compile
+[INFO] |  |  +- org.apache.jackrabbit:jackrabbit-jcr-commons:jar:2.21.0:compile
+[INFO] |  |  +- org.apache.jackrabbit:jackrabbit-data:jar:2.21.0:compile
+[INFO] |  |  +- org.apache.jackrabbit:jackrabbit-spi-commons:jar:2.21.0:compile
+[INFO] |  |  +- org.apache.jackrabbit:jackrabbit-spi:jar:2.21.0:compile
+[INFO] |  |  +- org.apache.tika:tika-core:jar:1.23:compile
+[INFO] |  |  +- org.apache.lucene:lucene-core:jar:3.6.0:compile
+[INFO] |  |  +- org.apache.derby:derby:jar:10.14.2.0:compile
+[INFO] |  |  \- org.slf4j:jcl-over-slf4j:jar:1.7.29:compile
+[INFO] |  \- org.apache.jackrabbit:jackrabbit-jcr-rmi:jar:2.21.0:compile
+[INFO] +- org.gluu:oxcore-persistence-hybrid:jar:4.1.3.Final:compile
+[INFO] |  \- org.gluu:oxcore-persistence-cdi:jar:4.1.3.Final:compile
+[INFO] |     \- org.slf4j:slf4j-simple:jar:1.7.26:compile
+[INFO] +- org.gluu:oxcore-persistence-ldap:jar:4.1.3.Final:compile
+[INFO] +- org.gluu:oxcore-persistence-couchbase:jar:4.1.3.Final:compile
+[INFO] |  \- com.couchbase.client:java-client:jar:2.7.11:compile
+[INFO] |     \- com.couchbase.client:core-io:jar:1.7.11:compile
+[INFO] |        +- io.reactivex:rxjava:jar:1.3.8:compile
+[INFO] |        \- io.opentracing:opentracing-api:jar:0.31.0:compile
+[INFO] +- org.gluu:oxtrust-model:jar:4.1.3.Final:compile
+[INFO] +- org.gluu:oxlicense-validator:jar:4.1.1.Final:compile
+[INFO] |  +- net.nicholaswilliams.java.licensing:licensing-core:jar:1.1.0:compile
+[INFO] |  +- net.nicholaswilliams.java.licensing:licensing-licensor-base:jar:1.1.0:compile
+[INFO] |  +- commons-collections:commons-collections:jar:3.2.2:compile
+[INFO] |  +- commons-configuration:commons-configuration:jar:1.6:compile
+[INFO] |  +- commons-digester:commons-digester:jar:1.8.1:compile
+[INFO] |  +- commons-httpclient:commons-httpclient:jar:3.1:compile
+[INFO] |  +- commons-net:commons-net:jar:3.0:compile
+[INFO] |  \- org.testng:testng:jar:6.3.1:compile
+[INFO] |     +- junit:junit:jar:3.8.1:compile
+[INFO] |     +- org.beanshell:bsh:jar:2.0b4:compile
+[INFO] |     +- com.beust:jcommander:jar:1.12:compile
+[INFO] |     \- org.yaml:snakeyaml:jar:1.6:compile
+[INFO] +- org.gluu:oxlicense-client:jar:4.1.1.Final:compile
+[INFO] +- javax.el:el-api:jar:2.2:compile
+[INFO] +- org.glassfish.web:el-impl:jar:2.2:compile
+[INFO] +- org.jboss.weld.servlet:weld-servlet-shaded:jar:3.1.0.Final:compile
+[INFO] +- org.zkoss.zk:zul:jar:8.6.0.1:compile
+[INFO] +- org.zkoss.zk:zkplus:jar:8.6.0.1:compile
+[INFO] +- org.zkoss.zk:zhtml:jar:8.6.0.1:compile
+[INFO] |  \- org.zkoss:zsoup:jar:1.8.2.5:compile
+[INFO] +- org.zkoss.common:zel:jar:8.6.0.1:compile
+[INFO] |  \- org.javassist:javassist:jar:3.18.2-GA:compile
+[INFO] +- org.zkoss.theme:breeze:jar:8.6.0.1:compile
+[INFO] +- org.apache.logging.log4j:log4j-slf4j-impl:jar:2.16.0:compile
+[INFO] |  \- org.slf4j:slf4j-api:jar:1.7.25:compile
+[INFO] +- org.apache.logging.log4j:log4j-api:jar:2.16.0:compile
+[INFO] +- org.apache.logging.log4j:log4j-core:jar:2.16.0:compile
+[INFO] +- org.jboss.resteasy:resteasy-cdi:jar:3.9.3.Final:compile
+[INFO] |  +- org.jboss.logging:jboss-logging:jar:3.3.2.Final:compile
+[INFO] |  \- org.jboss.weld:weld-api:jar:3.0.SP4:compile
+[INFO] |     \- javax.enterprise:cdi-api:jar:2.0.SP1:compile
+[INFO] +- org.jboss.resteasy:resteasy-jaxrs:jar:3.9.3.Final:compile
+[INFO] |  +- org.jboss.spec.javax.xml.bind:jboss-jaxb-api_2.3_spec:jar:1.0.1.Final:compile
+[INFO] |  +- org.reactivestreams:reactive-streams:jar:1.0.2:compile
+[INFO] |  +- org.jboss.spec.javax.annotation:jboss-annotations-api_1.3_spec:jar:1.0.1.Final:compile
+[INFO] |  +- javax.activation:activation:jar:1.1.1:compile
+[INFO] |  \- com.github.stephenc.jcip:jcip-annotations:jar:1.0-1:compile
+[INFO] +- org.jboss.resteasy:resteasy-jackson2-provider:jar:3.9.3.Final:compile
+[INFO] |  +- com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:jar:2.10.1:compile
+[INFO] |  |  \- com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:jar:2.10.1:compile
+[INFO] |  \- com.github.fge:json-patch:jar:1.9:compile
+[INFO] |     \- com.github.fge:jackson-coreutils:jar:1.6:compile
+[INFO] |        \- com.github.fge:msg-simple:jar:1.1:compile
+[INFO] |           \- com.github.fge:btf:jar:1.2:compile
+[INFO] +- org.jboss.resteasy:resteasy-servlet-initializer:jar:3.9.3.Final:compile
+[INFO] +- org.jboss.resteasy:resteasy-client:jar:3.9.3.Final:compile
+[INFO] +- com.unboundid:unboundid-ldapsdk:jar:4.0.14:compile
+[INFO] +- com.twilio.sdk:twilio:jar:7.47.1:compile
+[INFO] |  +- joda-time:joda-time:jar:2.5:compile
+[INFO] |  +- io.jsonwebtoken:jjwt:jar:0.4:compile
+[INFO] |  \- javax.xml.bind:jaxb-api:jar:2.2:compile
+[INFO] |     \- javax.xml.stream:stax-api:jar:1.0-2:compile
+[INFO] +- com.lochbridge.oath:oath-otp:jar:0.0.1-SNAPSHOT:compile
+[INFO] +- com.lochbridge.oath:oath-otp-keyprovisioning:jar:0.0.1-SNAPSHOT:compile
+[INFO] |  +- com.google.zxing:core:jar:3.1.0:compile
+[INFO] |  \- com.google.zxing:javase:jar:3.1.0:compile
+[INFO] +- org.pf4j:pf4j:jar:2.5.0:compile
+[INFO] |  \- com.github.zafarkhaja:java-semver:jar:0.9.0:compile
+[INFO] +- net.sf.jmimemagic:jmimemagic:jar:0.1.5:compile
+[INFO] |  \- log4j:log4j:jar:1.2.8:runtime
+[INFO] +- org.jsmpp:jsmpp:jar:2.3.7:compile
+[INFO] \- org.quartz-scheduler:quartz:jar:2.3.2:compile
+[INFO]    +- com.mchange:c3p0:jar:0.9.5.4:compile
+[INFO]    +- com.mchange:mchange-commons-java:jar:0.2.15:compile
+[INFO]    \- com.zaxxer:HikariCP-java7:jar:2.4.13:compile
+[INFO] 
+[INFO] ---------------< org.gluu.casa.plugins:account-linking >----------------
+[INFO] Building account-linking 4.1.3.Final                               [4/7]
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] Failure to transfer net.minidev:json-smart/maven-metadata.xml from https://repo2.maven.org/maven2/org/bouncycastle was cached in the local repository, resolution will not be reattempted until the update interval of bouncycastle has elapsed or updates are forced. Original error: Could not transfer metadata net.minidev:json-smart/maven-metadata.xml from/to bouncycastle (https://repo2.maven.org/maven2/org/bouncycastle): Transfer failed for https://repo2.maven.org/maven2/org/bouncycastle/net/minidev/json-smart/maven-metadata.xml
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ account-linking ---
+[WARNING] Failure to transfer net.minidev:json-smart/maven-metadata.xml from https://repo2.maven.org/maven2/org/bouncycastle was cached in the local repository, resolution will not be reattempted until the update interval of bouncycastle has elapsed or updates are forced. Original error: Could not transfer metadata net.minidev:json-smart/maven-metadata.xml from/to bouncycastle (https://repo2.maven.org/maven2/org/bouncycastle): Transfer failed for https://repo2.maven.org/maven2/org/bouncycastle/net/minidev/json-smart/maven-metadata.xml
+[INFO] org.gluu.casa.plugins:account-linking:jar:4.1.3.Final
+[INFO] +- org.gluu:casa-shared:jar:4.1.3.Final:provided
+[INFO] |  +- org.gluu:oxcore-persistence-model:jar:4.1.3.Final:provided
+[INFO] |  +- org.gluu:oxcore-persistence-filter:jar:4.1.3.Final:provided
+[INFO] |  +- org.pf4j:pf4j:jar:2.5.0:provided
+[INFO] |  |  +- org.slf4j:slf4j-api:jar:1.7.5:provided
+[INFO] |  |  \- com.github.zafarkhaja:java-semver:jar:0.9.0:provided
+[INFO] |  +- org.jboss.weld.servlet:weld-servlet-shaded:jar:3.1.0.Final:provided
+[INFO] |  +- com.unboundid:unboundid-ldapsdk:jar:4.0.14:provided
+[INFO] |  +- org.zkoss.zk:zk:jar:8.6.0.1:provided
+[INFO] |  |  +- org.zkoss.common:zweb:jar:8.6.0.1:provided
+[INFO] |  |  +- com.google.javascript:closure-compiler-unshaded:jar:v20170626:provided
+[INFO] |  |  |  +- com.google.javascript:closure-compiler-externs:jar:v20170626:provided
+[INFO] |  |  |  +- args4j:args4j:jar:2.33:provided
+[INFO] |  |  |  +- com.google.errorprone:error_prone_annotations:jar:2.0.18:provided
+[INFO] |  |  |  +- com.google.protobuf:protobuf-java:jar:3.0.2:provided
+[INFO] |  |  |  +- com.google.code.gson:gson:jar:2.7:provided
+[INFO] |  |  |  +- com.google.code.findbugs:jsr305:jar:3.0.1:provided
+[INFO] |  |  |  \- com.google.jsinterop:jsinterop-annotations:jar:1.0.0:provided
+[INFO] |  |  \- org.zkoss.zk:zkwebfragment:jar:8.6.0.1:provided
+[INFO] |  +- org.zkoss.common:zcommon:jar:8.6.0.1:provided
+[INFO] |  |  +- commons-fileupload:commons-fileupload:jar:1.3.3:provided
+[INFO] |  |  +- org.zkoss.common:zel:jar:8.6.0.1:provided
+[INFO] |  |  \- org.apache-extras.beanshell:bsh:jar:2.0b6:provided
+[INFO] |  +- org.zkoss.zk:zkbind:jar:8.6.0.1:provided
+[INFO] |  |  +- org.zkoss.zk:zul:jar:8.6.0.1:provided
+[INFO] |  |  \- org.javassist:javassist:jar:3.18.2-GA:provided
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:2.10.1:provided
+[INFO] |  |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.10.1:provided
+[INFO] |  |  \- com.fasterxml.jackson.core:jackson-core:jar:2.10.1:provided
+[INFO] |  +- net.sf.jmimemagic:jmimemagic:jar:0.1.5:provided
+[INFO] |  |  \- log4j:log4j:jar:1.2.8:provided
+[INFO] |  +- commons-beanutils:commons-beanutils:jar:1.8.3:provided
+[INFO] |  |  \- commons-logging:commons-logging:jar:1.1.1:provided
+[INFO] |  +- javax.servlet:javax.servlet-api:jar:3.0.1:provided
+[INFO] |  \- org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:jar:1.0.3.Final:provided
+[INFO] +- org.gluu:oxauth-model:jar:4.1.3.Final:provided
+[INFO] |  +- com.google.guava:guava:jar:19.0:provided
+[INFO] |  +- org.gluu:oxeleven-client:jar:4.1.1.Final:provided
+[INFO] |  |  +- org.apache.httpcomponents:httpclient:jar:4.5.3:provided
+[INFO] |  |  \- org.apache.httpcomponents:httpcore:jar:4.4.6:provided
+[INFO] |  +- org.gluu:oxeleven-model:jar:4.1.1.Final:provided
+[INFO] |  +- org.jboss.resteasy:resteasy-jaxb-provider:jar:3.5.1.Final:provided
+[INFO] |  |  +- org.jboss.spec.javax.xml.bind:jboss-jaxb-api_2.3_spec:jar:1.0.0.Final:provided
+[INFO] |  |  +- com.sun.xml.bind:jaxb-core:jar:2.3.0:provided
+[INFO] |  |  \- com.sun.xml.bind:jaxb-impl:jar:2.3.0:provided
+[INFO] |  +- org.gluu:oxcore-persistence-annotation:jar:4.1.3.Final:provided
+[INFO] |  +- org.gluu:oxcore-util:jar:4.1.3.Final:provided
+[INFO] |  |  +- javax.persistence:persistence-api:jar:1.0.2:provided
+[INFO] |  |  +- org.apache.logging.log4j:log4j-slf4j-impl:jar:2.11.2:provided
+[INFO] |  |  +- commons-configuration:commons-configuration:jar:1.10:provided
+[INFO] |  |  +- org.apache.commons:commons-text:jar:1.6:provided
+[INFO] |  |  |  \- org.apache.commons:commons-lang3:jar:3.8.1:provided
+[INFO] |  |  +- commons-httpclient:commons-httpclient:jar:3.1:provided
+[INFO] |  |  +- org.apache.commons:commons-exec:jar:1.3:provided
+[INFO] |  |  \- org.jboss.resteasy:resteasy-jackson2-provider:jar:3.7.0.Final:provided
+[INFO] |  |     +- com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:jar:2.9.8:provided
+[INFO] |  |     |  \- com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:jar:2.9.8:provided
+[INFO] |  |     \- com.github.fge:json-patch:jar:1.9:provided
+[INFO] |  |        \- com.github.fge:jackson-coreutils:jar:1.6:provided
+[INFO] |  |           \- com.github.fge:msg-simple:jar:1.1:provided
+[INFO] |  |              \- com.github.fge:btf:jar:1.2:provided
+[INFO] |  +- org.gluu:oxcore-model:jar:4.1.3.Final:provided
+[INFO] |  +- org.jboss.resteasy:resteasy-jaxrs:jar:3.5.1.Final:provided
+[INFO] |  |  +- org.reactivestreams:reactive-streams:jar:1.0.2:provided
+[INFO] |  |  +- org.jboss.spec.javax.annotation:jboss-annotations-api_1.2_spec:jar:1.0.0.Final:provided
+[INFO] |  |  +- javax.activation:activation:jar:1.1.1:provided
+[INFO] |  |  +- net.jcip:jcip-annotations:jar:1.0:provided
+[INFO] |  |  +- javax.json.bind:javax.json.bind-api:jar:1.0:provided
+[INFO] |  |  +- org.eclipse.microprofile.rest.client:microprofile-rest-client-api:jar:1.0:provided
+[INFO] |  |  \- org.eclipse.microprofile.config:microprofile-config-api:jar:1.1:provided
+[INFO] |  |     \- org.osgi:org.osgi.annotation.versioning:jar:1.0.0:provided
+[INFO] |  +- org.json:json:jar:20180813:provided
+[INFO] |  +- com.fasterxml.jackson.datatype:jackson-datatype-json-org:jar:2.10.1:provided
+[INFO] |  +- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:jar:2.10.1:provided
+[INFO] |  |  +- jakarta.xml.bind:jakarta.xml.bind-api:jar:2.3.2:provided
+[INFO] |  |  \- jakarta.activation:jakarta.activation-api:jar:1.2.1:provided
+[INFO] |  +- commons-codec:commons-codec:jar:1.7:provided
+[INFO] |  +- commons-lang:commons-lang:jar:2.6:provided
+[INFO] |  +- commons-io:commons-io:jar:2.6:provided
+[INFO] |  +- org.apache.logging.log4j:log4j-api:jar:2.11.2:provided
+[INFO] |  +- org.apache.logging.log4j:log4j-1.2-api:jar:2.11.2:provided
+[INFO] |  |  \- org.apache.logging.log4j:log4j-core:jar:2.11.2:provided
+[INFO] |  +- com.nimbusds:nimbus-jose-jwt:jar:8.2:provided
+[INFO] |  |  +- com.github.stephenc.jcip:jcip-annotations:jar:1.0-1:provided
+[INFO] |  |  \- net.minidev:json-smart:jar:2.3:provided (version selected from constraint [1.3.1,2.3])
+[INFO] |  |     \- net.minidev:accessors-smart:jar:1.2:provided
+[INFO] |  |        \- org.ow2.asm:asm:jar:5.0.4:provided
+[INFO] |  \- javax.validation:validation-api:jar:2.0.1.Final:provided
+[INFO] +- net.jodah:expiringmap:jar:0.5.8:provided
+[INFO] +- org.jboss.resteasy:resteasy-client:jar:3.0.21.Final:provided
+[INFO] |  \- org.jboss.logging:jboss-logging:jar:3.3.0.Final:provided
+[INFO] \- org.gluu:oxcore-service:jar:4.1.3.Final:provided
+[INFO]    +- org.gluu:oxcore-persistence-ldap:jar:4.1.3.Final:provided
+[INFO]    |  \- org.gluu:oxcore-persistence-core:jar:4.1.3.Final:provided
+[INFO]    +- org.gluu:oxcore-persistence-couchbase:jar:4.1.3.Final:provided
+[INFO]    |  \- com.couchbase.client:java-client:jar:2.7.11:provided
+[INFO]    |     \- com.couchbase.client:core-io:jar:1.7.11:provided
+[INFO]    |        +- io.reactivex:rxjava:jar:1.3.8:provided
+[INFO]    |        \- io.opentracing:opentracing-api:jar:0.31.0:provided
+[INFO]    +- org.gluu:oxcore-persistence-hybrid:jar:4.1.3.Final:provided
+[INFO]    |  \- org.gluu:oxcore-persistence-cdi:jar:4.1.3.Final:provided
+[INFO]    |     \- org.slf4j:slf4j-simple:jar:1.7.26:provided
+[INFO]    +- org.gluu:oxcore-cache:jar:4.1.3.Final:provided
+[INFO]    +- javax.inject:javax.inject:jar:1:provided
+[INFO]    +- org.python:jython-standalone:jar:2.7.2:provided
+[INFO]    +- net.spy:spymemcached:jar:2.12.3:provided
+[INFO]    +- redis.clients:jedis:jar:2.10.2:provided
+[INFO]    |  \- org.apache.commons:commons-pool2:jar:2.4.3:provided
+[INFO]    +- io.dropwizard.metrics:metrics-core:jar:4.0.5:provided
+[INFO]    +- org.quartz-scheduler:quartz:jar:2.3.2:provided
+[INFO]    |  +- com.mchange:c3p0:jar:0.9.5.4:provided
+[INFO]    |  +- com.mchange:mchange-commons-java:jar:0.2.15:provided
+[INFO]    |  \- com.zaxxer:HikariCP-java7:jar:2.4.13:provided
+[INFO]    \- javax.mail:mail:jar:1.4.7:provided
+[INFO] 
+[INFO] --------------< org.gluu.casa.plugins:authorized-clients >--------------
+[INFO] Building authorized-clients 4.1.3.Final                            [5/7]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ authorized-clients ---
+[INFO] org.gluu.casa.plugins:authorized-clients:jar:4.1.3.Final
+[INFO] \- org.gluu:casa-shared:jar:4.1.3.Final:provided
+[INFO]    +- org.gluu:oxcore-persistence-model:jar:4.1.3.Final:provided
+[INFO]    |  +- org.gluu:oxcore-persistence-annotation:jar:4.1.3.Final:provided
+[INFO]    |  \- org.gluu:oxcore-util:jar:4.1.3.Final:provided
+[INFO]    |     +- javax.persistence:persistence-api:jar:1.0.2:provided
+[INFO]    |     +- org.apache.logging.log4j:log4j-api:jar:2.11.2:provided
+[INFO]    |     +- org.apache.logging.log4j:log4j-1.2-api:jar:2.11.2:provided
+[INFO]    |     |  \- org.apache.logging.log4j:log4j-core:jar:2.11.2:provided
+[INFO]    |     +- org.apache.logging.log4j:log4j-slf4j-impl:jar:2.11.2:provided
+[INFO]    |     +- commons-codec:commons-codec:jar:1.12:provided
+[INFO]    |     +- commons-configuration:commons-configuration:jar:1.10:provided
+[INFO]    |     |  \- commons-lang:commons-lang:jar:2.6:provided
+[INFO]    |     +- org.apache.commons:commons-text:jar:1.6:provided
+[INFO]    |     |  \- org.apache.commons:commons-lang3:jar:3.8.1:provided
+[INFO]    |     +- commons-httpclient:commons-httpclient:jar:3.1:provided
+[INFO]    |     +- org.apache.commons:commons-exec:jar:1.3:provided
+[INFO]    |     +- org.apache.httpcomponents:httpcore:jar:4.4.11:provided
+[INFO]    |     +- org.apache.httpcomponents:httpclient:jar:4.5.8:provided
+[INFO]    |     \- org.jboss.resteasy:resteasy-jackson2-provider:jar:3.7.0.Final:provided
+[INFO]    |        +- com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:jar:2.9.8:provided
+[INFO]    |        |  +- com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:jar:2.9.8:provided
+[INFO]    |        |  \- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:jar:2.9.8:provided
+[INFO]    |        +- com.github.fge:json-patch:jar:1.9:provided
+[INFO]    |        |  \- com.github.fge:jackson-coreutils:jar:1.6:provided
+[INFO]    |        |     \- com.github.fge:msg-simple:jar:1.1:provided
+[INFO]    |        |        \- com.github.fge:btf:jar:1.2:provided
+[INFO]    |        \- org.jboss.logging:jboss-logging:jar:3.3.2.Final:provided
+[INFO]    +- org.gluu:oxcore-persistence-filter:jar:4.1.3.Final:provided
+[INFO]    +- org.pf4j:pf4j:jar:2.5.0:provided
+[INFO]    |  +- org.slf4j:slf4j-api:jar:1.7.5:provided
+[INFO]    |  \- com.github.zafarkhaja:java-semver:jar:0.9.0:provided
+[INFO]    +- org.jboss.weld.servlet:weld-servlet-shaded:jar:3.1.0.Final:provided
+[INFO]    +- com.unboundid:unboundid-ldapsdk:jar:4.0.14:provided
+[INFO]    +- org.zkoss.zk:zk:jar:8.6.0.1:provided
+[INFO]    |  +- org.zkoss.common:zweb:jar:8.6.0.1:provided
+[INFO]    |  +- com.google.javascript:closure-compiler-unshaded:jar:v20170626:provided
+[INFO]    |  |  +- com.google.javascript:closure-compiler-externs:jar:v20170626:provided
+[INFO]    |  |  +- args4j:args4j:jar:2.33:provided
+[INFO]    |  |  +- com.google.errorprone:error_prone_annotations:jar:2.0.18:provided
+[INFO]    |  |  +- com.google.guava:guava:jar:20.0:provided
+[INFO]    |  |  +- com.google.protobuf:protobuf-java:jar:3.0.2:provided
+[INFO]    |  |  +- com.google.code.gson:gson:jar:2.7:provided
+[INFO]    |  |  +- com.google.code.findbugs:jsr305:jar:3.0.1:provided
+[INFO]    |  |  \- com.google.jsinterop:jsinterop-annotations:jar:1.0.0:provided
+[INFO]    |  \- org.zkoss.zk:zkwebfragment:jar:8.6.0.1:provided
+[INFO]    +- org.zkoss.common:zcommon:jar:8.6.0.1:provided
+[INFO]    |  +- commons-fileupload:commons-fileupload:jar:1.3.3:provided
+[INFO]    |  +- org.zkoss.common:zel:jar:8.6.0.1:provided
+[INFO]    |  \- org.apache-extras.beanshell:bsh:jar:2.0b6:provided
+[INFO]    +- org.zkoss.zk:zkbind:jar:8.6.0.1:provided
+[INFO]    |  +- org.zkoss.zk:zul:jar:8.6.0.1:provided
+[INFO]    |  \- org.javassist:javassist:jar:3.18.2-GA:provided
+[INFO]    +- com.fasterxml.jackson.core:jackson-databind:jar:2.10.1:provided
+[INFO]    |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.10.1:provided
+[INFO]    |  \- com.fasterxml.jackson.core:jackson-core:jar:2.10.1:provided
+[INFO]    +- net.sf.jmimemagic:jmimemagic:jar:0.1.5:provided
+[INFO]    |  +- commons-io:commons-io:jar:2.1:provided
+[INFO]    |  \- log4j:log4j:jar:1.2.8:provided
+[INFO]    +- commons-beanutils:commons-beanutils:jar:1.8.3:provided
+[INFO]    |  \- commons-logging:commons-logging:jar:1.1.1:provided
+[INFO]    +- javax.servlet:javax.servlet-api:jar:3.0.1:provided
+[INFO]    \- org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:jar:1.0.3.Final:provided
+[INFO] 
+[INFO] ---------------< org.gluu.casa.plugins:custom-branding >----------------
+[INFO] Building custom-branding 4.1.3.Final                               [6/7]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ custom-branding ---
+[INFO] org.gluu.casa.plugins:custom-branding:jar:4.1.3.Final
+[INFO] \- org.gluu:casa-shared:jar:4.1.3.Final:provided
+[INFO]    +- org.gluu:oxcore-persistence-model:jar:4.1.3.Final:provided
+[INFO]    |  +- org.gluu:oxcore-persistence-annotation:jar:4.1.3.Final:provided
+[INFO]    |  \- org.gluu:oxcore-util:jar:4.1.3.Final:provided
+[INFO]    |     +- javax.persistence:persistence-api:jar:1.0.2:provided
+[INFO]    |     +- org.apache.logging.log4j:log4j-api:jar:2.11.2:provided
+[INFO]    |     +- org.apache.logging.log4j:log4j-1.2-api:jar:2.11.2:provided
+[INFO]    |     |  \- org.apache.logging.log4j:log4j-core:jar:2.11.2:provided
+[INFO]    |     +- org.apache.logging.log4j:log4j-slf4j-impl:jar:2.11.2:provided
+[INFO]    |     +- commons-codec:commons-codec:jar:1.12:provided
+[INFO]    |     +- commons-configuration:commons-configuration:jar:1.10:provided
+[INFO]    |     |  \- commons-lang:commons-lang:jar:2.6:provided
+[INFO]    |     +- org.apache.commons:commons-text:jar:1.6:provided
+[INFO]    |     |  \- org.apache.commons:commons-lang3:jar:3.8.1:provided
+[INFO]    |     +- commons-httpclient:commons-httpclient:jar:3.1:provided
+[INFO]    |     +- org.apache.commons:commons-exec:jar:1.3:provided
+[INFO]    |     +- org.apache.httpcomponents:httpcore:jar:4.4.11:provided
+[INFO]    |     +- org.apache.httpcomponents:httpclient:jar:4.5.8:provided
+[INFO]    |     \- org.jboss.resteasy:resteasy-jackson2-provider:jar:3.7.0.Final:provided
+[INFO]    |        +- com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:jar:2.9.8:provided
+[INFO]    |        |  +- com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:jar:2.9.8:provided
+[INFO]    |        |  \- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:jar:2.9.8:provided
+[INFO]    |        +- com.github.fge:json-patch:jar:1.9:provided
+[INFO]    |        |  \- com.github.fge:jackson-coreutils:jar:1.6:provided
+[INFO]    |        |     \- com.github.fge:msg-simple:jar:1.1:provided
+[INFO]    |        |        \- com.github.fge:btf:jar:1.2:provided
+[INFO]    |        \- org.jboss.logging:jboss-logging:jar:3.3.2.Final:provided
+[INFO]    +- org.gluu:oxcore-persistence-filter:jar:4.1.3.Final:provided
+[INFO]    +- org.pf4j:pf4j:jar:2.5.0:provided
+[INFO]    |  +- org.slf4j:slf4j-api:jar:1.7.5:provided
+[INFO]    |  \- com.github.zafarkhaja:java-semver:jar:0.9.0:provided
+[INFO]    +- org.jboss.weld.servlet:weld-servlet-shaded:jar:3.1.0.Final:provided
+[INFO]    +- com.unboundid:unboundid-ldapsdk:jar:4.0.14:provided
+[INFO]    +- org.zkoss.zk:zk:jar:8.6.0.1:provided
+[INFO]    |  +- org.zkoss.common:zweb:jar:8.6.0.1:provided
+[INFO]    |  +- com.google.javascript:closure-compiler-unshaded:jar:v20170626:provided
+[INFO]    |  |  +- com.google.javascript:closure-compiler-externs:jar:v20170626:provided
+[INFO]    |  |  +- args4j:args4j:jar:2.33:provided
+[INFO]    |  |  +- com.google.errorprone:error_prone_annotations:jar:2.0.18:provided
+[INFO]    |  |  +- com.google.guava:guava:jar:20.0:provided
+[INFO]    |  |  +- com.google.protobuf:protobuf-java:jar:3.0.2:provided
+[INFO]    |  |  +- com.google.code.gson:gson:jar:2.7:provided
+[INFO]    |  |  +- com.google.code.findbugs:jsr305:jar:3.0.1:provided
+[INFO]    |  |  \- com.google.jsinterop:jsinterop-annotations:jar:1.0.0:provided
+[INFO]    |  \- org.zkoss.zk:zkwebfragment:jar:8.6.0.1:provided
+[INFO]    +- org.zkoss.common:zcommon:jar:8.6.0.1:provided
+[INFO]    |  +- commons-fileupload:commons-fileupload:jar:1.3.3:provided
+[INFO]    |  +- org.zkoss.common:zel:jar:8.6.0.1:provided
+[INFO]    |  \- org.apache-extras.beanshell:bsh:jar:2.0b6:provided
+[INFO]    +- org.zkoss.zk:zkbind:jar:8.6.0.1:provided
+[INFO]    |  +- org.zkoss.zk:zul:jar:8.6.0.1:provided
+[INFO]    |  \- org.javassist:javassist:jar:3.18.2-GA:provided
+[INFO]    +- com.fasterxml.jackson.core:jackson-databind:jar:2.10.1:provided
+[INFO]    |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.10.1:provided
+[INFO]    |  \- com.fasterxml.jackson.core:jackson-core:jar:2.10.1:provided
+[INFO]    +- net.sf.jmimemagic:jmimemagic:jar:0.1.5:provided
+[INFO]    |  +- commons-io:commons-io:jar:2.1:provided
+[INFO]    |  \- log4j:log4j:jar:1.2.8:provided
+[INFO]    +- commons-beanutils:commons-beanutils:jar:1.8.3:provided
+[INFO]    |  \- commons-logging:commons-logging:jar:1.1.1:provided
+[INFO]    +- javax.servlet:javax.servlet-api:jar:3.0.1:provided
+[INFO]    \- org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:jar:1.0.3.Final:provided
+[INFO] 
+[INFO] ------------< org.gluu.casa.plugins:strong-authn-settings >-------------
+[INFO] Building strong-authn-settings 4.1.3.Final                         [7/7]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ strong-authn-settings ---
+[INFO] org.gluu.casa.plugins:strong-authn-settings:jar:4.1.3.Final
+[INFO] \- org.gluu:casa-shared:jar:4.1.3.Final:provided
+[INFO]    +- org.gluu:oxcore-persistence-model:jar:4.1.3.Final:provided
+[INFO]    |  +- org.gluu:oxcore-persistence-annotation:jar:4.1.3.Final:provided
+[INFO]    |  \- org.gluu:oxcore-util:jar:4.1.3.Final:provided
+[INFO]    |     +- javax.persistence:persistence-api:jar:1.0.2:provided
+[INFO]    |     +- org.apache.logging.log4j:log4j-api:jar:2.11.2:provided
+[INFO]    |     +- org.apache.logging.log4j:log4j-1.2-api:jar:2.11.2:provided
+[INFO]    |     |  \- org.apache.logging.log4j:log4j-core:jar:2.11.2:provided
+[INFO]    |     +- org.apache.logging.log4j:log4j-slf4j-impl:jar:2.11.2:provided
+[INFO]    |     +- commons-codec:commons-codec:jar:1.12:provided
+[INFO]    |     +- commons-configuration:commons-configuration:jar:1.10:provided
+[INFO]    |     |  \- commons-lang:commons-lang:jar:2.6:provided
+[INFO]    |     +- org.apache.commons:commons-text:jar:1.6:provided
+[INFO]    |     |  \- org.apache.commons:commons-lang3:jar:3.8.1:provided
+[INFO]    |     +- commons-httpclient:commons-httpclient:jar:3.1:provided
+[INFO]    |     +- org.apache.commons:commons-exec:jar:1.3:provided
+[INFO]    |     +- org.apache.httpcomponents:httpcore:jar:4.4.11:provided
+[INFO]    |     +- org.apache.httpcomponents:httpclient:jar:4.5.8:provided
+[INFO]    |     \- org.jboss.resteasy:resteasy-jackson2-provider:jar:3.7.0.Final:provided
+[INFO]    |        +- com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:jar:2.9.8:provided
+[INFO]    |        |  +- com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:jar:2.9.8:provided
+[INFO]    |        |  \- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:jar:2.9.8:provided
+[INFO]    |        +- com.github.fge:json-patch:jar:1.9:provided
+[INFO]    |        |  \- com.github.fge:jackson-coreutils:jar:1.6:provided
+[INFO]    |        |     \- com.github.fge:msg-simple:jar:1.1:provided
+[INFO]    |        |        \- com.github.fge:btf:jar:1.2:provided
+[INFO]    |        \- org.jboss.logging:jboss-logging:jar:3.3.2.Final:provided
+[INFO]    +- org.gluu:oxcore-persistence-filter:jar:4.1.3.Final:provided
+[INFO]    +- org.pf4j:pf4j:jar:2.5.0:provided
+[INFO]    |  +- org.slf4j:slf4j-api:jar:1.7.5:provided
+[INFO]    |  \- com.github.zafarkhaja:java-semver:jar:0.9.0:provided
+[INFO]    +- org.jboss.weld.servlet:weld-servlet-shaded:jar:3.1.0.Final:provided
+[INFO]    +- com.unboundid:unboundid-ldapsdk:jar:4.0.14:provided
+[INFO]    +- org.zkoss.zk:zk:jar:8.6.0.1:provided
+[INFO]    |  +- org.zkoss.common:zweb:jar:8.6.0.1:provided
+[INFO]    |  +- com.google.javascript:closure-compiler-unshaded:jar:v20170626:provided
+[INFO]    |  |  +- com.google.javascript:closure-compiler-externs:jar:v20170626:provided
+[INFO]    |  |  +- args4j:args4j:jar:2.33:provided
+[INFO]    |  |  +- com.google.errorprone:error_prone_annotations:jar:2.0.18:provided
+[INFO]    |  |  +- com.google.guava:guava:jar:20.0:provided
+[INFO]    |  |  +- com.google.protobuf:protobuf-java:jar:3.0.2:provided
+[INFO]    |  |  +- com.google.code.gson:gson:jar:2.7:provided
+[INFO]    |  |  +- com.google.code.findbugs:jsr305:jar:3.0.1:provided
+[INFO]    |  |  \- com.google.jsinterop:jsinterop-annotations:jar:1.0.0:provided
+[INFO]    |  \- org.zkoss.zk:zkwebfragment:jar:8.6.0.1:provided
+[INFO]    +- org.zkoss.common:zcommon:jar:8.6.0.1:provided
+[INFO]    |  +- commons-fileupload:commons-fileupload:jar:1.3.3:provided
+[INFO]    |  +- org.zkoss.common:zel:jar:8.6.0.1:provided
+[INFO]    |  \- org.apache-extras.beanshell:bsh:jar:2.0b6:provided
+[INFO]    +- org.zkoss.zk:zkbind:jar:8.6.0.1:provided
+[INFO]    |  +- org.zkoss.zk:zul:jar:8.6.0.1:provided
+[INFO]    |  \- org.javassist:javassist:jar:3.18.2-GA:provided
+[INFO]    +- com.fasterxml.jackson.core:jackson-databind:jar:2.10.1:provided
+[INFO]    |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.10.1:provided
+[INFO]    |  \- com.fasterxml.jackson.core:jackson-core:jar:2.10.1:provided
+[INFO]    +- net.sf.jmimemagic:jmimemagic:jar:0.1.5:provided
+[INFO]    |  +- commons-io:commons-io:jar:2.1:provided
+[INFO]    |  \- log4j:log4j:jar:1.2.8:provided
+[INFO]    +- commons-beanutils:commons-beanutils:jar:1.8.3:provided
+[INFO]    |  \- commons-logging:commons-logging:jar:1.1.1:provided
+[INFO]    +- javax.servlet:javax.servlet-api:jar:3.0.1:provided
+[INFO]    \- org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:jar:1.0.3.Final:provided
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for casa-base 4.1.3.Final:
+[INFO] 
+[INFO] casa-base .......................................... SUCCESS [  1.115 s]
+[INFO] casa-shared ........................................ SUCCESS [  0.554 s]
+[INFO] casa ............................................... SUCCESS [ 14.850 s]
+[INFO] account-linking .................................... SUCCESS [  0.238 s]
+[INFO] authorized-clients ................................. SUCCESS [  0.037 s]
+[INFO] custom-branding .................................... SUCCESS [  0.033 s]
+[INFO] strong-authn-settings .............................. SUCCESS [  0.035 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  17.283 s
+[INFO] Finished at: 2021-12-17T14:31:01+03:00
+[INFO] ------------------------------------------------------------------------
