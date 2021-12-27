@@ -72,6 +72,15 @@
     <dependencyManagement>
 
         <dependencies>
+            <!-- Workaround for CN -->
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-bom</artifactId>
+                <version>1.43.1</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+
             <!-- PLUGIN FRAMEWORK -->
             <dependency>
                 <groupId>org.pf4j</groupId>
