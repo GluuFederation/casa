@@ -5,7 +5,7 @@ import org.gluu.casa.core.model.ApplicationConfiguration;
 import org.gluu.casa.core.model.CustomScript;
 import org.gluu.casa.misc.AppStateEnum;
 import org.gluu.casa.timer.*;
-import org.gluu.oxauth.model.util.SecurityProviderUtility;
+import org.gluu.util.security.SecurityProviderUtility;
 import org.gluu.persist.exception.operation.PersistenceException;
 import org.quartz.JobExecutionContext;
 import org.quartz.listeners.JobListenerSupport;
