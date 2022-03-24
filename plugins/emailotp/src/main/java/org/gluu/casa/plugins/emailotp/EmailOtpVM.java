@@ -1,7 +1,7 @@
 package org.gluu.casa.plugins.emailotp;
 
 import java.util.List;
-import java.util.Random;
+import java.security.SecureRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -269,7 +269,7 @@ public class EmailOtpVM {
 
 	private String generateCode(int charLength) {
 		return String.valueOf(charLength < 1 ? 0
-				: new Random().nextInt((9 * (int) Math.pow(10, charLength - 1)) - 1)
+				: new SecureRandom().nextInt((9 * (int) Math.pow(10, charLength - 1)) - 1)
 						+ (int) Math.pow(10, charLength - 1));
 	}
 }
