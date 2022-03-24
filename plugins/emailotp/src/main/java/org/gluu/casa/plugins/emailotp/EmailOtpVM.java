@@ -250,7 +250,9 @@ public class EmailOtpVM {
 
 	public boolean validateEmail(String email) {
 		try {
-			Pattern pattern = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+			// fix: regex - ^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$ does not factor unicode characters
+			String regex = "^(.+)@(\\S+)$";
+			Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
 
 			Matcher matcher = pattern.matcher(email);
 			if (matcher.matches()) {
