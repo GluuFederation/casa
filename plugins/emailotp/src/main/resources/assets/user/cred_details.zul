@@ -50,7 +50,7 @@
 									
 								</p>
 							</div>
-							<div class="pl2 pt2">
+							<!-- <div class="pl2 pt2">
 								
 								<h:button
 									class="${css.deleteButton} mb2" w:onClick="prepareAlert()"
@@ -59,12 +59,13 @@
 									data-toggle="tooltip" data-placement="top">
 									<i class="fas fa-trash-alt" />
 								</h:button>
-							</div>
+							</div> -->
 						</div>
 					</zk:template>
 				</z:div>
 
-				<div class="${css.panel} bg-near-white">
+				<!--   uncomment if you want to offer add functionality-->
+				<!-- <div class="${css.panel} bg-near-white">
 					<h2 class="f5 dark-blue2 pt1">
 						${labels.usr.email_add}
 					</h2>
@@ -125,7 +126,7 @@
 
 
 					
-				</div>
+				</div> -->
 			</section>
 		</div>
 
