@@ -162,7 +162,7 @@ class PersonAuthentication(PersonAuthenticationType):
                             return False
                     # token verificaation - step 3 incase of email selection , else step 2
                     else: 
-                        input_token = ServerUtil.getFirstValue(requestParameters, "OtpEmailLoginForm:passcode")
+                        input_token = ServerUtil.getFirstValue(requestParameters, "OtpEmailLoginForm:passcode").strip()
                         print "input token %s" % input_token
                         print "EmailOTP.  - Token input by user is %s" % input_token
             
