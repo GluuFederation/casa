@@ -136,23 +136,23 @@ class PersonAuthentication(PersonAuthenticationType):
             if emailIds != None:
                 multipleEmails = []
                 token = identity.getWorkingParameter("token")
-                
+
                 if StringHelper.isNotEmptyString(emailIds):
                     data = json.loads(emailIds)
-                    
-                    # step2 and multiple email ids present, then user has been presented a choice of email which is fetched in OtpEmailLoginForm:indexOfEmail, send email  
+
+                    # step2 and multiple email ids present, then user has been presented a choice of email which is fetched in OtpEmailLoginForm:indexOfEmail, send email
                     if step == 2 and len(data['email-ids']) > 1 :
-                    
+
                         for email in data['email-ids']:
                             reciever_id = email['email']
                             multipleEmails.append(reciever_id)
-                
+
 
                         idx = ServerUtil.getFirstValue(requestParameters, "OtpEmailLoginForm:indexOfEmail")
                         if idx != None and token != None:
                             sendToEmail = multipleEmails[int(idx)]
                             print "EmailOtp. Sending email to : %s " % sendToEmail
-        
+
                             body = "Here is your token: %s" % token
                             sender = EmailSender()
                             sender.sendEmail( sendToEmail, subject, body)
@@ -161,18 +161,18 @@ class PersonAuthentication(PersonAuthenticationType):
                             print "EmailOTP. Something wrong with index or token"
                             return False
                     # token verificaation - step 3 incase of email selection , else step 2
-                    else: 
-                        input_token = ServerUtil.getFirstValue(requestParameters, "OtpEmailLoginForm:passcode")
+                    else:
+                        input_token = ServerUtil.getFirstValue(requestParameters, "OtpEmailLoginForm:passcode").strip()
                         print "input token %s" % input_token
                         print "EmailOTP.  - Token input by user is %s" % input_token
-            
+
                         token = str(identity.getWorkingParameter("token"))
                         min11 = int(identity.getWorkingParameter("sentmin"))
                         nww = datetime.now()
                         te = str(nww)
                         listew = te.split(':')
                         curtime = int(listew[1])
-            
+
                         token_lifetime = int(configurationAttributes.get("token_lifetime").getValue2())
                         if ((min11<= 60) and (min11>= 50)):
                             if ((curtime>=50) and (curtime<=60)):
@@ -188,7 +188,7 @@ class PersonAuthentication(PersonAuthenticationType):
                                     #print "OTP Expired"
                                     facesMessages.add(FacesMessage.SEVERITY_ERROR, "OTP Expired")
                                     return False
-            
+
                         if ((min11>=0) and (min11<=60) and (curtime>=0) and (curtime<=60)):
                             timediff2 = curtime - min11
                             if timediff2>token_lifetime:
@@ -200,9 +200,9 @@ class PersonAuthentication(PersonAuthenticationType):
                         if input_token == token:
                             print "Email 2FA - token entered correctly"
                             identity.setWorkingParameter("token_valid", True)
-            
+
                             return True
-            
+
                         else:
                             facesMessages = CdiUtil.bean(FacesMessages)
                             facesMessages.setKeepMessages()
