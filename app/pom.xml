@@ -286,7 +286,8 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-cbor</artifactId>
-			<version>${jackson.version}</version>
+			<!--version>${jackson.version}</version-->
+			<version>2.13.2</version>
 		</dependency>
 
         <dependency>
