@@ -249,7 +249,7 @@ public class OxdService {
             cmdParams.setAcrValues(config.getAcrValues());
             cmdParams.setClientName(clientName);
             cmdParams.setClientFrontchannelLogoutUris(Collections.singletonList(config.getFrontLogoutUri()));
-            cmdParams.setGrantTypes(Collections.singletonList("client_credentials"));
+            cmdParams.setGrantTypes(Arrays.asList("client_credentials", "authorization_code"));
 
             cmdParams.setScope(config.getScopes());
             cmdParams.setResponseTypes(Collections.singletonList("code"));
@@ -379,7 +379,7 @@ public class OxdService {
             cmdParams.setPostLogoutRedirectUris(Collections.singletonList(postLogoutUri));
         }
         //Do not remove the following lines, sometimes problematic if missing
-        cmdParams.setGrantType(Collections.singletonList("client_credentials"));
+        cmdParams.setGrantType(Arrays.asList("client_credentials", "authorization_code"));
         cmdParams.setResponseTypes(Collections.singletonList("code"));
         UpdateSiteResponse resp = restResponse(cmdParams, "update-site", getPAT(), UpdateSiteResponse.class);
 
