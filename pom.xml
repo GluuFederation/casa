@@ -80,6 +80,14 @@
 
     <dependencyManagement>
         <dependencies>
+		<!-- Gluu -->
+		<dependency>
+			<groupId>org.gluu</groupId>
+			<artifactId>gluu-core-bom</artifactId>
+			<version>${gluu.parent.version}</version>
+			<scope>import</scope>
+			<type>pom</type>
+		</dependency>
             <!-- PLUGIN FRAMEWORK -->
             <dependency>
                 <groupId>org.pf4j</groupId>
