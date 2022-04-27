@@ -1,7 +1,7 @@
 swagger: '2.0'
 
 info:
-  version: "4.4.0"
+  version: "4.5.0"
   title: Gluu casa admin API
   description: Allows to configure Casa programmatically. Note that plugins may also expose endpoints to
     apply configurations relevant to their topics. Check plugins' docs for more information
