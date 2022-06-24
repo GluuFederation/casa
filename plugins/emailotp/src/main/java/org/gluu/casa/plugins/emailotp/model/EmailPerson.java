@@ -9,20 +9,23 @@ import org.gluu.persist.annotation.ObjectClass;
 @ObjectClass("gluuPerson")
 public class EmailPerson extends BasePerson {
 
-	private static final long serialVersionUID = 7314226120067140671L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -3072709087880306209L;
 
-	@AttributeName(name = "oxEmailAlternate")
-	private String emailIds;
+    @AttributeName(name = "oxEmailAlternate")
+    private String oxEmailAlternate;
 
-	public String getEmailIds() {
-		return emailIds;
-	}
+    public String getOxEmailAlternate() {
+        return oxEmailAlternate;
+    }
 
-	public void setEmailIds(String emailIds) {
-		this.emailIds = emailIds;
-	}
+    public void setOxEmailAlternate(String oxEmailAlternate) {
+        this.oxEmailAlternate = oxEmailAlternate;
+    }
 
-	@AttributeName
+	@AttributeName(name = "mail")
 	private String mail;
 
 	public String getMail() {
