@@ -1,6 +1,6 @@
 <?page language="xhtml"?>
 <?init class="org.zkoss.zk.ui.util.Composition" template="/general.zul"?>
-<?script src="/pl/email-otp/js/email.js"?>
+<?script src="/pl/email_2fa_core/js/email.js"?>
 
 <zk:zk xmlns:z="http://www.zkoss.org/2005/zul" xmlns:h="xhtml"
 	xmlns:zk="zk" xmlns:w="client" xmlns:ca="client/attribute"
@@ -43,7 +43,7 @@
 									<z:label sclass="f5 dark-blue2"
 									
 									
-									value="@load(each.email) @converter('org.gluu.casa.plugins.emailotp.EmailMaskingConverter')"
+									value="@load(each.email)"
                                         
 										 />
 									<br />

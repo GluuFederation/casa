@@ -20,8 +20,8 @@ public class SmtpConfiguration implements java.io.Serializable {
     @JsonProperty("port")
     private int port;
 
-    @JsonProperty("requires-ssl")
-    private boolean requiresSsl;
+    @JsonProperty("connect-protection")
+    private SmtpConnectProtectionType connectProtection;
 
     @JsonProperty("trust-host")
     private boolean serverTrust;
@@ -45,6 +45,15 @@ public class SmtpConfiguration implements java.io.Serializable {
     @JsonIgnore
     private String passwordDecrypted;
 
+    @JsonProperty("key-store")
+    private String keyStore;
+
+    @JsonProperty("key-store-password")
+    private String keyStorePassword;
+
+    @JsonProperty("key-store-alias")
+    private String keyStoreAlias;
+
     public String getHost() {
         return host;
     }
@@ -61,12 +70,12 @@ public class SmtpConfiguration implements java.io.Serializable {
         this.port = port;
     }
 
-    public boolean isRequiresSsl() {
-        return requiresSsl;
+    public SmtpConnectProtectionType getConnectProtection() {
+        return connectProtection;
     }
 
-    public void setRequiresSsl(boolean requiresSsl) {
-        this.requiresSsl = requiresSsl;
+    public void setConnectProtection(SmtpConnectProtectionType connectProtection) {
+        this.connectProtection = connectProtection;
     }
 
     public boolean isServerTrust() {
@@ -129,6 +138,30 @@ public class SmtpConfiguration implements java.io.Serializable {
 
     public void setPasswordDecrypted(String passwordDecrypted) {
         this.passwordDecrypted = passwordDecrypted;
+    }
+
+    public String getKeyStore() {
+        return keyStore;
+    }
+
+    public void setKeyStore(String keyStore) {
+        this.keyStore = keyStore;
+    }
+
+    public String getKeyStorePassword() {
+        return keyStorePassword;
+    }
+
+    public void setKeyStorePassword(String keyStorePassword) {
+        this.keyStorePassword = keyStorePassword;
+    }
+
+    public String getKeyStoreAlias() {
+        return keyStoreAlias;
+    }
+
+    public void setKeyStoreAlias(String keyStoreAlias) {
+        this.keyStoreAlias = keyStoreAlias;
     }
 
 }

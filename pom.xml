@@ -30,14 +30,24 @@
         <zk.version>9.6.0.2</zk.version>
         <ldapsdk.version>6.0.4</ldapsdk.version>
         <resteasy.version>4.7.2.Final</resteasy.version>
+<<<<<<< HEAD
         <tika.version>2.4.1</tika.version>
 
+=======
+        <tika.version>2.1.0</tika.version>
+        <bc.version>1.70</bc.version>
+ 
+>>>>>>> 30d39a24... feat: sending signed emails has been added;
         <sonar.projectKey>GluuFederation_casa</sonar.projectKey>
         <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
         <sonar.organization>gluufederation</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
+<<<<<<< HEAD
         <gluu.parent.version>4.5.0-SNAPSHOT</gluu.parent.version>
+=======
+        <gluu.parent.version>4.4.1-SNAPSHOT</gluu.parent.version>
+>>>>>>> 30d39a24... feat: sending signed emails has been added;
     </properties>
 
     <repositories>
@@ -74,7 +84,7 @@
         <module>plugins/cert-authn</module>
 		<module>plugins/bioid</module>
 		<module>plugins/duo</module>
-		
+		<module>plugins/emailotp</module>
     </modules>
 
     <dependencyManagement>
@@ -146,6 +156,26 @@
                 <version>${tika.version}</version>
             </dependency>
 
+<<<<<<< HEAD
+=======
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>1.70</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk15on</artifactId>
+                <version>1.70</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcmail-jdk15on</artifactId>
+                <version>1.70</version>
+            </dependency>
+>>>>>>> 30d39a24... feat: sending signed emails has been added;
         </dependencies>
     </dependencyManagement>
 
