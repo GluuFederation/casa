@@ -1,6 +1,7 @@
 package org.gluu.casa.plugins.emailotp.model;
 
-import org.gluu.casa.plugins.emailotp.EmailOTPService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -11,17 +12,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  */
 public class VerifiedEmail implements  Comparable<VerifiedEmail> {
 
+    @SuppressWarnings("unused")
+    private static Logger logger = LoggerFactory.getLogger(VerifiedEmail.class);
+
 	private String email;
-	
-	private String maskedEmail;
-
-	public String getMaskedEmail() {
-		return maskedEmail;
-	}
-
-	public void setMaskedEmail(String maskedEmail) {
-		this.maskedEmail = EmailOTPService.getMaskedEmail(email);
-	}
 
 	private long addedOn;
 
@@ -40,7 +34,6 @@ public class VerifiedEmail implements  Comparable<VerifiedEmail> {
 
 	public VerifiedEmail(String email) {
 		this.email = email;
-		this.maskedEmail = EmailOTPService.getMaskedEmail(email);
 	}
 
 	public int compareTo(VerifiedEmail ph) {

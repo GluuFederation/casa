@@ -5,8 +5,6 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.gluu.casa.core.pojo.User;
 import org.gluu.casa.misc.Utils;
 import org.gluu.casa.plugins.emailotp.model.EmailPerson;
@@ -14,6 +12,8 @@ import org.gluu.casa.plugins.emailotp.model.VerifiedEmail;
 import org.gluu.casa.service.ISessionContext;
 import org.gluu.casa.service.SndFactorAuthenticationUtils;
 import org.gluu.casa.ui.UIUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zkoss.bind.BindUtils;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.bind.annotation.NotifyChange;
@@ -25,8 +25,9 @@ import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.Messagebox;
 
 public class EmailOtpVM {
-	private Logger logger = LogManager.getLogger(getClass());
-	EmailOTPService emailOtpService;
+    private static Logger logger = LoggerFactory.getLogger(EmailOtpVM.class);
+
+	private EmailOTPService emailOtpService;
 
 	private boolean emailCodesMatch;
 	private boolean uiEmailDelivered;
@@ -114,7 +115,7 @@ public class EmailOtpVM {
 	@NotifyChange("uiEmailDelivered")
 	public void sendCode(HtmlBasedComponent toFocus) {
 
-		logger.debug("email entered" + newEmail.getEmail());
+		logger.debug("email entered: " + newEmail.getEmail());
 		if (Utils.isNotEmpty(newEmail.getEmail())) { // Did user fill out the email text box?
 			// Check for uniquess throughout all emails in LDAP. Only new emails are
 			// accepted
@@ -123,7 +124,6 @@ public class EmailOtpVM {
 					UIUtils.showMessageUI(Clients.NOTIFICATION_TYPE_WARNING,
 							Labels.getLabel("usr.email_invalid_format"));
 				}
-
 				else if (emailOtpService.isEmailRegistered(newEmail.getEmail())) {
 					UIUtils.showMessageUI(Clients.NOTIFICATION_TYPE_WARNING,
 							Labels.getLabel("usr.email_already_exists"));
@@ -136,9 +136,12 @@ public class EmailOtpVM {
 					logger.debug("sendCode. code={}", realCode);
 
 					// Send message (service bean already knows all settings to perform this step)
-					uiEmailDelivered =  emailOtpService.sendEmailWithOTP(newEmail.getEmail(), subject, body);
-
-					logger.debug("Meesage delivery : " + uiEmailDelivered);
+					uiEmailDelivered = emailOtpService.sendEmailWithOTPSigned(newEmail.getEmail(), subject, body);
+					logger.debug("Signed message delivery : " + uiEmailDelivered);
+					if (!uiEmailDelivered) {
+                        uiEmailDelivered = emailOtpService.sendEmailWithOTP(newEmail.getEmail(), subject, body);
+                        logger.debug("Non signed message delivery : " + uiEmailDelivered);
+					}
 					if (uiEmailDelivered) {
 						if (toFocus != null) {
 							toFocus.focus();
@@ -149,7 +152,7 @@ public class EmailOtpVM {
 				}
 			} catch (Exception e) {
 				UIUtils.showMessageUI(false);
-				logger.debug(e.getMessage(), e);
+				logger.error(e.getMessage(), e);
 			}
 		}
 	}

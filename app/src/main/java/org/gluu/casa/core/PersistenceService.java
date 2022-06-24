@@ -28,6 +28,8 @@ import org.gluu.search.filter.Filter;
 import org.jboss.weld.inject.WeldInstance;
 import org.slf4j.Logger;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
@@ -71,6 +73,15 @@ public class PersistenceService implements IPersistenceService {
 
     private CacheConfiguration cacheConfiguration;
     private DocumentStoreConfiguration documentStoreConfiguration;
+
+    @PostConstruct
+    public void inited() {
+        entryManager = null;
+    }
+
+    @PreDestroy
+    public void destroyed() {
+    }
 
     public boolean initialize() {
 
@@ -405,15 +416,18 @@ public class PersistenceService implements IPersistenceService {
         logger.info("Obtaining a Persistence EntryManager");
         int i = 0;
 
-        do {
-            try {
-                i++;
-                entryManager = factory.createEntryManager(backendProperties);
-            } catch (Exception e) {
-                logger.warn("Unable to create persistence entry manager, retrying in {} seconds", retry_interval);
-                Thread.sleep(retry_interval * 1000);
-            }
-        } while (entryManager == null && i < retries);
+        if(entryManager == null) {
+            do {
+                try {
+                    i++;
+                    entryManager = factory.createEntryManager(backendProperties);
+
+                } catch (Exception e) {
+                    logger.warn("Unable to create persistence entry manager, retrying in {} seconds", retry_interval);
+                    Thread.sleep(retry_interval * 1000);
+                }
+            } while (entryManager == null && i < retries);
+        }
 
         if (entryManager == null) {
             logger.error("No EntryManager could be obtained");

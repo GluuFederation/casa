@@ -1,5 +1,13 @@
 package org.gluu.casa.plugins.emailotp;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateParsingException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -7,13 +15,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.mail.Authenticator;
 import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
@@ -23,14 +28,29 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.bouncycastle.asn1.ASN1EncodableVector;
+import org.bouncycastle.asn1.cms.AttributeTable;
+import org.bouncycastle.asn1.smime.SMIMECapabilitiesAttribute;
+import org.bouncycastle.asn1.smime.SMIMECapability;
+import org.bouncycastle.asn1.smime.SMIMECapabilityVector;
+import org.bouncycastle.asn1.smime.SMIMEEncryptionKeyPreferenceAttribute;
+import org.bouncycastle.cert.jcajce.JcaCertStore;
+import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoGeneratorBuilder;
+import org.bouncycastle.mail.smime.SMIMEException;
+import org.bouncycastle.mail.smime.SMIMESignedGenerator;
+import org.bouncycastle.mail.smime.SMIMEUtil;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.util.Store;
 import org.gluu.casa.credential.BasicCredential;
 import org.gluu.casa.misc.Utils;
 import org.gluu.casa.plugins.emailotp.model.EmailPerson;
 import org.gluu.casa.plugins.emailotp.model.GluuConfiguration;
 import org.gluu.casa.plugins.emailotp.model.SmtpConfiguration;
+import org.gluu.casa.plugins.emailotp.model.SmtpConnectProtectionType;
 import org.gluu.casa.plugins.emailotp.model.VerifiedEmail;
 import org.gluu.casa.service.IPersistenceService;
 import org.gluu.util.StringHelper;
+import org.gluu.util.security.SecurityProviderUtility;
 import org.gluu.util.security.StringEncrypter.EncryptionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,17 +64,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class EmailOTPService {
 	private static EmailOTPService SINGLE_INSTANCE = null;
 	public static Map<String, String> properties;
-	private Logger logger = LoggerFactory.getLogger(getClass());
-	public static String ACR = "email_2fa";
+	private static Logger logger = LoggerFactory.getLogger(EmailOTPService.class);
+	public static String ACR = "email_2fa_core";
 	private IPersistenceService persistenceService;
-	private EmailPerson person;
 	ObjectMapper mapper;
 	private long connectionTimeout = 5000;
+    private KeyStore keyStore;
+
+    static {
+        SecurityProviderUtility.installBCProvider();
+    }
 
 	private EmailOTPService() {
-		persistenceService = Utils.managedBean(IPersistenceService.class);
-		reloadConfiguration();
-		mapper = new ObjectMapper();
 	}
 
 	public static EmailOTPService getInstance() {
@@ -64,6 +85,27 @@ public class EmailOTPService {
 			}
 		}
 		return SINGLE_INSTANCE;
+	}
+	
+	public void init(String pluginId) {
+        persistenceService = Utils.managedBean(IPersistenceService.class);
+
+        persistenceService.initialize();
+
+        reloadConfiguration();
+        mapper = new ObjectMapper();
+
+        SmtpConfiguration smtpConfiguration = getConfiguration().getSmtpConfiguration();
+
+        String keystoreFile = smtpConfiguration.getKeyStore();
+        String KeystoreSecret = smtpConfiguration.getKeyStorePassword();
+
+        try(InputStream is = new FileInputStream(keystoreFile)) {
+            keyStore = KeyStore.getInstance("PKCS12", SecurityProviderUtility.getBCProvider());
+            keyStore.load(is, KeystoreSecret.toCharArray());
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
 	}
 
 	public void reloadConfiguration() {
@@ -97,16 +139,17 @@ public class EmailOTPService {
 	}
 
 	public List<VerifiedEmail> getVerifiedEmail(String userId) {
-
 		List<VerifiedEmail> verifiedEmails = new ArrayList<>();
 		try {
-			EmailPerson person = persistenceService.get(EmailPerson.class, persistenceService.getPersonDn(userId));
-			String json = person.getEmailIds();
-			json = Utils.isEmpty(json) ? "[]" : mapper.readTree(json).get("email-ids").toString();
-			logger.debug("json - " + json);
-			verifiedEmails = mapper.readValue(json, new TypeReference<List<VerifiedEmail>>() {
-			});
+            EmailPerson testPerson = new EmailPerson();
 
+            String searchMask = String.format("inum=%s,ou=people,o=gluu", userId);
+            testPerson.setBaseDn(searchMask);
+
+			EmailPerson person = persistenceService.get(EmailPerson.class, new String(persistenceService.getPersonDn(userId)));
+			String json = person.getOxEmailAlternate();
+			json = Utils.isEmpty(json) ? "[]" : mapper.readTree(json).get("email-ids").toString();
+			verifiedEmails = mapper.readValue(json, new TypeReference<List<VerifiedEmail>>() { });
 			VerifiedEmail primaryMail = getExtraEmailId(person.getMail(), verifiedEmails);
 			// implies that this has not been already added
 			if (primaryMail != null) {
@@ -114,13 +157,12 @@ public class EmailOTPService {
 				verifiedEmails.add(primaryMail);
 
 			}
-			logger.trace("getVerifiedEmail. User '{}' has {}", userId,
+			logger.info("getVerifiedEmail. User '{}' has {}", userId,
 					verifiedEmails.stream().map(VerifiedEmail::getEmail).collect(Collectors.toList()));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 		return verifiedEmails;
-
 	}
 
 	public int getCredentialsTotal(String uniqueIdOfTheUser) {
@@ -128,29 +170,42 @@ public class EmailOTPService {
 	}
 
 	public GluuConfiguration getConfiguration() {
-
-		GluuConfiguration result = persistenceService.find(GluuConfiguration.class, "ou=configuration,o=gluu", null)
-				.get(0);
+		GluuConfiguration result = persistenceService.find(GluuConfiguration.class, "ou=configuration,o=gluu", null).get(0);
 		return result;
 	}
 
 	public boolean sendEmailWithOTP(String emailId, String subject, String body) {
-		logger.debug("sendEmailWithOTP");
 		SmtpConfiguration smtpConfiguration = getConfiguration().getSmtpConfiguration();
-		logger.debug("SmtpConfiguration - " + smtpConfiguration.getHost());
 		if (smtpConfiguration == null) {
 			logger.error("Failed to send email. SMTP settings not found. Please configure SMTP settings in oxTrust");
 			return false;
 		}
 		Properties prop = new Properties();
+
 		prop.put("mail.smtp.auth", true);
-		prop.put("mail.smtp.starttls.enable", smtpConfiguration.isRequiresSsl());
-		prop.put("mail.smtp.host", smtpConfiguration.getHost());
-		prop.put("mail.smtp.port", smtpConfiguration.getPort());
-		prop.put("mail.smtp.ssl.trust", smtpConfiguration.isServerTrust());
+
+        prop.put("mail.smtp.host", smtpConfiguration.getHost());
+        prop.put("mail.smtp.port", smtpConfiguration.getPort());
+
+        prop.put("mail.from", "Gluu Casa");
+        prop.put("mail.transport.protocol", "smtp");
+
+        SmtpConnectProtectionType smtpConnectProtect = smtpConfiguration.getConnectProtection();
+
+        if (smtpConnectProtect == SmtpConnectProtectionType.StartTls) {
+            prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+            prop.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
+            prop.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+            prop.put("mail.smtp.starttls.enable", true);
+        }
+        else if (smtpConnectProtect == SmtpConnectProtectionType.SslTls) {
+            prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+            prop.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
+            prop.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+            prop.put("mail.smtp.ssl.enable", true);
+        }
 
 		Session session = Session.getInstance(prop, new Authenticator()  {
-
 			@Override
 			protected PasswordAuthentication getPasswordAuthentication() {
 				return new PasswordAuthentication(smtpConfiguration.getUserName(),
@@ -159,9 +214,8 @@ public class EmailOTPService {
 		});
 
 		Message message = new MimeMessage(session);
-		logger.debug("Session created");
 		try {
-			message.setFrom(new InternetAddress(smtpConfiguration.getFromEmailAddress()));
+			message.setFrom(new InternetAddress(smtpConfiguration.getFromEmailAddress(), smtpConfiguration.getFromName()));
 			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailId));
 			message.setSubject(subject);
 
@@ -170,18 +224,135 @@ public class EmailOTPService {
 
 			Multipart multipart = new MimeMultipart();
 			multipart.addBodyPart(mimeBodyPart);
-			logger.debug("Before sending");
 			message.setContent(multipart);
 
 			Transport.send(message);
-			logger.debug("after sending");
-		} catch (MessagingException e) {
+		} catch (Exception e) {
 			logger.error("Failed to send OTP: " + e.getMessage());
 			return false;
 		}
-
 		return true;
 	}
+
+    public boolean sendEmailWithOTPSigned(String emailId, String subject, String body) {
+        SmtpConfiguration smtpConfiguration = getConfiguration().getSmtpConfiguration();
+        if (smtpConfiguration == null) {
+            logger.error("Failed to send email. SMTP settings not found. Please configure SMTP settings in oxTrust");
+            return false;
+        }
+
+        Properties prop = new Properties();
+
+        prop.put("mail.smtp.auth", true);
+
+        prop.put("mail.smtp.host", smtpConfiguration.getHost());
+        prop.put("mail.smtp.port", smtpConfiguration.getPort());
+
+        prop.put("mail.from", "Gluu Casa");
+        prop.put("mail.transport.protocol", "smtp");
+
+        SmtpConnectProtectionType smtpConnectProtect = smtpConfiguration.getConnectProtection();
+
+        if (smtpConnectProtect == SmtpConnectProtectionType.StartTls) {
+            prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+            prop.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
+            prop.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+            prop.put("mail.smtp.starttls.enable", true);
+        }
+        else if (smtpConnectProtect == SmtpConnectProtectionType.SslTls) {
+            prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+            prop.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
+            prop.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+            prop.put("mail.smtp.ssl.enable", true);
+        }
+
+        Session session = Session.getInstance(prop, new Authenticator()  {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(smtpConfiguration.getUserName(),
+                        decrypt(smtpConfiguration.getPassword()));
+            }
+        });
+
+        PrivateKey privateKey = null;
+
+        Certificate certificate = null; 
+        X509Certificate x509Certificate = null;
+
+        smtpConfiguration.getKeyStoreAlias();
+        smtpConfiguration.getKeyStore();
+        smtpConfiguration.getKeyStorePassword();
+
+        try {
+            privateKey = (PrivateKey)keyStore.getKey(smtpConfiguration.getKeyStoreAlias(),
+                    smtpConfiguration.getKeyStorePassword().toCharArray());
+            
+            certificate = keyStore.getCertificate(smtpConfiguration.getKeyStoreAlias());
+            x509Certificate = (X509Certificate)certificate;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+
+        Message message = new MimeMessage(session);
+
+        try {
+            message.setFrom(new InternetAddress(smtpConfiguration.getFromEmailAddress()));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailId));
+            message.setSubject(subject);
+
+            MimeBodyPart mimeBodyPart = new MimeBodyPart();
+            mimeBodyPart.setContent(body, "text/html; charset=utf-8");
+
+            MimeMultipart multiPart = createMultipartWithSignature(privateKey, x509Certificate, mimeBodyPart);            
+
+            message.setContent(multiPart);
+
+            Transport.send(message);
+        } catch (Exception e) {
+            logger.error("Failed to send OTP: " + e.getMessage());
+            return false;
+        }
+
+        return true;
+    }
+    
+    /**
+     * @param cert
+     * @return
+     * @throws CertificateParsingException
+     */
+    private static ASN1EncodableVector generateSignedAttributes(X509Certificate cert) throws CertificateParsingException {
+        ASN1EncodableVector signedAttrs = new ASN1EncodableVector();
+        SMIMECapabilityVector caps = new SMIMECapabilityVector();
+        caps.addCapability(SMIMECapability.aES256_CBC);
+        caps.addCapability(SMIMECapability.dES_EDE3_CBC);
+        caps.addCapability(SMIMECapability.rC2_CBC, 128);
+        signedAttrs.add(new SMIMECapabilitiesAttribute(caps));
+        signedAttrs.add(new SMIMEEncryptionKeyPreferenceAttribute(SMIMEUtil.createIssuerAndSerialNumberFor(cert)));
+        return signedAttrs;
+    }
+
+    /**
+     * @param key
+     * @param cert
+     * @param dataPart
+     * @return
+     * @throws CertificateEncodingException
+     * @throws CertificateParsingException
+     * @throws OperatorCreationException
+     * @throws SMIMEException
+     */
+    public static MimeMultipart createMultipartWithSignature(PrivateKey key, X509Certificate cert, MimeBodyPart dataPart) throws CertificateEncodingException, CertificateParsingException, OperatorCreationException, SMIMEException {
+        List<X509Certificate> certList = new ArrayList<X509Certificate>();
+        certList.add(cert);
+        Store certs = new JcaCertStore(certList);
+        ASN1EncodableVector signedAttrs = generateSignedAttributes(cert);
+
+        SMIMESignedGenerator gen = new SMIMESignedGenerator();
+        gen.addSignerInfoGenerator(new JcaSimpleSignerInfoGeneratorBuilder().setProvider("BC").setSignedAttributeGenerator(new AttributeTable(signedAttrs)).build("SHA256withECDSA", key, cert));
+        gen.addCertificates(certs);
+        return gen.generate(dataPart);
+    }    
 
 	public boolean isEmailRegistered(String email) {
 
@@ -194,7 +365,6 @@ public class EmailOTPService {
 	}
 
 	public String encrypt(String password) {
-
 		try {
 			return Utils.stringEncrypter().encrypt(password);
 		} catch (EncryptionException ex) {
@@ -217,7 +387,6 @@ public class EmailOTPService {
 	}
 
 	public boolean updateEmailIdAdd(String userId, List<VerifiedEmail> emails, VerifiedEmail newEmail) {
-
 		boolean success = false;
 		try {
 			List<VerifiedEmail> vEmails = new ArrayList<>(emails);
@@ -231,9 +400,8 @@ public class EmailOTPService {
 			String json = mailIds.size() > 0 ? mapper.writeValueAsString(Collections.singletonMap("email-ids", vEmails))
 					: null;
 
-			logger.debug("Updating email ids for user '{}'", userId);
 			EmailPerson person = persistenceService.get(EmailPerson.class, persistenceService.getPersonDn(userId));
-			person.setEmailIds(json);
+			person.setOxEmailAlternate(json);
 
 			success = persistenceService.modify(person);
 
@@ -247,7 +415,6 @@ public class EmailOTPService {
 			logger.error(e.getMessage(), e);
 		}
 		return success;
-
 	}
 
 	Pair<String, String> getDeleteMessages(String nick, String extraMessage) {
@@ -317,13 +484,21 @@ public class EmailOTPService {
 		props.put("mail.smtp.connectiontimeout", this.connectionTimeout);
 		props.put("mail.smtp.timeout", this.connectionTimeout);
 		props.put("mail.transport.protocol", "smtp");
-		props.put("mail.smtp.ssl.trust", mailSmtpConfiguration.getHost());
 
-		if (mailSmtpConfiguration.isRequiresSsl()) {
-			props.put("mail.smtp.socketFactory.port", mailSmtpConfiguration.getPort());
-			props.put("mail.smtp.starttls.enable", true);
-			props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-		}
+        SmtpConnectProtectionType smtpConnectProtect = mailSmtpConfiguration.getConnectProtection();
+
+        if (smtpConnectProtect == SmtpConnectProtectionType.StartTls) {
+            props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+            props.put("mail.smtp.socketFactory.port", mailSmtpConfiguration.getPort());
+            props.put("mail.smtp.ssl.trust", mailSmtpConfiguration.getHost());
+            props.put("mail.smtp.starttls.enable", true);
+        }
+        else if (smtpConnectProtect == SmtpConnectProtectionType.SslTls) {
+            props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+            props.put("mail.smtp.socketFactory.port", mailSmtpConfiguration.getPort());
+            props.put("mail.smtp.ssl.trust", mailSmtpConfiguration.getHost());
+            props.put("mail.smtp.ssl.enable", true);
+        }
 
 		Session session = null;
 		if (mailSmtpConfiguration.isRequiresAuthentication()) {
@@ -376,28 +551,6 @@ public class EmailOTPService {
 			logger.error("Failed to send message", ex);
 			return false;
 		}
-
 		return true;
 	}
-
-	public static String getMaskedEmail(String email) {
-		String pattern = "([^@]+)@(.*)\\.(.*)";
-
-		Pattern r = Pattern.compile(pattern);
-		Matcher m = r.matcher(email);
-		if (m.find()) {
-			StringBuilder sb = new StringBuilder("");
-			sb.append(m.group(1).charAt(0));
-			sb.append(m.group(1).substring(1).replaceAll(".", "*"));
-			sb.append("@");
-
-			sb.append(m.group(2).charAt(0));
-			sb.append(m.group(2).substring(1).replaceAll(".", "*"));
-
-			sb.append(".").append(m.group(3));
-			return sb.toString();
-		}
-		return null;
-	}
-
 }
