@@ -82,9 +82,9 @@
         <module>plugins/custom-branding</module>
         <module>plugins/strong-authn-settings</module>
         <module>plugins/cert-authn</module>
-		<module>plugins/bioid</module>
-		<module>plugins/duo</module>
-		<module>plugins/emailotp</module>
+        <module>plugins/bioid</module>
+        <module>plugins/duo</module>
+        <module>plugins/emailotp</module>
     </modules>
 
     <dependencyManagement>
