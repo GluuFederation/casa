@@ -15,6 +15,7 @@ from org.gluu.jsf2.message import FacesMessages
 from org.gluu.model.casa import ApplicationConfiguration
 from org.gluu.persist.exception import AuthenticationException
 from org.gluu.persist import PersistenceEntryManager
+from org.gluu.util.security import SecurityProviderUtility
 
 from javax.faces.application import FacesMessage
 from datetime import datetime, timedelta
@@ -92,6 +93,7 @@ class PersonAuthentication(PersonAuthenticationType):
         self.jks_keystore = None
         self.keystore_password = None
         self.alias = None
+        self.sign_alg = None
 
     def init(self, customScript, configurationAttributes):
         print "EmailOTP.  - Initialization"
@@ -101,6 +103,7 @@ class PersonAuthentication(PersonAuthenticationType):
         jks_keystore_val = configurationAttributes.get("Signer_Cert_KeyStore")
         keystore_password_val = configurationAttributes.get("Signer_Cert_KeyStorePassword")
         alias_val = configurationAttributes.get("Signer_Cert_Alias")
+        sign_alg_val = configurationAttributes.get("Signer_SignAlgorithm")
 
         if jks_keystore_val != None:
             self.jks_keystore = jks_keystore_val.getValue2()
@@ -110,6 +113,9 @@ class PersonAuthentication(PersonAuthenticationType):
 
         if alias_val != None:
             self.alias = alias_val.getValue2()
+
+        if sign_alg_val != None:
+            self.sign_alg = sign_alg_val.getValue2()
 
         print "EmailOTP.  - Initialization - Initialized successfully"
         return True
@@ -208,7 +214,7 @@ class PersonAuthentication(PersonAuthenticationType):
                             email_valid = email_validator.check(sendToEmail)
                             if email_valid == True:
                                 body = "Here is your token: %s" % token
-                                sender = EmailSender(self.jks_keystore, self.keystore_password, self.alias)
+                                sender = EmailSender(self.jks_keystore, self.keystore_password, self.alias, self.sign_alg)
                                 sender.sendEmail(sendToEmail, subject, body)
                                 return True
                             else:
@@ -273,6 +279,12 @@ class PersonAuthentication(PersonAuthenticationType):
 
         user2 = authenticationService.getAuthenticatedUser()
 
+        if user2 is None:
+            print "EmailOTP.  - Preparing for step %s - user2 is None" % step
+
+        else:
+            print "EmailOTP.  - Preparing for step %s - user2 is not None" % step
+
         identity = CdiUtil.bean(Identity)
 
         if step == 1:
@@ -280,6 +292,8 @@ class PersonAuthentication(PersonAuthenticationType):
             return True
 
         elif step == 2 and user2 is not None:
+            print "EmailOTP.  - Preparing for step %s - step == 2 and user2 is not None" % step        
+
             uid = user2.getAttribute("uid")
             identity = CdiUtil.bean(Identity)
             self.prepareUIParams(identity)
@@ -287,6 +301,29 @@ class PersonAuthentication(PersonAuthenticationType):
             lent = configurationAttributes.get("token_length").getValue2()
             new_token = Token()
             token = new_token.generateToken(lent)
+
+            subject = "Gluu Authentication Token"
+            body = "Here is your token: %s" % token
+
+            sender = EmailSender(self.jks_keystore, self.keystore_password, self.alias, self.sign_alg)
+            emailIds = user2.getAttribute("oxEmailAlternate")
+
+            print "emailIds : %s" % emailIds
+            data = json.loads(emailIds)
+
+            #Attempt to send message now if user has only one email id
+            if len(data['email-ids']) == 1:
+                email = data['email-ids'][0]
+                print "EmailOTP.  email to - %s" % email['email']
+                sender.sendEmail( email['email'], subject, body)
+
+            else:
+                commaSeperatedEmailString = []
+                for email in data['email-ids']:
+                    print "EmailOTP. Email to - %s" % email['email']
+                    #sender.sendEmail( reciever_id, subject, body)
+                    commaSeperatedEmailString.append(email['email'])
+                identity.setWorkingParameter("emailIds", ",".join(commaSeperatedEmailString))
 
             otptime1 = datetime.now()
             tess = str(otptime1)
@@ -393,10 +430,19 @@ class EmailSender():
 
     time_out = 5000
 
-    def __init__(self, jks_keystore, keystore_password, alias):
+    def __init__(self, jks_keystore, keystore_password, alias, sign_alg):
         self.jks_keystore = jks_keystore
         self.keystore_password = keystore_password
         self.alias = alias
+        self.sign_alg = sign_alg
+
+        mc = CommandMap.getDefaultCommandMap()
+
+        mc.addMailcap("text/html;; x-java-content-handler=com.sun.mail.handlers.text_html")
+        mc.addMailcap("text/xml;; x-java-content-handler=com.sun.mail.handlers.text_xml")
+        mc.addMailcap("text/plain;; x-java-content-handler=com.sun.mail.handlers.text_plain")
+        mc.addMailcap("multipart/*;; x-java-content-handler=com.sun.mail.handlers.multipart_mixed")
+        mc.addMailcap("message/rfc822;; x-java-content- handler=com.sun.mail.handlers.message_rfc822")        
 
     def getSmtpConfig(self):
         print "EmailSender.  - getSmtpConfig"
@@ -422,13 +468,14 @@ class EmailSender():
 
                 'key_store' : smtpconfig.getKeyStore(),
                 'key_store_password' : smtpconfig.getKeyStorePassword(),
-                'key_store_alias' : smtpconfig.getKeyStoreAlias()
+                'key_store_alias' : smtpconfig.getKeyStoreAlias(),
+                'signing-algorithm' : smtpconfig.getSigningAlgorithm()
             }
 
         print "EmailSender.  - getSmtpConfig - Successfully"
         return smtp_config
 
-    def signMessage(self, jks_keystore, keystore_password, alias, message):
+    def signMessage(self, jks_keystore, keystore_password, alias, signing_algorithm, message):
         print "EmailSender.  - signMessage"
 
         isAliasWithPrivateKey = False
@@ -446,11 +493,20 @@ class EmailSender():
 
         if (isAliasWithPrivateKey):
             pkEntry = keyStore.getEntry(alias,KeyStore.PasswordProtection(list(keystore_password)))
-            myPrivateKey = pkEntry.getPrivateKey()
-            
-            chain = keyStore.getCertificateChain(alias)
-            privateKey = myPrivateKey
-            publicKey = chain[0]
+            privateKey = pkEntry.getPrivateKey()
+
+        chain = keyStore.getCertificateChain(alias)
+
+        publicKey = chain[0]
+
+        certificate = keyStore.getCertificate(alias)
+
+        sign_algorithm = None
+
+        if not signing_algorithm or not signing_algorithm.strip():
+            sign_algorithm = certificate.getSigAlgName()
+        else:
+            sign_algorithm = signing_algorithm
 
         # Create the SMIMESignedGenerator
         capabilities = SMIMECapabilityVector()
@@ -467,7 +523,7 @@ class EmailSender():
 
         signer = SMIMESignedGenerator()
 
-        signer.addSignerInfoGenerator(JcaSimpleSignerInfoGeneratorBuilder().setProvider("BC").setSignedAttributeGenerator(AttributeTable(attributes)).build("SHA256withECDSA", privateKey, publicKey))
+        signer.addSignerInfoGenerator(JcaSimpleSignerInfoGeneratorBuilder().setProvider(SecurityProviderUtility.getBCProvider()).setSignedAttributeGenerator(AttributeTable(attributes)).build(sign_algorithm, privateKey, publicKey))
 
         # Add the list of certs to the generator
         certList = [publicKey]
@@ -487,14 +543,6 @@ class EmailSender():
 
     def sendEmail(self, user_email, message_subject, message_text):
         print "EmailSender.  - sendEmail"
-        
-        mc = CommandMap.getDefaultCommandMap()
-
-        mc.addMailcap("text/html;; x-java-content-handler=com.sun.mail.handlers.text_html")
-        mc.addMailcap("text/xml;; x-java-content-handler=com.sun.mail.handlers.text_xml")
-        mc.addMailcap("text/plain;; x-java-content-handler=com.sun.mail.handlers.text_plain")
-        mc.addMailcap("multipart/*;; x-java-content-handler=com.sun.mail.handlers.multipart_mixed")
-        mc.addMailcap("message/rfc822;; x-java-content- handler=com.sun.mail.handlers.message_rfc822")
 
         # server connection
         smtp_config = self.getSmtpConfig()
@@ -547,7 +595,12 @@ class EmailSender():
         else:
             alias = smtp_config['key_store_alias']
 
-        signed_message = self.signMessage(jks_keystore, keystore_password, alias, message)
+        if self.sign_alg != None:
+            sign_alg = self.sign_alg
+        else:
+            sign_alg = smtp_config['signing-algorithm']
+
+        signed_message = self.signMessage(jks_keystore, keystore_password, alias, sign_alg, message)
 
         transport = session.getTransport("smtp")
         transport.connect(properties.get("mail.smtp.host"),int(properties.get("mail.smtp.port")), smtp_config['user'], smtp_config['pwd_decrypted'])

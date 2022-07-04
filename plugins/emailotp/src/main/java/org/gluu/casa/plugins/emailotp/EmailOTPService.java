@@ -17,6 +17,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import javax.activation.CommandMap;
+import javax.activation.MailcapCommandMap;
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.Multipart;
@@ -75,9 +77,22 @@ public class EmailOTPService {
         SecurityProviderUtility.installBCProvider();
     }
 
+    /**
+     * 
+     */
 	private EmailOTPService() {
+        MailcapCommandMap mc = (MailcapCommandMap) CommandMap.getDefaultCommandMap(); 
+        mc.addMailcap("text/html;; x-java-content-handler=com.sun.mail.handlers.text_html"); 
+        mc.addMailcap("text/xml;; x-java-content-handler=com.sun.mail.handlers.text_xml"); 
+        mc.addMailcap("text/plain;; x-java-content-handler=com.sun.mail.handlers.text_plain"); 
+        mc.addMailcap("multipart/*;; x-java-content-handler=com.sun.mail.handlers.multipart_mixed"); 
+        mc.addMailcap("message/rfc822;; x-java-content- handler=com.sun.mail.handlers.message_rfc822");		
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public static EmailOTPService getInstance() {
 		if (SINGLE_INSTANCE == null) {
 			synchronized (EmailOTPService.class) {
@@ -86,7 +101,11 @@ public class EmailOTPService {
 		}
 		return SINGLE_INSTANCE;
 	}
-	
+
+	/**
+	 * 
+	 * @param pluginId
+	 */
 	public void init(String pluginId) {
         persistenceService = Utils.managedBean(IPersistenceService.class);
 
@@ -98,16 +117,19 @@ public class EmailOTPService {
         SmtpConfiguration smtpConfiguration = getConfiguration().getSmtpConfiguration();
 
         String keystoreFile = smtpConfiguration.getKeyStore();
-        String KeystoreSecret = smtpConfiguration.getKeyStorePassword();
+        String keystoreSecret = smtpConfiguration.getKeyStorePassword();
 
         try(InputStream is = new FileInputStream(keystoreFile)) {
             keyStore = KeyStore.getInstance("PKCS12", SecurityProviderUtility.getBCProvider());
-            keyStore.load(is, KeystoreSecret.toCharArray());
+            keyStore.load(is, keystoreSecret.toCharArray());
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
 	}
 
+	/**
+	 * 
+	 */
 	public void reloadConfiguration() {
 		ObjectMapper mapper = new ObjectMapper();
 		properties = persistenceService.getCustScriptConfigProperties(ACR);
@@ -124,10 +146,20 @@ public class EmailOTPService {
 		}
 	}
 
+	/**
+	 * 
+	 * @param value
+	 * @return
+	 */
 	public String getScriptPropertyValue(String value) {
 		return properties.get(value);
 	}
 
+	/**
+	 * 
+	 * @param uniqueIdOfTheUser
+	 * @return
+	 */
 	public List<BasicCredential> getCredentials(String uniqueIdOfTheUser) {
 
 		List<VerifiedEmail> verifiedEmails = getVerifiedEmail(uniqueIdOfTheUser);
@@ -138,6 +170,11 @@ public class EmailOTPService {
 		return list;
 	}
 
+	/**
+	 * 
+	 * @param userId
+	 * @return
+	 */
 	public List<VerifiedEmail> getVerifiedEmail(String userId) {
 		List<VerifiedEmail> verifiedEmails = new ArrayList<>();
 		try {
@@ -165,15 +202,31 @@ public class EmailOTPService {
 		return verifiedEmails;
 	}
 
+	/**
+	 * 
+	 * @param uniqueIdOfTheUser
+	 * @return
+	 */
 	public int getCredentialsTotal(String uniqueIdOfTheUser) {
 		return getVerifiedEmail(uniqueIdOfTheUser).size();
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public GluuConfiguration getConfiguration() {
 		GluuConfiguration result = persistenceService.find(GluuConfiguration.class, "ou=configuration,o=gluu", null).get(0);
 		return result;
 	}
 
+	/**
+	 * 
+	 * @param emailId
+	 * @param subject
+	 * @param body
+	 * @return
+	 */
 	public boolean sendEmailWithOTP(String emailId, String subject, String body) {
 		SmtpConfiguration smtpConfiguration = getConfiguration().getSmtpConfiguration();
 		if (smtpConfiguration == null) {
@@ -234,6 +287,13 @@ public class EmailOTPService {
 		return true;
 	}
 
+	/**
+	 * 
+	 * @param emailId
+	 * @param subject
+	 * @param body
+	 * @return
+	 */
     public boolean sendEmailWithOTPSigned(String emailId, String subject, String body) {
         SmtpConfiguration smtpConfiguration = getConfiguration().getSmtpConfiguration();
         if (smtpConfiguration == null) {
@@ -279,10 +339,6 @@ public class EmailOTPService {
         Certificate certificate = null; 
         X509Certificate x509Certificate = null;
 
-        smtpConfiguration.getKeyStoreAlias();
-        smtpConfiguration.getKeyStore();
-        smtpConfiguration.getKeyStorePassword();
-
         try {
             privateKey = (PrivateKey)keyStore.getKey(smtpConfiguration.getKeyStoreAlias(),
                     smtpConfiguration.getKeyStorePassword().toCharArray());
@@ -303,7 +359,7 @@ public class EmailOTPService {
             MimeBodyPart mimeBodyPart = new MimeBodyPart();
             mimeBodyPart.setContent(body, "text/html; charset=utf-8");
 
-            MimeMultipart multiPart = createMultipartWithSignature(privateKey, x509Certificate, mimeBodyPart);            
+            MimeMultipart multiPart = createMultipartWithSignature(privateKey, x509Certificate, smtpConfiguration.getSigningAlgorithm(), mimeBodyPart);            
 
             message.setContent(multiPart);
 
@@ -333,8 +389,10 @@ public class EmailOTPService {
     }
 
     /**
+     * 
      * @param key
      * @param cert
+     * @param signingAlgorithm
      * @param dataPart
      * @return
      * @throws CertificateEncodingException
@@ -342,18 +400,30 @@ public class EmailOTPService {
      * @throws OperatorCreationException
      * @throws SMIMEException
      */
-    public static MimeMultipart createMultipartWithSignature(PrivateKey key, X509Certificate cert, MimeBodyPart dataPart) throws CertificateEncodingException, CertificateParsingException, OperatorCreationException, SMIMEException {
+    public static MimeMultipart createMultipartWithSignature(PrivateKey key, X509Certificate cert, String signingAlgorithm, MimeBodyPart dataPart) throws CertificateEncodingException, CertificateParsingException, OperatorCreationException, SMIMEException {
         List<X509Certificate> certList = new ArrayList<X509Certificate>();
         certList.add(cert);
         Store certs = new JcaCertStore(certList);
         ASN1EncodableVector signedAttrs = generateSignedAttributes(cert);
 
         SMIMESignedGenerator gen = new SMIMESignedGenerator();
-        gen.addSignerInfoGenerator(new JcaSimpleSignerInfoGeneratorBuilder().setProvider("BC").setSignedAttributeGenerator(new AttributeTable(signedAttrs)).build("SHA256withECDSA", key, cert));
+
+        if (Utils.isEmpty(signingAlgorithm)) {
+            signingAlgorithm = cert.getSigAlgName();
+        }
+
+        gen.addSignerInfoGenerator(new JcaSimpleSignerInfoGeneratorBuilder().setProvider(SecurityProviderUtility.getBCProvider()).setSignedAttributeGenerator(new AttributeTable(signedAttrs)).build(signingAlgorithm, key, cert));
+
         gen.addCertificates(certs);
+
         return gen.generate(dataPart);
     }    
 
+    /**
+     * 
+     * @param email
+     * @return
+     */
 	public boolean isEmailRegistered(String email) {
 
 		EmailPerson person = new EmailPerson();
@@ -364,6 +434,11 @@ public class EmailOTPService {
 
 	}
 
+	/**
+	 * 
+	 * @param password
+	 * @return
+	 */
 	public String encrypt(String password) {
 		try {
 			return Utils.stringEncrypter().encrypt(password);
@@ -373,6 +448,11 @@ public class EmailOTPService {
 		}
 	}
 
+	/**
+	 * 
+	 * @param password
+	 * @return
+	 */
 	public String decrypt(String password) {
 		try {
 			return Utils.stringEncrypter().decrypt(password);
@@ -382,16 +462,30 @@ public class EmailOTPService {
 		}
 	}
 
+	/**
+	 * 
+	 * @param userId
+	 * @param newEmail
+	 * @return
+	 */
 	public boolean addEmail(String userId, VerifiedEmail newEmail) {
 		return updateEmailIdAdd(userId, getVerifiedEmail(userId), newEmail);
 	}
 
+	/**
+	 * 
+	 * @param userId
+	 * @param emails
+	 * @param newEmail
+	 * @return
+	 */
 	public boolean updateEmailIdAdd(String userId, List<VerifiedEmail> emails, VerifiedEmail newEmail) {
 		boolean success = false;
 		try {
+			EmailPerson person = persistenceService.get(EmailPerson.class, persistenceService.getPersonDn(userId));
+
 			List<VerifiedEmail> vEmails = new ArrayList<>(emails);
 			if (newEmail != null) {
-
 				// uniqueness of the new mail has already been verified at previous step
 				vEmails.add(newEmail);
 			}
@@ -400,7 +494,6 @@ public class EmailOTPService {
 			String json = mailIds.size() > 0 ? mapper.writeValueAsString(Collections.singletonMap("email-ids", vEmails))
 					: null;
 
-			EmailPerson person = persistenceService.get(EmailPerson.class, persistenceService.getPersonDn(userId));
 			person.setOxEmailAlternate(json);
 
 			success = persistenceService.modify(person);
@@ -417,6 +510,12 @@ public class EmailOTPService {
 		return success;
 	}
 
+	/**
+	 * 
+	 * @param nick
+	 * @param extraMessage
+	 * @return
+	 */
 	Pair<String, String> getDeleteMessages(String nick, String extraMessage) {
 
 		StringBuilder text = new StringBuilder();
@@ -456,6 +555,18 @@ public class EmailOTPService {
 		}
 	}
 
+	/**
+	 * 
+	 * @param mailSmtpConfiguration
+	 * @param from
+	 * @param fromDisplayName
+	 * @param to
+	 * @param toDisplayName
+	 * @param subject
+	 * @param message
+	 * @param htmlMessage
+	 * @return
+	 */
 	public boolean sendMail(SmtpConfiguration mailSmtpConfiguration, String from, String fromDisplayName, String to,
 			String toDisplayName, String subject, String message, String htmlMessage) {
 		if (mailSmtpConfiguration == null) {
