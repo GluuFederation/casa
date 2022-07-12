@@ -593,10 +593,13 @@ class EmailSender():
             properties.put("mail.smtp.port", str(smtp_config['port']))
             properties.put("mail.smtp.connectiontimeout", str(self.time_out))
             properties.put("mail.smtp.timeout", str(self.time_out))
-            
+
             properties.put("mail.smtp.socketFactory.class", "com.sun.mail.util.MailSSLSocketFactory")
             properties.put("mail.smtp.socketFactory.port", str(smtp_config['port']))
-            properties.put("mail.smtp.ssl.trust", smtp_config['host'])
+
+            if smtp_config['server_trust'] == True:
+                properties.put("mail.smtp.ssl.trust", smtp_config['host'])
+
             properties.put("mail.smtp.starttls.enable", "true")
             properties.put("mail.smtp.starttls.required", "true")
 
@@ -611,7 +614,10 @@ class EmailSender():
 
             properties.put("mail.smtp.socketFactory.class", "com.sun.mail.util.MailSSLSocketFactory")
             properties.put("mail.smtp.socketFactory.port", str(smtp_config['port']))
-            properties.put("mail.smtp.ssl.trust", smtp_config['host'])
+
+            if smtp_config['server_trust'] == True:
+                properties.put("mail.smtp.ssl.trust", smtp_config['host'])
+
             properties.put("mail.smtp.ssl.enable", "true")
 
         session = Session.getDefaultInstance(properties)
