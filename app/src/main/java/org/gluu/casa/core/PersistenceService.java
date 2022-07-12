@@ -73,7 +73,7 @@ public class PersistenceService implements IPersistenceService {
 
     private CacheConfiguration cacheConfiguration;
     private DocumentStoreConfiguration documentStoreConfiguration;
-    
+
     @PostConstruct
     public void inited() {
         entryManager = null;

@@ -43,16 +43,17 @@ from org.bouncycastle.asn1.smime import SMIMECapabilitiesAttribute
 from org.bouncycastle.asn1.smime import SMIMECapability
 from org.bouncycastle.asn1.smime import SMIMECapabilityVector
 from org.bouncycastle.asn1.smime import SMIMEEncryptionKeyPreferenceAttribute
-from org.bouncycastle.asn1.x509 import X509Name
+from org.bouncycastle.asn1.x500 import X500Name
 from org.bouncycastle.cert.jcajce import JcaCertStore
 from org.bouncycastle.cms import CMSAlgorithm
 from org.bouncycastle.cms.jcajce import JcaSimpleSignerInfoGeneratorBuilder
 from org.bouncycastle.cms.jcajce import JceCMSContentEncryptorBuilder
 from org.bouncycastle.cms.jcajce import JceKeyTransRecipientInfoGenerator
-from org.bouncycastle.jce.provider import BouncyCastleProvider
 from org.bouncycastle.mail.smime import SMIMEEnvelopedGenerator
 from org.bouncycastle.mail.smime import SMIMESignedGenerator
+from org.bouncycastle.mail.smime import SMIMEUtil
 
+import os.path
 import random
 import string
 import re
@@ -129,6 +130,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
     def isValidAuthenticationMethod(self, usageType, configurationAttributes):
         return True
+
     def getAuthenticationMethodClaims(self, configurationAttributes):
         return None
 
@@ -136,16 +138,13 @@ class PersonAuthentication(PersonAuthenticationType):
         return None
 
     def authenticate(self, configurationAttributes, requestParameters, step):
-        print "EmailOTP. - Authenticate for step %s" % ( step)
+        print "EmailOTP. - Authenticate for step %s" % ( step )
         authenticationService = CdiUtil.bean(AuthenticationService)
         identity = CdiUtil.bean(Identity)
         credentials = identity.getCredentials()
 
         user_name = credentials.getUsername()
-        print "Email 2FA - Authenticate: user_name = {}".format(user_name)
-
         user_password = credentials.getPassword()
-        print "Email 2FA - Authenticate: user_password = {}".format(user_password)
         
         facesMessages = CdiUtil.bean(FacesMessages)
         facesMessages.setKeepMessages()
@@ -167,6 +166,12 @@ class PersonAuthentication(PersonAuthenticationType):
                     user_name = credentials.getUsername()
                     user_password = credentials.getPassword()
 
+                    user_name = credentials.getUsername()
+                    print "Email 2FA - Authenticate: user_name = {}".format(user_name)
+
+                    user_password = credentials.getPassword()
+                    print "Email 2FA - Authenticate: user_password = {}".format(user_password)
+
                     logged_in = False
                     if (StringHelper.isNotEmptyString(user_name) and StringHelper.isNotEmptyString(user_password)):
                         userService = CdiUtil.bean(UserService)
@@ -174,15 +179,16 @@ class PersonAuthentication(PersonAuthenticationType):
                         if logged_in is True:
                             user2 = authenticationService.getAuthenticatedUser()
                             emailIds = user2.getAttribute("oxEmailAlternate")
-                            if StringHelper.isNotEmptyString(emailIds):
-                                data = json.loads(emailIds)
-                                if len(data['email-ids']) > 1:
-                                    commaSeperatedEmailString = []
-                                    for email in data['email-ids']:
-                                        reciever_id = email['email']
-                                        commaSeperatedEmailString.append(reciever_id)
-                                    # setting this in session is used to determine if this is a 2 or 3 step flow
-                                    identity.setWorkingParameter("emailIds", ",".join(commaSeperatedEmailString))
+                            if StringHelper.isEmptyString(emailIds):
+                                emailIds = '{ "email-ids":[{ "email":"%s","addedOn":0,"nickName":"%s" }]}' % ( user2.getAttribute("mail"), user2.getAttribute("mail") )
+                            data = json.loads(emailIds)
+                            if len(data['email-ids']) > 1:
+                                commaSeperatedEmailString = []
+                                for email in data['email-ids']:
+                                    reciever_id = email['email']
+                                    commaSeperatedEmailString.append(reciever_id)
+                                # setting this in session is used to determine if this is a 2 or 3 step flow
+                                identity.setWorkingParameter("emailIds", ",".join(commaSeperatedEmailString))
 
                     return logged_in
             except AuthenticationException as err:
@@ -191,87 +197,89 @@ class PersonAuthentication(PersonAuthenticationType):
         else:
             #Means the selection email page was used
             user2 = authenticationService.getAuthenticatedUser()
+            
+            multipleEmails = []
+            token = identity.getWorkingParameter("token")
+            
             emailIds = user2.getAttribute("oxEmailAlternate")
-            if emailIds != None:
-                multipleEmails = []
-                token = identity.getWorkingParameter("token")
+            if StringHelper.isEmptyString(emailIds):
+                emailIds = '{ "email-ids":[{ "email":"%s","addedOn":0,"nickName":"%s" }]}' % ( user2.getAttribute("mail"), user2.getAttribute("mail") )
 
-                if StringHelper.isNotEmptyString(emailIds):
-                    data = json.loads(emailIds)
+            data = json.loads(emailIds)
 
-                    # step2 and multiple email ids present, then user has been presented a choice of email which is fetched in OtpEmailLoginForm:indexOfEmail, send email
-                    if step == 2 and len(data['email-ids']) > 1 :
+            # step2 and multiple email ids present, then user has been presented a choice of email which is fetched in OtpEmailLoginForm:indexOfEmail, send email
+            if step == 2 and len(data['email-ids']) > 1 :
 
-                        for email in data['email-ids']:
-                            reciever_id = email['email']
-                            multipleEmails.append(reciever_id)
+                for email in data['email-ids']:
+                    reciever_id = email['email']
+                    multipleEmails.append(reciever_id)
 
-                        idx = ServerUtil.getFirstValue(requestParameters, "OtpEmailLoginForm:indexOfEmail")
-                        if idx != None and token != None:
-                            sendToEmail = multipleEmails[int(idx)]
-                            print "EmailOtp. Sending email to : %s " % sendToEmail
-                            email_validator = EmailValidator()
-                            email_valid = email_validator.check(sendToEmail)
-                            if email_valid == True:
-                                body = "Here is your token: %s" % token
-                                sender = EmailSender(self.jks_keystore, self.keystore_password, self.alias, self.sign_alg)
-                                sender.sendEmail(sendToEmail, subject, body)
-                                return True
-                            else:
-                                return False
-                        else:
-                            print "EmailOTP. Something wrong with index or token"
-                            return False
-                    # token verification - step 3 incase of email selection , else step 2
+                idx = ServerUtil.getFirstValue(requestParameters, "OtpEmailLoginForm:indexOfEmail")
+                if idx != None and token != None:
+                    sendToEmail = multipleEmails[int(idx)]
+                    print "EmailOtp. Sending email to : %s " % sendToEmail
+                    email_validator = EmailValidator()
+                    email_valid = email_validator.check(sendToEmail)
+                    if email_valid == True:
+                        body = "Here is your token: %s" % token
+                        sender = EmailSender(self.jks_keystore, self.keystore_password, self.alias, self.sign_alg)
+                        sender.sendEmail(sendToEmail, subject, body)
+                        return True
                     else:
-                        input_token = ServerUtil.getFirstValue(requestParameters, "OtpEmailLoginForm:passcode").strip()
-                        print "input token %s" % input_token
-                        print "EmailOTP.  - Token input by user is %s" % input_token
+                        return False
+                else:
+                    print "EmailOTP. Something wrong with index or token"
+                    return False
+            # token verification - step 3 incase of email selection , else step 2
+            else:
+                input_token = ServerUtil.getFirstValue(requestParameters, "OtpEmailLoginForm:passcode").strip()
+                print "input token %s" % input_token
+                print "EmailOTP.  - Token input by user is %s" % input_token
 
-                        token = str(identity.getWorkingParameter("token"))
-                        min11 = int(identity.getWorkingParameter("sentmin"))
-                        nww = datetime.now()
-                        te = str(nww)
-                        listew = te.split(':')
-                        curtime = int(listew[1])
+                token = str(identity.getWorkingParameter("token"))
+                min11 = int(identity.getWorkingParameter("sentmin"))
+                nww = datetime.now()
+                te = str(nww)
+                listew = te.split(':')
+                curtime = int(listew[1])
 
-                        token_lifetime = int(configurationAttributes.get("token_lifetime").getValue2())
-                        if ((min11<= 60) and (min11>= 50)):
-                            if ((curtime>=50) and (curtime<=60)):
-                                timediff1 =  curtime -  min11
-                                if timediff1>token_lifetime:
-                                    print "OTP Expired"
-                                    facesMessages.add(FacesMessage.SEVERITY_ERROR, "OTP Expired")
-                                    return False
-                            elif ((curtime>=0) or (curtime<=10)):
-                                timediff1 = 60 - min11
-                                timediff1 =  timediff1 + curtime
-                                if timediff1>token_lifetime:
-                                    print "OTP Expired"
-                                    facesMessages.add(FacesMessage.SEVERITY_ERROR, "OTP Expired")
-                                    return False
-
-                        if ((min11>=0) and (min11<=60) and (curtime>=0) and (curtime<=60)):
-                            timediff2 = curtime - min11
-                            if timediff2>token_lifetime:
-                                print "OTP Expired"
-                                facesMessages.add(FacesMessage.SEVERITY_ERROR, "OTP Expired")
-                                return False
-                        # compares token sent and token entered by user
-                        print "Token from session: %s " % token
-                        if input_token == token:
-                            print "Email 2FA - token entered correctly"
-                            identity.setWorkingParameter("token_valid", True)
-
-                            return True
-
-                        else:
-                            facesMessages = CdiUtil.bean(FacesMessages)
-                            facesMessages.setKeepMessages()
-                            facesMessages.clear()
-                            facesMessages.add(FacesMessage.SEVERITY_ERROR, "Wrong code entered")
-                            print "EmailOTP. Wrong code entered"
+                token_lifetime = int(configurationAttributes.get("token_lifetime").getValue2())
+                if ((min11<= 60) and (min11>= 50)):
+                    if ((curtime>=50) and (curtime<=60)):
+                        timediff1 =  curtime -  min11
+                        if timediff1>token_lifetime:
+                            print "OTP Expired"
+                            facesMessages.add(FacesMessage.SEVERITY_ERROR, "OTP Expired")
                             return False
+                    elif ((curtime>=0) or (curtime<=10)):
+                        timediff1 = 60 - min11
+                        timediff1 =  timediff1 + curtime
+                        if timediff1>token_lifetime:
+                            print "OTP Expired"
+                            facesMessages.add(FacesMessage.SEVERITY_ERROR, "OTP Expired")
+                            return False
+
+                if ((min11>=0) and (min11<=60) and (curtime>=0) and (curtime<=60)):
+                    timediff2 = curtime - min11
+                    if timediff2>token_lifetime:
+                        print "OTP Expired"
+                        facesMessages.add(FacesMessage.SEVERITY_ERROR, "OTP Expired")
+                        return False
+                # compares token sent and token entered by user
+                print "Token from session: %s " % token
+                if input_token == token:
+                    print "Email 2FA - token entered correctly"
+                    identity.setWorkingParameter("token_valid", True)
+
+                    return True
+
+                else:
+                    facesMessages = CdiUtil.bean(FacesMessages)
+                    facesMessages.setKeepMessages()
+                    facesMessages.clear()
+                    facesMessages.add(FacesMessage.SEVERITY_ERROR, "Wrong code entered")
+                    print "EmailOTP. Wrong code entered"
+                    return False
 
     def prepareForStep(self, configurationAttributes, requestParameters, step):
         print "EmailOTP.  - Preparing for step %s" % step
@@ -307,6 +315,9 @@ class PersonAuthentication(PersonAuthenticationType):
 
             sender = EmailSender(self.jks_keystore, self.keystore_password, self.alias, self.sign_alg)
             emailIds = user2.getAttribute("oxEmailAlternate")
+            
+            if StringHelper.isEmptyString(emailIds):
+                emailIds = '{ "email-ids":[{ "email":"%s","addedOn":0,"nickName":"%s" }]}' % ( user2.getAttribute("mail"), user2.getAttribute("mail") )            
 
             print "emailIds : %s" % emailIds
             data = json.loads(emailIds)
@@ -321,7 +332,6 @@ class PersonAuthentication(PersonAuthenticationType):
                 commaSeperatedEmailString = []
                 for email in data['email-ids']:
                     print "EmailOTP. Email to - %s" % email['email']
-                    #sender.sendEmail( reciever_id, subject, body)
                     commaSeperatedEmailString.append(email['email'])
                 identity.setWorkingParameter("emailIds", ",".join(commaSeperatedEmailString))
 
@@ -372,13 +382,6 @@ class PersonAuthentication(PersonAuthenticationType):
     def logout(self, configurationAttributes, requestParameters):
         return True
 
-    def hasEnrollments(self, configurationAttributes, user):
-        values = user.getAttributeValues("oxEmailAlternate")
-        if values != None:
-            return True
-        else:
-            return False
-
     def prepareUIParams(self, identity):
         print "EmailOTP. prepareUIParams. Reading UI branding params"
         cacheService = CdiUtil.bean(CacheService)
@@ -387,23 +390,27 @@ class PersonAuthentication(PersonAuthenticationType):
         if email2FaAssets == None:
             #This may happen when cache type is IN_MEMORY, where actual cache is merely a local variable
             #(a expiring map) living inside Casa webapp, not oxAuth webapp
-
+            
             sets = self.getSettings()
 
             custPrefix = "/custom"
             logoUrl = "/images/logo.png"
             faviconUrl = "/images/favicon.ico"
-            if ("extra_css" in sets and sets["extra_css"] != None) or sets["use_branding"]:
+            if sets != None and (("extra_css" in sets and sets["extra_css"] != None) or sets["use_branding"]):
                 logoUrl = custPrefix + logoUrl
                 faviconUrl = custPrefix + faviconUrl
 
-            prefix = custPrefix if sets["use_branding"] else ""
+            prefix = custPrefix if sets != None and sets["use_branding"] else ""
+            
+            extra_css = None
+            if sets != None and "extra_css" in sets:
+                extra_css = sets["extra_css"]
 
             email2FaAssets = {
                 "contextPath": "/casa",
                 "prefix" : prefix,
                 "faviconUrl" : faviconUrl,
-                "extraCss": sets["extra_css"] if "extra_css" in sets else None,
+                "extraCss": extra_css,
                 "logoUrl": logoUrl
             }
 
@@ -417,13 +424,23 @@ class PersonAuthentication(PersonAuthenticationType):
     def getSettings(self):
         entryManager = CdiUtil.bean(PersistenceEntryManager)
         config = ApplicationConfiguration()
-        config = entryManager.find(config.getClass(), "ou=casa,ou=configuration,o=gluu")
+        try:
+            config = entryManager.find(config.getClass(), "ou=casa,ou=configuration,o=gluu")
+        except:
+            print "getSettings. Error reading casa settings from DB"
         settings = None
         try:
             settings = json.loads(config.getSettings())
         except:
-            print "Casa. getSettings. Failed to parse casa settings from DB"
+            print "getSettings. Error parsing casa settings from DB"
         return settings
+
+    def hasEnrollments(self, configurationAttributes, user):
+        values = user.getAttributeValues("oxEmailAlternate")
+        if values != None:
+            return True
+        else:
+            return False
 
 class EmailSender():
     #class that sends e-mail through smtp
@@ -480,7 +497,19 @@ class EmailSender():
 
         isAliasWithPrivateKey = False
 
-        keyStore = KeyStore.getInstance("JKS")
+        keystore_ext = self.getExtension(jks_keystore)
+
+        print "EmailSender.  - signMessage - keystore_ext = %s" % keystore_ext
+
+        if keystore_ext.lower() == ".jks":
+            keyStore = KeyStore.getInstance("JKS", SecurityProviderUtility.getBCProvider())
+
+        elif keystore_ext.lower() == ".pkcs12":
+            keyStore = KeyStore.getInstance("PKCS12", SecurityProviderUtility.getBCProvider())
+
+        elif keystore_ext.lower() == ".bcfks":
+            keyStore = KeyStore.getInstance("BCFKS", SecurityProviderUtility.getBCProvider())
+
         file = File(jks_keystore)
         keyStore.load(FileInputStream(file), list(keystore_password))
         es = keyStore.aliases()
@@ -518,7 +547,10 @@ class EmailSender():
         attributes = ASN1EncodableVector()
         attributes.add(SMIMECapabilitiesAttribute(capabilities))
 
-        issAndSer = IssuerAndSerialNumber(X509Name(publicKey.getIssuerDN().getName()),publicKey.getSerialNumber())
+        SMIMEUtil.createIssuerAndSerialNumberFor(certificate)
+
+        issAndSer = IssuerAndSerialNumber(X500Name(publicKey.getIssuerDN().getName()),publicKey.getSerialNumber())        
+
         attributes.add(SMIMEEncryptionKeyPreferenceAttribute(issAndSer))
 
         signer = SMIMESignedGenerator()
@@ -549,28 +581,38 @@ class EmailSender():
 
         properties = Properties()
 
-        properties.setProperty("mail.smtp.auth", str(True))
-        properties.setProperty("mail.smtp.host", smtp_config['host'])
-        properties.setProperty("mail.smtp.port", str(smtp_config['port']))
-        properties.setProperty("mail.from", smtp_config['from'])
-
-        properties.setProperty("mail.smtp.connectiontimeout", str(self.time_out))
-        properties.setProperty("mail.smtp.timeout", str(self.time_out))
-        properties.setProperty("mail.transport.protocol", "smtp")
+        properties.put("mail.from", "Gluu Casa")
 
         smtp_connect_protect = smtp_config['connect_protection']
 
-        if smtp_connect_protect == SmtpConnectProtectionType.SslTls:
-            properties.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory")
-            properties.setProperty("mail.smtp.socketFactory.port", str(smtp_config['port']))
-            properties.setProperty("mail.smtp.ssl.trust", smtp_config['host'])
-            properties.setProperty("mail.smtp.starttls.enable", str(True))
+        if smtp_connect_protect == SmtpConnectProtectionType.StartTls:
 
-        elif smtp_connect_protect == SmtpConnectProtectionType.StartTls:
-            properties.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory")
-            properties.setProperty("mail.smtp.socketFactory.port", str(smtp_config['port']))
-            properties.setProperty("mail.smtp.ssl.trust", smtp_config['host'])
-            properties.setProperty("mail.smtp.ssl.enable", str(True))
+            properties.put("mail.transport.protocol", "smtp")
+
+            properties.put("mail.smtp.host", smtp_config['host'])
+            properties.put("mail.smtp.port", str(smtp_config['port']))
+            properties.put("mail.smtp.connectiontimeout", str(self.time_out))
+            properties.put("mail.smtp.timeout", str(self.time_out))
+            
+            properties.put("mail.smtp.socketFactory.class", "com.sun.mail.util.MailSSLSocketFactory")
+            properties.put("mail.smtp.socketFactory.port", str(smtp_config['port']))
+            properties.put("mail.smtp.ssl.trust", smtp_config['host'])
+            properties.put("mail.smtp.starttls.enable", "true")
+            properties.put("mail.smtp.starttls.required", "true")
+
+        elif smtp_connect_protect == SmtpConnectProtectionType.SslTls:
+
+            properties.put("mail.transport.protocol.rfc822", "smtps")
+
+            properties.put("mail.smtp.host", smtp_config['host'])
+            properties.put("mail.smtp.port", str(smtp_config['port']))
+            properties.put("mail.smtp.connectiontimeout", str(self.time_out))
+            properties.put("mail.smtp.timeout", str(self.time_out))
+
+            properties.put("mail.smtp.socketFactory.class", "com.sun.mail.util.MailSSLSocketFactory")
+            properties.put("mail.smtp.socketFactory.port", str(smtp_config['port']))
+            properties.put("mail.smtp.ssl.trust", smtp_config['host'])
+            properties.put("mail.smtp.ssl.enable", "true")
 
         session = Session.getDefaultInstance(properties)
 
@@ -602,10 +644,20 @@ class EmailSender():
 
         signed_message = self.signMessage(jks_keystore, keystore_password, alias, sign_alg, message)
 
-        transport = session.getTransport("smtp")
+        if smtp_connect_protect == SmtpConnectProtectionType.StartTls:
+            transport = session.getTransport("smtp")
+
+        elif smtp_connect_protect == SmtpConnectProtectionType.SslTls:
+            transport = session.getTransport("smtps")
+
         transport.connect(properties.get("mail.smtp.host"),int(properties.get("mail.smtp.port")), smtp_config['user'], smtp_config['pwd_decrypted'])
         transport.sendMessage(signed_message, signed_message.getRecipients(Message.RecipientType.TO))
 
         transport.close()
 
         print "EmailSender.  - sendEmail - Successfully"
+
+    def getExtension(self, file_path):
+        file_name_with_ext = os.path.basename(file_path)
+        file_name, ext = os.path.splitext(file_name_with_ext)
+        return ext
