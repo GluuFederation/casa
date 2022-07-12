@@ -2,6 +2,7 @@ package org.gluu.casa.plugins.emailotp;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.security.InvalidParameterException;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
@@ -10,7 +11,6 @@ import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 import javax.activation.CommandMap;
 import javax.activation.MailcapCommandMap;
-import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
@@ -30,6 +29,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.apache.commons.io.FilenameUtils;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.cms.AttributeTable;
 import org.bouncycastle.asn1.smime.SMIMECapabilitiesAttribute;
@@ -51,7 +51,6 @@ import org.gluu.casa.plugins.emailotp.model.SmtpConfiguration;
 import org.gluu.casa.plugins.emailotp.model.SmtpConnectProtectionType;
 import org.gluu.casa.plugins.emailotp.model.VerifiedEmail;
 import org.gluu.casa.service.IPersistenceService;
-import org.gluu.util.StringHelper;
 import org.gluu.util.security.SecurityProviderUtility;
 import org.gluu.util.security.StringEncrypter.EncryptionException;
 import org.slf4j.Logger;
@@ -86,7 +85,7 @@ public class EmailOTPService {
         mc.addMailcap("text/xml;; x-java-content-handler=com.sun.mail.handlers.text_xml"); 
         mc.addMailcap("text/plain;; x-java-content-handler=com.sun.mail.handlers.text_plain"); 
         mc.addMailcap("multipart/*;; x-java-content-handler=com.sun.mail.handlers.multipart_mixed"); 
-        mc.addMailcap("message/rfc822;; x-java-content- handler=com.sun.mail.handlers.message_rfc822");		
+        mc.addMailcap("message/rfc822;; x-java-content- handler=com.sun.mail.handlers.message_rfc822");
 	}
 
 	/**
@@ -119,8 +118,23 @@ public class EmailOTPService {
         String keystoreFile = smtpConfiguration.getKeyStore();
         String keystoreSecret = smtpConfiguration.getKeyStorePassword();
 
+        SecurityProviderUtility.KeyStorageType keystoreType = solveKeyStorageType(keystoreFile);
+
         try(InputStream is = new FileInputStream(keystoreFile)) {
-            keyStore = KeyStore.getInstance("PKCS12", SecurityProviderUtility.getBCProvider());
+            switch (keystoreType) {
+            case JKS_KS: {
+                keyStore = KeyStore.getInstance("JKS");
+                break;
+            }
+            case PKCS12_KS: {
+                keyStore = KeyStore.getInstance("PKCS12", SecurityProviderUtility.getBCProvider());
+                break;
+            }
+            case BCFKS_KS: {
+                keyStore = KeyStore.getInstance("BCFKS", SecurityProviderUtility.getBCProvider());
+                break;
+            }
+            }
             keyStore.load(is, keystoreSecret.toCharArray());
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -233,38 +247,70 @@ public class EmailOTPService {
 			logger.error("Failed to send email. SMTP settings not found. Please configure SMTP settings in oxTrust");
 			return false;
 		}
-		Properties prop = new Properties();
 
-		prop.put("mail.smtp.auth", true);
+        Properties props = new Properties();
 
-        prop.put("mail.smtp.host", smtpConfiguration.getHost());
-        prop.put("mail.smtp.port", smtpConfiguration.getPort());
-
-        prop.put("mail.from", "Gluu Casa");
-        prop.put("mail.transport.protocol", "smtp");
+        props.put("mail.from", "Gluu Casa");
 
         SmtpConnectProtectionType smtpConnectProtect = smtpConfiguration.getConnectProtection();
 
         if (smtpConnectProtect == SmtpConnectProtectionType.StartTls) {
-            prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-            prop.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
-            prop.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
-            prop.put("mail.smtp.starttls.enable", true);
+            props.put("mail.transport.protocol", "smtp");
+
+            props.put("mail.smtp.host", smtpConfiguration.getHost());
+            props.put("mail.smtp.port", smtpConfiguration.getPort());
+            props.put("mail.smtp.connectiontimeout", this.connectionTimeout);
+            props.put("mail.smtp.timeout", this.connectionTimeout);
+
+            props.put("mail.smtp.socketFactory.class", "com.sun.mail.util.MailSSLSocketFactory");
+            props.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
+            props.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+            props.put("mail.smtp.starttls.enable", true);
+            props.put("mail.smtp.starttls.required", true);
         }
         else if (smtpConnectProtect == SmtpConnectProtectionType.SslTls) {
-            prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-            prop.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
-            prop.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
-            prop.put("mail.smtp.ssl.enable", true);
+            props.put("mail.transport.protocol.rfc822", "smtps");
+
+            props.put("mail.smtps.host", smtpConfiguration.getHost());
+            props.put("mail.smtps.port", smtpConfiguration.getPort());
+            props.put("mail.smtps.connectiontimeout", this.connectionTimeout);
+            props.put("mail.smtps.timeout", this.connectionTimeout);
+
+            props.put("mail.smtp.socketFactory.class", "com.sun.mail.util.MailSSLSocketFactory");
+            props.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
+            props.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+            props.put("mail.smtp.ssl.enable", true);
+        } 
+        else {
+            props.put("mail.transport.protocol", "smtp");
+
+            props.put("mail.smtp.host", smtpConfiguration.getHost());
+            props.put("mail.smtp.port", smtpConfiguration.getPort());
+            props.put("mail.smtp.connectiontimeout", this.connectionTimeout);
+            props.put("mail.smtp.timeout", this.connectionTimeout);
         }
 
-		Session session = Session.getInstance(prop, new Authenticator()  {
-			@Override
-			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(smtpConfiguration.getUserName(),
-						decrypt(smtpConfiguration.getPassword()));
-			}
-		});
+        Session session = null;
+        if (smtpConfiguration.isRequiresAuthentication()) {
+
+            if (smtpConnectProtect == SmtpConnectProtectionType.SslTls) {
+                props.put("mail.smtps.auth", "true");
+            }
+            else {
+                props.put("mail.smtp.auth", "true");
+            }
+
+            final String userName = smtpConfiguration.getUserName();
+            final String password = decrypt(smtpConfiguration.getPassword());
+
+            session = Session.getInstance(props, new javax.mail.Authenticator() {
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(userName, password);
+                }
+            });
+        } else {
+            session = Session.getInstance(props, null);
+        }
 
 		Message message = new MimeMessage(session);
 		try {
@@ -301,38 +347,69 @@ public class EmailOTPService {
             return false;
         }
 
-        Properties prop = new Properties();
+        Properties props = new Properties();
 
-        prop.put("mail.smtp.auth", true);
-
-        prop.put("mail.smtp.host", smtpConfiguration.getHost());
-        prop.put("mail.smtp.port", smtpConfiguration.getPort());
-
-        prop.put("mail.from", "Gluu Casa");
-        prop.put("mail.transport.protocol", "smtp");
+        props.put("mail.from", "Gluu Casa");
 
         SmtpConnectProtectionType smtpConnectProtect = smtpConfiguration.getConnectProtection();
 
         if (smtpConnectProtect == SmtpConnectProtectionType.StartTls) {
-            prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-            prop.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
-            prop.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
-            prop.put("mail.smtp.starttls.enable", true);
+            props.put("mail.transport.protocol", "smtp");
+
+            props.put("mail.smtp.host", smtpConfiguration.getHost());
+            props.put("mail.smtp.port", smtpConfiguration.getPort());
+            props.put("mail.smtp.connectiontimeout", this.connectionTimeout);
+            props.put("mail.smtp.timeout", this.connectionTimeout);
+
+            props.put("mail.smtp.socketFactory.class", "com.sun.mail.util.MailSSLSocketFactory");
+            props.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
+            props.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+            props.put("mail.smtp.starttls.enable", true);
+            props.put("mail.smtp.starttls.required", true);
         }
         else if (smtpConnectProtect == SmtpConnectProtectionType.SslTls) {
-            prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-            prop.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
-            prop.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
-            prop.put("mail.smtp.ssl.enable", true);
+            props.put("mail.transport.protocol.rfc822", "smtps");
+
+            props.put("mail.smtps.host", smtpConfiguration.getHost());
+            props.put("mail.smtps.port", smtpConfiguration.getPort());
+            props.put("mail.smtps.connectiontimeout", this.connectionTimeout);
+            props.put("mail.smtps.timeout", this.connectionTimeout);
+
+            props.put("mail.smtp.socketFactory.class", "com.sun.mail.util.MailSSLSocketFactory");
+            props.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
+            props.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+            props.put("mail.smtp.ssl.enable", true);
+        } 
+        else {
+            props.put("mail.transport.protocol", "smtp");
+
+            props.put("mail.smtp.host", smtpConfiguration.getHost());
+            props.put("mail.smtp.port", smtpConfiguration.getPort());
+            props.put("mail.smtp.connectiontimeout", this.connectionTimeout);
+            props.put("mail.smtp.timeout", this.connectionTimeout);
         }
 
-        Session session = Session.getInstance(prop, new Authenticator()  {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(smtpConfiguration.getUserName(),
-                        decrypt(smtpConfiguration.getPassword()));
+        Session session = null;
+        if (smtpConfiguration.isRequiresAuthentication()) {
+
+            if (smtpConnectProtect == SmtpConnectProtectionType.SslTls) {
+                props.put("mail.smtps.auth", "true");
             }
-        });
+            else {
+                props.put("mail.smtp.auth", "true");
+            }
+
+            final String userName = smtpConfiguration.getUserName();
+            final String password = decrypt(smtpConfiguration.getPassword());
+
+            session = Session.getInstance(props, new javax.mail.Authenticator() {
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(userName, password);
+                }
+            });
+        } else {
+            session = Session.getInstance(props, null);
+        }
 
         PrivateKey privateKey = null;
 
@@ -555,113 +632,36 @@ public class EmailOTPService {
 		}
 	}
 
-	/**
-	 * 
-	 * @param mailSmtpConfiguration
-	 * @param from
-	 * @param fromDisplayName
-	 * @param to
-	 * @param toDisplayName
-	 * @param subject
-	 * @param message
-	 * @param htmlMessage
-	 * @return
-	 */
-	public boolean sendMail(SmtpConfiguration mailSmtpConfiguration, String from, String fromDisplayName, String to,
-			String toDisplayName, String subject, String message, String htmlMessage) {
-		if (mailSmtpConfiguration == null) {
-			logger.error("Failed to send message from '{}' to '{}' because the SMTP configuration isn't valid!", from,
-					to);
-			return false;
-		}
-
-		logger.debug("Host name: " + mailSmtpConfiguration.getHost() + ", port: " + mailSmtpConfiguration.getPort()
-				+ ", connection time out: " + this.connectionTimeout);
-
-		String mailFrom = from;
-		if (StringHelper.isEmpty(mailFrom)) {
-			mailFrom = mailSmtpConfiguration.getFromEmailAddress();
-		}
-
-		String mailFromName = fromDisplayName;
-		if (StringHelper.isEmpty(mailFromName)) {
-			mailFromName = mailSmtpConfiguration.getFromName();
-		}
-
-		Properties props = new Properties();
-		props.put("mail.smtp.host", mailSmtpConfiguration.getHost());
-		props.put("mail.smtp.port", mailSmtpConfiguration.getPort());
-		props.put("mail.from", mailFrom);
-		props.put("mail.smtp.connectiontimeout", this.connectionTimeout);
-		props.put("mail.smtp.timeout", this.connectionTimeout);
-		props.put("mail.transport.protocol", "smtp");
-
-        SmtpConnectProtectionType smtpConnectProtect = mailSmtpConfiguration.getConnectProtection();
-
-        if (smtpConnectProtect == SmtpConnectProtectionType.StartTls) {
-            props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-            props.put("mail.smtp.socketFactory.port", mailSmtpConfiguration.getPort());
-            props.put("mail.smtp.ssl.trust", mailSmtpConfiguration.getHost());
-            props.put("mail.smtp.starttls.enable", true);
+    /**
+     * 
+     * @return
+     */
+    private SecurityProviderUtility.KeyStorageType solveKeyStorageType(final String keyStoreFile) {
+        SecurityProviderUtility.SecurityModeType securityMode = SecurityProviderUtility.getSecurityMode();
+        if (securityMode == null) {
+            throw new InvalidParameterException("Security Mode wasn't initialized. Call installBCProvider() before");
         }
-        else if (smtpConnectProtect == SmtpConnectProtectionType.SslTls) {
-            props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-            props.put("mail.smtp.socketFactory.port", mailSmtpConfiguration.getPort());
-            props.put("mail.smtp.ssl.trust", mailSmtpConfiguration.getHost());
-            props.put("mail.smtp.ssl.enable", true);
+        String keyStoreExt = FilenameUtils.getExtension(keyStoreFile);
+        SecurityProviderUtility.KeyStorageType keyStorageType = SecurityProviderUtility.KeyStorageType.fromExtension(keyStoreExt);
+        boolean ksTypeFound = false;
+        for (SecurityProviderUtility.KeyStorageType ksType : securityMode.getKeystorageTypes()) {
+            if (keyStorageType == ksType) {
+                ksTypeFound = true;
+                break;
+            }
         }
-
-		Session session = null;
-		if (mailSmtpConfiguration.isRequiresAuthentication()) {
-			props.put("mail.smtp.auth", "true");
-
-			final String userName = mailSmtpConfiguration.getUserName();
-			final String password = mailSmtpConfiguration.getPasswordDecrypted();
-
-			session = Session.getInstance(props, new Authenticator() {
-				protected PasswordAuthentication getPasswordAuthentication() {
-					return new PasswordAuthentication(userName, password);
-				}
-			});
-		} else {
-			session = Session.getInstance(props, null);
-		}
-
-		MimeMessage msg = new MimeMessage(session);
-		try {
-			msg.setFrom(new InternetAddress(mailFrom, mailFromName));
-			if (StringHelper.isEmpty(toDisplayName)) {
-				msg.setRecipients(Message.RecipientType.TO, to);
-			} else {
-				msg.addRecipient(Message.RecipientType.TO, new InternetAddress(to, toDisplayName));
-			}
-			msg.setSubject(subject, "UTF-8");
-			msg.setSentDate(new Date());
-
-			if (StringHelper.isEmpty(htmlMessage)) {
-				msg.setText(message + "\n", "UTF-8", "plain");
-			} else {
-				// Unformatted text version
-				final MimeBodyPart textPart = new MimeBodyPart();
-				textPart.setText(message, "UTF-8", "plain");
-				// HTML version
-				final MimeBodyPart htmlPart = new MimeBodyPart();
-				htmlPart.setText(htmlMessage, "UTF-8", "html");
-
-				// Create the Multipart. Add BodyParts to it.
-				final Multipart mp = new MimeMultipart("alternative");
-				mp.addBodyPart(textPart);
-				mp.addBodyPart(htmlPart);
-
-				// Set Multipart as the message's content
-				msg.setContent(mp);
-			}
-
-			Transport.send(msg);
-		} catch (Exception ex) {
-			logger.error("Failed to send message", ex);
-			return false;
-		}
-		return true;
-	}
+        if (!ksTypeFound) {
+            switch (securityMode) {
+            case BCFIPS_SECURITY_MODE: {
+                keyStorageType =  SecurityProviderUtility.KeyStorageType.BCFKS_KS;
+                break;
+            }
+            case BCPROV_SECURITY_MODE: {
+                keyStorageType = SecurityProviderUtility.KeyStorageType.PKCS12_KS;
+                break;
+            }
+            }
+        }
+        return keyStorageType;
+    }
 }
