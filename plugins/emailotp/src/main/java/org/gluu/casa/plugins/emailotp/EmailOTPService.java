@@ -264,7 +264,11 @@ public class EmailOTPService {
 
             props.put("mail.smtp.socketFactory.class", "com.sun.mail.util.MailSSLSocketFactory");
             props.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
-            props.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+
+            if (smtpConfiguration.isServerTrust()) {
+                props.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+            }
+            
             props.put("mail.smtp.starttls.enable", true);
             props.put("mail.smtp.starttls.required", true);
         }
@@ -278,7 +282,11 @@ public class EmailOTPService {
 
             props.put("mail.smtp.socketFactory.class", "com.sun.mail.util.MailSSLSocketFactory");
             props.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
-            props.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+
+            if (smtpConfiguration.isServerTrust()) {
+                props.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+            }
+
             props.put("mail.smtp.ssl.enable", true);
         } 
         else {
@@ -363,7 +371,9 @@ public class EmailOTPService {
 
             props.put("mail.smtp.socketFactory.class", "com.sun.mail.util.MailSSLSocketFactory");
             props.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
-            props.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+            if (smtpConfiguration.isServerTrust()) {
+                props.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+            }
             props.put("mail.smtp.starttls.enable", true);
             props.put("mail.smtp.starttls.required", true);
         }
@@ -377,7 +387,9 @@ public class EmailOTPService {
 
             props.put("mail.smtp.socketFactory.class", "com.sun.mail.util.MailSSLSocketFactory");
             props.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
-            props.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+            if (smtpConfiguration.isServerTrust()) {
+                props.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+            }
             props.put("mail.smtp.ssl.enable", true);
         } 
         else {
