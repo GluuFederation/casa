@@ -14,3 +14,31 @@ Incase you are installing casa plugin for EMail OTP on Gluu Server version under
 4. under  `/opt/gluu/jetty/oxauth/custom/pages/casa/` copy the latest casa.xhtml `(https://github.com/GluuFederation/oxAuth/blob/master/Server/src/main/webapp/casa/casa.xhtml)` containing an entry for  `email_2fa `
 
 5. copy this image file `https://github.com/GluuFederation/oxAuth/blob/master/Server/src/main/webapp/img/email-ver.png` to the location  `/opt/gluu/jetty/oxauth/custom/static/img`
+
+Name of the script in **oxTrust** (**identity**) *Configuration*/*Person Authentication Scripts*: **email_2fa_core**.
+
+Parameters of the script:
+
+- **token_length**:     It determines the length of the characters of the One time Password sent to the user:
+    + required parameter;
+    + default value: not defined;
+- **token_lifetime**:   It determines the time period for which the sent token is active:
+    + required parameter;
+    + default value: not defined;
+- **Signer_Cert_KeyStore**: Filename of the Keystore
+    + nonrequired parameter;
+    + default value: value, defined in **oxTrust** (**identity**): *Configuration*/*Organization Configuration*/*SMTP Server Configuration*/*KeyStore File Path*;
+        * for example: */etc/certs/smtp-keys.pkcs12*;
+- **Signer_Cert_KeyStorePassword**: Keystore Password
+    + nonrequired parameter;
+    + default value: value, defined in **oxTrust** (**identity**): *Configuration*/*Organization Configuration*/*SMTP Server Configuration*/*KeyStore Password*;
+        * for example: *tRmJpb$1_&BzlEUC7*;
+- **Signer_Cert_Alias**: Alias of the Keystore.
+    + nonrequired parameter;
+    + default value: value, defined in **oxTrust** (**identity**): *Configuration*/*Organization Configuration*/*SMTP Server Configuration*/*KeyStore Alias*;
+        * for example: *smtp_sig_ec256*;
+- **Signer_SignAlgorithm**: Name of Signing Algorithm
+    + nonrequired parameter;
+    + default value: value, defined in **oxTrust** (**identity**): *Configuration*/*Organization Configuration*/*SMTP Server Configuration*/*Signing Algorithm*;
+    + by default algirithm is used by signing of certificate from the Keystore;
+        * for example: *SHA256withECDSA*
