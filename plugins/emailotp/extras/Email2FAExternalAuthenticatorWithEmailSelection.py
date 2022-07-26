@@ -558,9 +558,7 @@ class EmailSender():
         signer.addSignerInfoGenerator(JcaSimpleSignerInfoGeneratorBuilder().setProvider(SecurityProviderUtility.getBCProvider()).setSignedAttributeGenerator(AttributeTable(attributes)).build(sign_algorithm, privateKey, publicKey))
 
         # Add the list of certs to the generator
-        certList = [publicKey]
-
-        bcerts = JcaCertStore(certList)
+        bcerts = JcaCertStore(Arrays.asList(chain))
         signer.addCertificates(bcerts)
 
         # Sign the message
