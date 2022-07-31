@@ -75,7 +75,7 @@
         <module>plugins/cert-authn</module>
         <module>plugins/bioid</module>
         <module>plugins/duo</module>
-        <module>plugins/emailotp</module>
+        <module>plugins/email_2fa_core</module>
     </modules>
 
     <dependencyManagement>
