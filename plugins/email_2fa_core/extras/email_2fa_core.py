@@ -484,7 +484,7 @@ class EmailSender():
                 'server_trust' : smtpconfig.isServerTrust(),
 
                 'key_store' : smtpconfig.getKeyStore(),
-                'key_store_password' : smtpconfig.getKeyStorePassword(),
+                'key_store_password' : encryption_service.decrypt(smtpconfig.getKeyStorePassword()),
                 'key_store_alias' : smtpconfig.getKeyStoreAlias(),
                 'signing-algorithm' : smtpconfig.getSigningAlgorithm()
             }
