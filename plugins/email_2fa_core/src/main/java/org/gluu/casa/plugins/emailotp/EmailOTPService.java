@@ -116,7 +116,7 @@ public class EmailOTPService {
         SmtpConfiguration smtpConfiguration = getConfiguration().getSmtpConfiguration();
 
         String keystoreFile = smtpConfiguration.getKeyStore();
-        String keystoreSecret = smtpConfiguration.getKeyStorePassword();
+        String keystoreSecret = decrypt(smtpConfiguration.getKeyStorePassword());
 
         SecurityProviderUtility.KeyStorageType keystoreType = solveKeyStorageType(keystoreFile);
 
@@ -430,7 +430,7 @@ public class EmailOTPService {
 
         try {
             privateKey = (PrivateKey)keyStore.getKey(smtpConfiguration.getKeyStoreAlias(),
-                    smtpConfiguration.getKeyStorePassword().toCharArray());
+                    decrypt(smtpConfiguration.getKeyStorePassword()).toCharArray());
             
             certificate = keyStore.getCertificate(smtpConfiguration.getKeyStoreAlias());
             x509Certificate = (X509Certificate)certificate;
