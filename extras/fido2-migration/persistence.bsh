@@ -42,7 +42,7 @@ getEntryManager() {
 	for (k : p.keySet()) {
 		key = k.toString();
 		if (!key.startsWith("ssl.")) {
-			p2.setProperty(type + "." + key, p.getProperty(k));
+			p2.setProperty(type + "#" + key, p.getProperty(k));
 		}
 	}
 	p = p2;
