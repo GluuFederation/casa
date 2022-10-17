@@ -30,24 +30,13 @@
         <zk.version>9.6.0.2</zk.version>
         <ldapsdk.version>6.0.4</ldapsdk.version>
         <resteasy.version>4.7.2.Final</resteasy.version>
-<<<<<<< HEAD
-        <tika.version>2.4.1</tika.version>
-
-=======
         <tika.version>2.1.0</tika.version>
         <bc.version>1.70</bc.version>
- 
->>>>>>> 30d39a24... feat: sending signed emails has been added;
         <sonar.projectKey>GluuFederation_casa</sonar.projectKey>
         <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
         <sonar.organization>gluufederation</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-
-<<<<<<< HEAD
         <gluu.parent.version>4.5.0-SNAPSHOT</gluu.parent.version>
-=======
-        <gluu.parent.version>4.4.1-SNAPSHOT</gluu.parent.version>
->>>>>>> 30d39a24... feat: sending signed emails has been added;
     </properties>
 
     <repositories>
