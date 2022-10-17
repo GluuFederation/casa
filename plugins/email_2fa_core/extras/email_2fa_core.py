@@ -32,8 +32,6 @@ from javax.mail import Session, Message, Transport
 
 from java.util import Arrays
 
-from org.gluu.service import MailService
-
 from javax.activation import CommandMap
 
 from org.bouncycastle.asn1 import ASN1EncodableVector
