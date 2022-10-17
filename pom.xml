@@ -156,8 +156,6 @@
                 <version>${tika.version}</version>
             </dependency>
 
-<<<<<<< HEAD
-=======
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15on</artifactId>
@@ -175,7 +173,6 @@
                 <artifactId>bcmail-jdk15on</artifactId>
                 <version>1.70</version>
             </dependency>
->>>>>>> 30d39a24... feat: sending signed emails has been added;
         </dependencies>
     </dependencyManagement>
 
