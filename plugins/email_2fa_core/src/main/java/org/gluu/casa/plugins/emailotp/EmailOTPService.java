@@ -42,7 +42,6 @@ import org.bouncycastle.mail.smime.SMIMEException;
 import org.bouncycastle.mail.smime.SMIMESignedGenerator;
 import org.bouncycastle.mail.smime.SMIMEUtil;
 import org.bouncycastle.operator.OperatorCreationException;
-import org.bouncycastle.util.Store;
 import org.gluu.casa.credential.BasicCredential;
 import org.gluu.casa.misc.Utils;
 import org.gluu.casa.plugins.emailotp.model.EmailPerson;
@@ -52,6 +51,7 @@ import org.gluu.casa.plugins.emailotp.model.SmtpConnectProtectionType;
 import org.gluu.casa.plugins.emailotp.model.VerifiedEmail;
 import org.gluu.casa.service.IPersistenceService;
 import org.gluu.util.security.SecurityProviderUtility;
+import org.gluu.util.security.SecurityProviderUtility.SecurityModeType;
 import org.gluu.util.security.StringEncrypter.EncryptionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -606,7 +606,7 @@ public class EmailOTPService {
 			}
 
 			List<String> mailIds = vEmails.stream().map(VerifiedEmail::getEmail).collect(Collectors.toList());
-			String json = mailIds.size() > 0 ? mapper.writeValueAsString(Collections.singletonMap("email-ids", vEmails))
+			String json = !mailIds.isEmpty() ? mapper.writeValueAsString(Collections.singletonMap("email-ids", vEmails))
 					: null;
 
 			person.setOxEmailAlternate(json);
@@ -662,7 +662,7 @@ public class EmailOTPService {
 	private VerifiedEmail getExtraEmailId(String mail, List<VerifiedEmail> list) {
 		VerifiedEmail vEmail = new VerifiedEmail(mail);
 		Optional<VerifiedEmail> extraEmail = list.stream().filter(ph -> mail.equals(ph.getEmail())).findFirst();
-		if (extraEmail.isPresent() == false) {
+		if (!extraEmail.isPresent()) {
 			vEmail.setNickName(mail);
 			return vEmail;
 		} else {
@@ -689,15 +689,11 @@ public class EmailOTPService {
             }
         }
         if (!ksTypeFound) {
-            switch (securityMode) {
-            case BCFIPS_SECURITY_MODE: {
-                keyStorageType =  SecurityProviderUtility.KeyStorageType.BCFKS_KS;
-                break;
+            if (securityMode == SecurityModeType.BCFIPS_SECURITY_MODE) {
+                keyStorageType = SecurityProviderUtility.KeyStorageType.BCFKS_KS;
             }
-            case BCPROV_SECURITY_MODE: {
+            else if (securityMode == SecurityModeType.BCPROV_SECURITY_MODE) {
                 keyStorageType = SecurityProviderUtility.KeyStorageType.PKCS12_KS;
-                break;
-            }
             }
         }
         return keyStorageType;
