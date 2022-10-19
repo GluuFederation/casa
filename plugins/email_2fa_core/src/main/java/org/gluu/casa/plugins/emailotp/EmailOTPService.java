@@ -64,11 +64,31 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class EmailOTPService {
 
-    private final static Logger logger = LoggerFactory.getLogger(EmailOTPService.class);
+    private static final Logger logger = LoggerFactory.getLogger(EmailOTPService.class);
 
     private static EmailOTPService singleInstance = null;
 
-    public final static String ACR = "email_2fa_core";
+    public static final String ACR = "email_2fa_core";
+
+    public static final String DEF_MAIL_FROM                        = "mail.from";
+    public static final String DEF_MAIL_TRANSPORT_PROTOCOL          = "mail.transport.protocol";
+    public static final String DEF_MAIL_SMTP_HOST                   = "mail.smtp.host";
+    public static final String DEF_MAIL_SMTP_PORT                   = "mail.smtp.port";
+    public static final String DEF_MAIL_SMTP_CONNECTION_TIMEOUT     = "mail.smtp.connectiontimeout";
+    public static final String DEF_MAIL_SMTP_TIMEOUT                = "mail.smtp.timeout";
+    public static final String DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS   = "mail.smtp.socketFactory.class";
+    public static final String DEF_MAIL_SMTP_SOCKET_FACTORY_PORT    = "mail.smtp.socketFactory.port";
+    public static final String DEF_MAIL_SMTP_SSL_TRUST              = "mail.smtp.ssl.trust";
+    public static final String DEF_MAIL_SMTP_STARTTLS_ENABLE        = "mail.smtp.starttls.enable";
+    public static final String DEF_MAIL_SMTP_STARTTLS_REQUIRED      = "mail.smtp.starttls.required";
+    public static final String DEF_MAIL_TRANSPORT_PROTOCOL_RFC822   = "mail.transport.protocol.rfc822";
+    public static final String DEF_MAIL_SMTP_SSL_ENABLE             = "mail.smtp.ssl.enable";
+    public static final String DEF_MAIL_SMTPS_AUTH                  = "mail.smtps.auth";
+    public static final String DEF_MAIL_SMTP_AUTH                   = "mail.smtp.auth";
+    public static final String DEF_MAIL_SMTPS_HOST                  = "mail.smtps.host";
+    public static final String DEF_MAIL_SMTPS_PORT                  = "mail.smtps.port";
+    public static final String DEF_MAIL_SMTPS_CONNECTION_TIMEOUT    = "mail.smtps.connectiontimeout";
+    public static final String DEF_MAIL_SMTPS_TIMEOUT               = "mail.smtps.timeout";
 
     private Map<String, String> properties;
 	private IPersistenceService persistenceService;
@@ -145,15 +165,19 @@ public class EmailOTPService {
 	 * 
 	 */
 	public void reloadConfiguration() {
-		ObjectMapper mapper = new ObjectMapper();
+		ObjectMapper localMapper = new ObjectMapper();
 		properties = persistenceService.getCustScriptConfigProperties(ACR);
 		if (properties == null) {
-			logger.warn(
-					"Config. properties for custom script '{}' could not be read. Features related to {} will not be accessible",
-					ACR, ACR.toUpperCase());
+		    if (logger.isWarnEnabled()) { // according to Sonar request, as ACR.toUpperCase() is provided before checking    
+	            logger.warn(
+	                    "Config. properties for custom script '{}' could not be read. Features related to {} will not be accessible",
+	                    ACR, ACR.toUpperCase());
+		    }
 		} else {
 			try {
-				logger.info("Settings found were: {}", mapper.writeValueAsString(properties));
+			    if (logger.isInfoEnabled()) {
+	                logger.info("Settings found were: {}", localMapper.writeValueAsString(properties));
+			    }
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
@@ -177,7 +201,7 @@ public class EmailOTPService {
 	public List<BasicCredential> getCredentials(String uniqueIdOfTheUser) {
 
 		List<VerifiedEmail> verifiedEmails = getVerifiedEmail(uniqueIdOfTheUser);
-		List<BasicCredential> list = new ArrayList<BasicCredential>();
+		List<BasicCredential> list = new ArrayList<>();
 		for (VerifiedEmail v : verifiedEmails)
 			list.add(new BasicCredential(v.getEmail(), v.getAddedOn()));
 
@@ -197,7 +221,7 @@ public class EmailOTPService {
             String searchMask = String.format("inum=%s,ou=people,o=gluu", userId);
             testPerson.setBaseDn(searchMask);
 
-			EmailPerson person = persistenceService.get(EmailPerson.class, new String(persistenceService.getPersonDn(userId)));
+			EmailPerson person = persistenceService.get(EmailPerson.class, persistenceService.getPersonDn(userId));
 			String json = person.getOxEmailAlternate();
 			json = Utils.isEmpty(json) ? "[]" : mapper.readTree(json).get("email-ids").toString();
 			verifiedEmails = mapper.readValue(json, new TypeReference<List<VerifiedEmail>>() { });
@@ -230,8 +254,7 @@ public class EmailOTPService {
 	 * @return
 	 */
 	public GluuConfiguration getConfiguration() {
-		GluuConfiguration result = persistenceService.find(GluuConfiguration.class, "ou=configuration,o=gluu", null).get(0);
-		return result;
+		return persistenceService.find(GluuConfiguration.class, "ou=configuration,o=gluu", null).get(0);
 	}
 
 	/**
@@ -250,62 +273,62 @@ public class EmailOTPService {
 
         Properties props = new Properties();
 
-        props.put("mail.from", "Gluu Casa");
+        props.put(DEF_MAIL_FROM, "Gluu Casa");
 
         SmtpConnectProtectionType smtpConnectProtect = smtpConfiguration.getConnectProtection();
 
         if (smtpConnectProtect == SmtpConnectProtectionType.START_TLS) {
-            props.put("mail.transport.protocol", "smtp");
+            props.put(DEF_MAIL_TRANSPORT_PROTOCOL, "smtp");
 
-            props.put("mail.smtp.host", smtpConfiguration.getHost());
-            props.put("mail.smtp.port", smtpConfiguration.getPort());
-            props.put("mail.smtp.connectiontimeout", this.connectionTimeout);
-            props.put("mail.smtp.timeout", this.connectionTimeout);
+            props.put(DEF_MAIL_SMTP_HOST, smtpConfiguration.getHost());
+            props.put(DEF_MAIL_SMTP_PORT, smtpConfiguration.getPort());
+            props.put(DEF_MAIL_SMTP_CONNECTION_TIMEOUT, this.connectionTimeout);
+            props.put(DEF_MAIL_SMTP_TIMEOUT, this.connectionTimeout);
 
-            props.put("mail.smtp.socketFactory.class", "com.sun.mail.util.MailSSLSocketFactory");
-            props.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
+            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, "com.sun.mail.util.MailSSLSocketFactory");
+            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_PORT, smtpConfiguration.getPort());
 
             if (smtpConfiguration.isServerTrust()) {
-                props.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+                props.put(DEF_MAIL_SMTP_SSL_TRUST, smtpConfiguration.getHost());
             }
-            
-            props.put("mail.smtp.starttls.enable", true);
-            props.put("mail.smtp.starttls.required", true);
+
+            props.put(DEF_MAIL_SMTP_STARTTLS_ENABLE, true);
+            props.put(DEF_MAIL_SMTP_STARTTLS_REQUIRED, true);
         }
         else if (smtpConnectProtect == SmtpConnectProtectionType.SSL_TLS) {
-            props.put("mail.transport.protocol.rfc822", "smtps");
+            props.put(DEF_MAIL_TRANSPORT_PROTOCOL_RFC822, "smtps");
 
-            props.put("mail.smtps.host", smtpConfiguration.getHost());
-            props.put("mail.smtps.port", smtpConfiguration.getPort());
-            props.put("mail.smtps.connectiontimeout", this.connectionTimeout);
-            props.put("mail.smtps.timeout", this.connectionTimeout);
+            props.put(DEF_MAIL_SMTPS_HOST, smtpConfiguration.getHost());
+            props.put(DEF_MAIL_SMTPS_PORT, smtpConfiguration.getPort());
+            props.put(DEF_MAIL_SMTPS_CONNECTION_TIMEOUT, this.connectionTimeout);
+            props.put(DEF_MAIL_SMTPS_TIMEOUT, this.connectionTimeout);
 
-            props.put("mail.smtp.socketFactory.class", "com.sun.mail.util.MailSSLSocketFactory");
-            props.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
+            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, "com.sun.mail.util.MailSSLSocketFactory");
+            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_PORT, smtpConfiguration.getPort());
 
             if (smtpConfiguration.isServerTrust()) {
-                props.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+                props.put(DEF_MAIL_SMTP_SSL_TRUST, smtpConfiguration.getHost());
             }
 
-            props.put("mail.smtp.ssl.enable", true);
-        } 
+            props.put(DEF_MAIL_SMTP_SSL_ENABLE, true);
+        }
         else {
-            props.put("mail.transport.protocol", "smtp");
+            props.put(DEF_MAIL_TRANSPORT_PROTOCOL, "smtp");
 
-            props.put("mail.smtp.host", smtpConfiguration.getHost());
-            props.put("mail.smtp.port", smtpConfiguration.getPort());
-            props.put("mail.smtp.connectiontimeout", this.connectionTimeout);
-            props.put("mail.smtp.timeout", this.connectionTimeout);
+            props.put(DEF_MAIL_SMTP_HOST, smtpConfiguration.getHost());
+            props.put(DEF_MAIL_SMTP_PORT, smtpConfiguration.getPort());
+            props.put(DEF_MAIL_SMTP_CONNECTION_TIMEOUT, this.connectionTimeout);
+            props.put(DEF_MAIL_SMTP_TIMEOUT, this.connectionTimeout);
         }
 
         Session session = null;
         if (smtpConfiguration.isRequiresAuthentication()) {
 
             if (smtpConnectProtect == SmtpConnectProtectionType.SSL_TLS) {
-                props.put("mail.smtps.auth", "true");
+                props.put(DEF_MAIL_SMTPS_AUTH, "true");
             }
             else {
-                props.put("mail.smtp.auth", "true");
+                props.put(DEF_MAIL_SMTP_AUTH, "true");
             }
 
             final String userName = smtpConfiguration.getUserName();
@@ -357,58 +380,58 @@ public class EmailOTPService {
 
         Properties props = new Properties();
 
-        props.put("mail.from", "Gluu Casa");
+        props.put(DEF_MAIL_FROM, "Gluu Casa");
 
         SmtpConnectProtectionType smtpConnectProtect = smtpConfiguration.getConnectProtection();
 
         if (smtpConnectProtect == SmtpConnectProtectionType.START_TLS) {
-            props.put("mail.transport.protocol", "smtp");
+            props.put(DEF_MAIL_TRANSPORT_PROTOCOL, "smtp");
 
-            props.put("mail.smtp.host", smtpConfiguration.getHost());
-            props.put("mail.smtp.port", smtpConfiguration.getPort());
-            props.put("mail.smtp.connectiontimeout", this.connectionTimeout);
-            props.put("mail.smtp.timeout", this.connectionTimeout);
+            props.put(DEF_MAIL_SMTP_HOST, smtpConfiguration.getHost());
+            props.put(DEF_MAIL_SMTP_PORT, smtpConfiguration.getPort());
+            props.put(DEF_MAIL_SMTP_CONNECTION_TIMEOUT, this.connectionTimeout);
+            props.put(DEF_MAIL_SMTP_TIMEOUT, this.connectionTimeout);
 
-            props.put("mail.smtp.socketFactory.class", "com.sun.mail.util.MailSSLSocketFactory");
-            props.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
+            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, "com.sun.mail.util.MailSSLSocketFactory");
+            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_PORT, smtpConfiguration.getPort());
             if (smtpConfiguration.isServerTrust()) {
-                props.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+                props.put(DEF_MAIL_SMTP_SSL_TRUST, smtpConfiguration.getHost());
             }
-            props.put("mail.smtp.starttls.enable", true);
-            props.put("mail.smtp.starttls.required", true);
+            props.put(DEF_MAIL_SMTP_STARTTLS_ENABLE, true);
+            props.put(DEF_MAIL_SMTP_STARTTLS_REQUIRED, true);
         }
         else if (smtpConnectProtect == SmtpConnectProtectionType.SSL_TLS) {
-            props.put("mail.transport.protocol.rfc822", "smtps");
+            props.put(DEF_MAIL_TRANSPORT_PROTOCOL_RFC822, "smtps");
 
-            props.put("mail.smtps.host", smtpConfiguration.getHost());
-            props.put("mail.smtps.port", smtpConfiguration.getPort());
-            props.put("mail.smtps.connectiontimeout", this.connectionTimeout);
-            props.put("mail.smtps.timeout", this.connectionTimeout);
+            props.put(DEF_MAIL_SMTPS_HOST, smtpConfiguration.getHost());
+            props.put(DEF_MAIL_SMTPS_PORT, smtpConfiguration.getPort());
+            props.put(DEF_MAIL_SMTPS_CONNECTION_TIMEOUT, this.connectionTimeout);
+            props.put(DEF_MAIL_SMTPS_TIMEOUT, this.connectionTimeout);
 
-            props.put("mail.smtp.socketFactory.class", "com.sun.mail.util.MailSSLSocketFactory");
-            props.put("mail.smtp.socketFactory.port", smtpConfiguration.getPort());
+            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, "com.sun.mail.util.MailSSLSocketFactory");
+            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_PORT, smtpConfiguration.getPort());
             if (smtpConfiguration.isServerTrust()) {
-                props.put("mail.smtp.ssl.trust", smtpConfiguration.getHost());
+                props.put(DEF_MAIL_SMTP_SSL_TRUST, smtpConfiguration.getHost());
             }
-            props.put("mail.smtp.ssl.enable", true);
-        } 
+            props.put(DEF_MAIL_SMTP_SSL_ENABLE, true);
+        }
         else {
-            props.put("mail.transport.protocol", "smtp");
+            props.put(DEF_MAIL_TRANSPORT_PROTOCOL, "smtp");
 
-            props.put("mail.smtp.host", smtpConfiguration.getHost());
-            props.put("mail.smtp.port", smtpConfiguration.getPort());
-            props.put("mail.smtp.connectiontimeout", this.connectionTimeout);
-            props.put("mail.smtp.timeout", this.connectionTimeout);
+            props.put(DEF_MAIL_SMTP_HOST, smtpConfiguration.getHost());
+            props.put(DEF_MAIL_SMTP_PORT, smtpConfiguration.getPort());
+            props.put(DEF_MAIL_SMTP_CONNECTION_TIMEOUT, this.connectionTimeout);
+            props.put(DEF_MAIL_SMTP_TIMEOUT, this.connectionTimeout);
         }
 
         Session session = null;
         if (smtpConfiguration.isRequiresAuthentication()) {
 
             if (smtpConnectProtect == SmtpConnectProtectionType.SSL_TLS) {
-                props.put("mail.smtps.auth", "true");
+                props.put(DEF_MAIL_SMTPS_AUTH, "true");
             }
             else {
-                props.put("mail.smtp.auth", "true");
+                props.put(DEF_MAIL_SMTP_AUTH, "true");
             }
 
             final String userName = smtpConfiguration.getUserName();
