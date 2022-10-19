@@ -89,6 +89,7 @@ public class EmailOTPService {
     public static final String DEF_MAIL_SMTPS_PORT                  = "mail.smtps.port";
     public static final String DEF_MAIL_SMTPS_CONNECTION_TIMEOUT    = "mail.smtps.connectiontimeout";
     public static final String DEF_MAIL_SMTPS_TIMEOUT               = "mail.smtps.timeout";
+    public static final String DEF_MAIL_SSL_SOCKET_FACTORY          = "com.sun.mail.util.MailSSLSocketFactory";
 
     private Map<String, String> properties;
 	private IPersistenceService persistenceService;
@@ -285,7 +286,7 @@ public class EmailOTPService {
             props.put(DEF_MAIL_SMTP_CONNECTION_TIMEOUT, this.connectionTimeout);
             props.put(DEF_MAIL_SMTP_TIMEOUT, this.connectionTimeout);
 
-            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, "com.sun.mail.util.MailSSLSocketFactory");
+            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, DEF_MAIL_SSL_SOCKET_FACTORY);
             props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_PORT, smtpConfiguration.getPort());
 
             if (smtpConfiguration.isServerTrust()) {
@@ -303,7 +304,7 @@ public class EmailOTPService {
             props.put(DEF_MAIL_SMTPS_CONNECTION_TIMEOUT, this.connectionTimeout);
             props.put(DEF_MAIL_SMTPS_TIMEOUT, this.connectionTimeout);
 
-            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, "com.sun.mail.util.MailSSLSocketFactory");
+            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, DEF_MAIL_SSL_SOCKET_FACTORY);
             props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_PORT, smtpConfiguration.getPort());
 
             if (smtpConfiguration.isServerTrust()) {
@@ -392,7 +393,7 @@ public class EmailOTPService {
             props.put(DEF_MAIL_SMTP_CONNECTION_TIMEOUT, this.connectionTimeout);
             props.put(DEF_MAIL_SMTP_TIMEOUT, this.connectionTimeout);
 
-            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, "com.sun.mail.util.MailSSLSocketFactory");
+            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, DEF_MAIL_SSL_SOCKET_FACTORY);
             props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_PORT, smtpConfiguration.getPort());
             if (smtpConfiguration.isServerTrust()) {
                 props.put(DEF_MAIL_SMTP_SSL_TRUST, smtpConfiguration.getHost());
@@ -408,7 +409,7 @@ public class EmailOTPService {
             props.put(DEF_MAIL_SMTPS_CONNECTION_TIMEOUT, this.connectionTimeout);
             props.put(DEF_MAIL_SMTPS_TIMEOUT, this.connectionTimeout);
 
-            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, "com.sun.mail.util.MailSSLSocketFactory");
+            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, DEF_MAIL_SSL_SOCKET_FACTORY);
             props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_PORT, smtpConfiguration.getPort());
             if (smtpConfiguration.isServerTrust()) {
                 props.put(DEF_MAIL_SMTP_SSL_TRUST, smtpConfiguration.getHost());
