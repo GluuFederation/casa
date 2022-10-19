@@ -1,5 +1,7 @@
 package org.gluu.casa.plugins.emailotp.model;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +43,11 @@ public class VerifiedEmail implements Comparable<VerifiedEmail> {
         return email.equals(verObj.email)
                 && addedOn == verObj.addedOn
                 && nickName.equals(verObj.nickName);
+    }
+    
+    @Override
+    public int hashCode() {
+      return Objects.hash(addedOn, email, nickName);
     }
 
     @Override
