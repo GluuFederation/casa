@@ -89,6 +89,7 @@ public class EmailOTPService {
     public static final String DEF_MAIL_SMTPS_PORT                  = "mail.smtps.port";
     public static final String DEF_MAIL_SMTPS_CONNECTION_TIMEOUT    = "mail.smtps.connectiontimeout";
     public static final String DEF_MAIL_SMTPS_TIMEOUT               = "mail.smtps.timeout";
+    public static final String DEF_MAIL_SSL_SOCKET_FACTORY          = "com.sun.mail.util.MailSSLSocketFactory";
 
     private Map<String, String> properties;
 	private IPersistenceService persistenceService;
@@ -285,7 +286,7 @@ public class EmailOTPService {
             props.put(DEF_MAIL_SMTP_CONNECTION_TIMEOUT, this.connectionTimeout);
             props.put(DEF_MAIL_SMTP_TIMEOUT, this.connectionTimeout);
 
-            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, "com.sun.mail.util.MailSSLSocketFactory");
+            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, DEF_MAIL_SSL_SOCKET_FACTORY);
             props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_PORT, smtpConfiguration.getPort());
 
             if (smtpConfiguration.isServerTrust()) {
@@ -303,7 +304,7 @@ public class EmailOTPService {
             props.put(DEF_MAIL_SMTPS_CONNECTION_TIMEOUT, this.connectionTimeout);
             props.put(DEF_MAIL_SMTPS_TIMEOUT, this.connectionTimeout);
 
-            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, "com.sun.mail.util.MailSSLSocketFactory");
+            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, DEF_MAIL_SSL_SOCKET_FACTORY);
             props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_PORT, smtpConfiguration.getPort());
 
             if (smtpConfiguration.isServerTrust()) {
@@ -335,6 +336,7 @@ public class EmailOTPService {
             final String password = decrypt(smtpConfiguration.getPassword());
 
             session = Session.getInstance(props, new javax.mail.Authenticator() {
+                @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
                     return new PasswordAuthentication(userName, password);
                 }
@@ -358,7 +360,7 @@ public class EmailOTPService {
 
 			Transport.send(message);
 		} catch (Exception e) {
-			logger.error("Failed to send OTP: " + e.getMessage());
+			logger.error("Failed to send OTP: {}", e.getMessage());
 			return false;
 		}
 		return true;
@@ -392,7 +394,7 @@ public class EmailOTPService {
             props.put(DEF_MAIL_SMTP_CONNECTION_TIMEOUT, this.connectionTimeout);
             props.put(DEF_MAIL_SMTP_TIMEOUT, this.connectionTimeout);
 
-            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, "com.sun.mail.util.MailSSLSocketFactory");
+            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, DEF_MAIL_SSL_SOCKET_FACTORY);
             props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_PORT, smtpConfiguration.getPort());
             if (smtpConfiguration.isServerTrust()) {
                 props.put(DEF_MAIL_SMTP_SSL_TRUST, smtpConfiguration.getHost());
@@ -408,7 +410,7 @@ public class EmailOTPService {
             props.put(DEF_MAIL_SMTPS_CONNECTION_TIMEOUT, this.connectionTimeout);
             props.put(DEF_MAIL_SMTPS_TIMEOUT, this.connectionTimeout);
 
-            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, "com.sun.mail.util.MailSSLSocketFactory");
+            props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_CLASS, DEF_MAIL_SSL_SOCKET_FACTORY);
             props.put(DEF_MAIL_SMTP_SOCKET_FACTORY_PORT, smtpConfiguration.getPort());
             if (smtpConfiguration.isServerTrust()) {
                 props.put(DEF_MAIL_SMTP_SSL_TRUST, smtpConfiguration.getHost());
@@ -438,6 +440,7 @@ public class EmailOTPService {
             final String password = decrypt(smtpConfiguration.getPassword());
 
             session = Session.getInstance(props, new javax.mail.Authenticator() {
+                @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
                     return new PasswordAuthentication(userName, password);
                 }
@@ -477,7 +480,7 @@ public class EmailOTPService {
 
             Transport.send(message);
         } catch (Exception e) {
-            logger.error("Failed to send OTP: " + e.getMessage());
+            logger.error("Failed to send OTP: {}", e.getMessage());
             return false;
         }
 
@@ -513,9 +516,9 @@ public class EmailOTPService {
      * @throws SMIMEException
      */
     public static MimeMultipart createMultipartWithSignature(PrivateKey key, X509Certificate cert, String signingAlgorithm, MimeBodyPart dataPart) throws CertificateEncodingException, CertificateParsingException, OperatorCreationException, SMIMEException {
-        List<X509Certificate> certList = new ArrayList<X509Certificate>();
+        List<X509Certificate> certList = new ArrayList<>();
         certList.add(cert);
-        Store certs = new JcaCertStore(certList);
+        JcaCertStore certs = new JcaCertStore(certList);
         ASN1EncodableVector signedAttrs = generateSignedAttributes(cert);
 
         SMIMESignedGenerator gen = new SMIMESignedGenerator();
@@ -541,7 +544,7 @@ public class EmailOTPService {
 		EmailPerson person = new EmailPerson();
 		person.setMail(email);
 		person.setBaseDn(persistenceService.getPeopleDn());
-		logger.debug("Registered email id count: " + persistenceService.count(person));
+		logger.debug("Registered email id count: {}", persistenceService.count(person));
 		return persistenceService.count(person) > 0;
 
 	}
@@ -569,7 +572,7 @@ public class EmailOTPService {
 		try {
 			return Utils.stringEncrypter().decrypt(password);
 		} catch (EncryptionException e) {
-			logger.error("Unable to decrypt :" + e.getMessage());
+			logger.error("Unable to decrypt: {}", e.getMessage());
 			return null;
 		}
 	}
