@@ -416,18 +416,16 @@ public class PersistenceService implements IPersistenceService {
         logger.info("Obtaining a Persistence EntryManager");
         int i = 0;
 
-        if(entryManager == null) {
-            do {
-                try {
-                    i++;
-                    entryManager = factory.createEntryManager(backendProperties);
+        do {
+            try {
+                i++;
+                entryManager = factory.createEntryManager(backendProperties);
 
-                } catch (Exception e) {
-                    logger.warn("Unable to create persistence entry manager, retrying in {} seconds", retry_interval);
-                    Thread.sleep(retry_interval * 1000);
-                }
-            } while (entryManager == null && i < retries);
-        }
+            } catch (Exception e) {
+                logger.warn("Unable to create persistence entry manager, retrying in {} seconds", retry_interval);
+                Thread.sleep(retry_interval * 1000);
+            }
+        } while (entryManager == null && i < retries);
 
         if (entryManager == null) {
             logger.error("No EntryManager could be obtained");
