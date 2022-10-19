@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * 
  * 
  */
-public class VerifiedEmail implements  Comparable<VerifiedEmail> {
+public class VerifiedEmail implements Comparable<VerifiedEmail> {
 
     @SuppressWarnings("unused")
     private static Logger logger = LoggerFactory.getLogger(VerifiedEmail.class);
@@ -22,24 +22,37 @@ public class VerifiedEmail implements  Comparable<VerifiedEmail> {
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String nickName;
 
-    public String getNickName() {
-        return nickName;
-    }
-
-    public void setNickName(String nickname) {
-        this.nickName = nickname;
-    }
 	public VerifiedEmail() {
 	}
 
 	public VerifiedEmail(String email) {
 		this.email = email;
 	}
+	
+    @Override
+    public boolean equals(java.lang.Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        VerifiedEmail verObj = (VerifiedEmail) obj;
+        return email.equals(verObj.email)
+                && addedOn == verObj.addedOn
+                && nickName.equals(verObj.nickName);
+    }
 
+    @Override
 	public int compareTo(VerifiedEmail ph) {
 		long date1 = getAddedOn();
 		long date2 = ph.getAddedOn();
-		return (date1 < date2) ? -1 : (date1 > date2 ? 1 : 0);
+		if (date1 < date2) {
+		    return -1;
+		}
+		else {
+		    return date1 > date2 ? 1 : 0;
+		}
 	}
 
 	public long getAddedOn() {
@@ -58,4 +71,11 @@ public class VerifiedEmail implements  Comparable<VerifiedEmail> {
 		this.email = email;
 	}
 
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickname) {
+        this.nickName = nickname;
+    }
 }

@@ -254,7 +254,7 @@ public class EmailOTPService {
 
         SmtpConnectProtectionType smtpConnectProtect = smtpConfiguration.getConnectProtection();
 
-        if (smtpConnectProtect == SmtpConnectProtectionType.StartTls) {
+        if (smtpConnectProtect == SmtpConnectProtectionType.START_TLS) {
             props.put("mail.transport.protocol", "smtp");
 
             props.put("mail.smtp.host", smtpConfiguration.getHost());
@@ -272,7 +272,7 @@ public class EmailOTPService {
             props.put("mail.smtp.starttls.enable", true);
             props.put("mail.smtp.starttls.required", true);
         }
-        else if (smtpConnectProtect == SmtpConnectProtectionType.SslTls) {
+        else if (smtpConnectProtect == SmtpConnectProtectionType.SSL_TLS) {
             props.put("mail.transport.protocol.rfc822", "smtps");
 
             props.put("mail.smtps.host", smtpConfiguration.getHost());
@@ -301,7 +301,7 @@ public class EmailOTPService {
         Session session = null;
         if (smtpConfiguration.isRequiresAuthentication()) {
 
-            if (smtpConnectProtect == SmtpConnectProtectionType.SslTls) {
+            if (smtpConnectProtect == SmtpConnectProtectionType.SSL_TLS) {
                 props.put("mail.smtps.auth", "true");
             }
             else {
@@ -361,7 +361,7 @@ public class EmailOTPService {
 
         SmtpConnectProtectionType smtpConnectProtect = smtpConfiguration.getConnectProtection();
 
-        if (smtpConnectProtect == SmtpConnectProtectionType.StartTls) {
+        if (smtpConnectProtect == SmtpConnectProtectionType.START_TLS) {
             props.put("mail.transport.protocol", "smtp");
 
             props.put("mail.smtp.host", smtpConfiguration.getHost());
@@ -377,7 +377,7 @@ public class EmailOTPService {
             props.put("mail.smtp.starttls.enable", true);
             props.put("mail.smtp.starttls.required", true);
         }
-        else if (smtpConnectProtect == SmtpConnectProtectionType.SslTls) {
+        else if (smtpConnectProtect == SmtpConnectProtectionType.SSL_TLS) {
             props.put("mail.transport.protocol.rfc822", "smtps");
 
             props.put("mail.smtps.host", smtpConfiguration.getHost());
@@ -404,7 +404,7 @@ public class EmailOTPService {
         Session session = null;
         if (smtpConfiguration.isRequiresAuthentication()) {
 
-            if (smtpConnectProtect == SmtpConnectProtectionType.SslTls) {
+            if (smtpConnectProtect == SmtpConnectProtectionType.SSL_TLS) {
                 props.put("mail.smtps.auth", "true");
             }
             else {

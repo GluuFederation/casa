@@ -79,10 +79,6 @@ public class PersistenceService implements IPersistenceService {
         entryManager = null;
     }
 
-    @PreDestroy
-    public void destroyed() {
-    }
-
     public boolean initialize() {
 
         boolean success = false;
