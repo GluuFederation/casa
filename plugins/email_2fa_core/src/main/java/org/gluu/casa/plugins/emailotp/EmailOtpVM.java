@@ -103,7 +103,7 @@ public class EmailOtpVM {
 	}
 
 	@Init(superclass = true)
-	public void childInit() throws Exception {
+	public void childInit() {
 		newEmail = new VerifiedEmail();
 		sessionContext = Utils.managedBean(ISessionContext.class);
 		user = sessionContext.getLoggedUser();
