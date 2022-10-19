@@ -3,6 +3,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Objects;
+
 import javax.persistence.Transient;
 
 /**
@@ -173,5 +175,37 @@ public class SmtpConfiguration implements java.io.Serializable {
 
     public void setSigningAlgorithm(String signingAlgorithm) {
         this.signingAlgorithm = signingAlgorithm;
+    }
+
+    @Override
+    public boolean equals(java.lang.Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        SmtpConfiguration smtpConfigurationObj = (SmtpConfiguration) obj;
+        return host.equals(smtpConfigurationObj.host)
+                && port == smtpConfigurationObj.port
+                && connectProtection.getValue().equals(smtpConfigurationObj.connectProtection.getValue())
+                && serverTrust == smtpConfigurationObj.serverTrust
+                && fromName.equals(smtpConfigurationObj.fromName)
+                && fromEmailAddress.equals(smtpConfigurationObj.fromEmailAddress)
+                && requiresAuthentication == smtpConfigurationObj.requiresAuthentication
+                && userName.equals(smtpConfigurationObj.userName)
+                && password.equals(smtpConfigurationObj.password)
+                && passwordDecrypted.equals(smtpConfigurationObj.passwordDecrypted)
+                && keyStore.equals(smtpConfigurationObj.keyStore)
+                && keyStorePassword.equals(smtpConfigurationObj.keyStorePassword)
+                && keyStoreAlias.equals(smtpConfigurationObj.keyStoreAlias)
+                && signingAlgorithm.equals(smtpConfigurationObj.signingAlgorithm);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(host, port, connectProtection.getValue(), serverTrust, fromName,
+              fromEmailAddress, requiresAuthentication, userName, password, passwordDecrypted,
+              keyStore, keyStorePassword, keyStoreAlias, signingAlgorithm);
     }
 }
