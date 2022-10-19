@@ -17,15 +17,12 @@ import org.slf4j.LoggerFactory;
 @Extension
 public class EmailOtpAuthnMethod implements AuthnMethod {
 
-	private EmailOTPService emailOTPService;
-
 	private static Logger logger = LoggerFactory.getLogger(EmailOtpAuthnMethod.class);
 
 	private ISessionContext sessionContext;
 
 	public EmailOtpAuthnMethod() {
 		sessionContext = Utils.managedBean(ISessionContext.class);
-		emailOTPService = EmailOTPService.getInstance();
 		reloadConfiguration();
 	}
 
@@ -43,13 +40,13 @@ public class EmailOtpAuthnMethod implements AuthnMethod {
 
 	@Override
 	public String getAcr() {
-		return emailOTPService.getInstance().ACR;
+		return EmailOTPService.ACR;
 	}
 
 	@Override
 	public List<BasicCredential> getEnrolledCreds(String arg0) {
 		try {
-			return emailOTPService.getInstance().getCredentials(sessionContext.getLoggedUser().getId())
+			return EmailOTPService.getInstance().getCredentials(sessionContext.getLoggedUser().getId())
 					.stream().map(dev -> new BasicCredential(dev.getNickName(), 0)).collect(Collectors.toList());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -79,7 +76,7 @@ public class EmailOtpAuthnMethod implements AuthnMethod {
 
 	@Override
 	public int getTotalUserCreds(String arg0) {
-		return emailOTPService.getInstance().getCredentialsTotal( sessionContext.getLoggedUser().getId());
+		return EmailOTPService.getInstance().getCredentialsTotal( sessionContext.getLoggedUser().getId());
 	}
 
 	@Override
@@ -89,7 +86,7 @@ public class EmailOtpAuthnMethod implements AuthnMethod {
 
 	@Override
 	public void reloadConfiguration() {
-		emailOTPService.getInstance().reloadConfiguration();
+	    EmailOTPService.getInstance().reloadConfiguration();
 	}
 
 }
