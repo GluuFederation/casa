@@ -175,13 +175,9 @@ public class EmailOTPService {
 		    }
 		} else {
 			try {
-<<<<<<< HEAD
-				logger.info("Settings found were: {}", mapper.writeValueAsString(properties));
-=======
 			    if (logger.isInfoEnabled()) {
 	                logger.info("Settings found were: {}", localMapper.writeValueAsString(properties));
 			    }
->>>>>>> a7c05c2f... refactor: improvement of code;
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
