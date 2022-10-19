@@ -1,5 +1,7 @@
 package org.gluu.casa.plugins.emailotp.model;
 
+import java.util.Objects;
+
 import org.gluu.casa.core.model.BasePerson;
 import org.gluu.persist.annotation.AttributeName;
 import org.gluu.persist.annotation.DataEntry;
@@ -35,5 +37,23 @@ public class EmailPerson extends BasePerson {
 	public void setMail(String mail) {
 		this.mail = mail;
 	}
+
+    @Override
+    public boolean equals(java.lang.Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        EmailPerson emailPersonObj = (EmailPerson) obj;
+        return oxEmailAlternate.equals(emailPersonObj.oxEmailAlternate)
+                && mail.equals(emailPersonObj.mail);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(oxEmailAlternate, mail);
+    }
 
 }

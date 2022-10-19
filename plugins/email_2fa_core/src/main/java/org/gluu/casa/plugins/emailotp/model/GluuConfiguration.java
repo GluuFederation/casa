@@ -1,6 +1,8 @@
 package org.gluu.casa.plugins.emailotp.model;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Objects;
 
 import org.gluu.persist.annotation.AttributeName;
 import org.gluu.persist.annotation.CustomObjectClass;
@@ -67,4 +69,23 @@ public class GluuConfiguration extends InumEntry implements Serializable {
 		this.smtpConfiguration = smtpConfiguration;
 	}
 
+    @Override
+    public boolean equals(java.lang.Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        GluuConfiguration gluuConfigurationObj = (GluuConfiguration) obj;
+        return Arrays.equals(customObjectClasses, gluuConfigurationObj.customObjectClasses)
+                && description.equals(gluuConfigurationObj.description)
+                && displayName.equals(gluuConfigurationObj.displayName)
+                && smtpConfiguration.equals(gluuConfigurationObj.smtpConfiguration);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(description, displayName, smtpConfiguration, customObjectClasses);
+    }
 }
