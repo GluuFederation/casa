@@ -64,11 +64,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class EmailOTPService {
 
-    private final static Logger logger = LoggerFactory.getLogger(EmailOTPService.class);
+    private static final Logger logger = LoggerFactory.getLogger(EmailOTPService.class);
 
     private static EmailOTPService singleInstance = null;
 
-    public final static String ACR = "email_2fa_core";
+    public static final String ACR = "email_2fa_core";
 
     private Map<String, String> properties;
 	private IPersistenceService persistenceService;
@@ -145,7 +145,7 @@ public class EmailOTPService {
 	 * 
 	 */
 	public void reloadConfiguration() {
-		ObjectMapper mapper = new ObjectMapper();
+		ObjectMapper localMapper = new ObjectMapper();
 		properties = persistenceService.getCustScriptConfigProperties(ACR);
 		if (properties == null) {
 			logger.warn(
@@ -153,7 +153,7 @@ public class EmailOTPService {
 					ACR, ACR.toUpperCase());
 		} else {
 			try {
-				logger.info("Settings found were: {}", mapper.writeValueAsString(properties));
+				logger.info("Settings found were: {}", localMapper.writeValueAsString(properties));
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
