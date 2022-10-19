@@ -114,8 +114,7 @@ public class EmailOtpVM {
 
 	@NotifyChange("uiEmailDelivered")
 	public void sendCode(HtmlBasedComponent toFocus) {
-
-		logger.debug("email entered: " + newEmail.getEmail());
+		logger.debug("email entered: {}", newEmail.getEmail());
 		if (Utils.isNotEmpty(newEmail.getEmail())) { // Did user fill out the email text box?
 			// Check for uniquess throughout all emails in LDAP. Only new emails are
 			// accepted
@@ -137,10 +136,10 @@ public class EmailOtpVM {
 
 					// Send message (service bean already knows all settings to perform this step)
 					uiEmailDelivered = emailOtpService.sendEmailWithOTPSigned(newEmail.getEmail(), subject, body);
-					logger.debug("Signed message delivery : " + uiEmailDelivered);
+					logger.debug("Signed message delivery: {}", uiEmailDelivered);
 					if (!uiEmailDelivered) {
                         uiEmailDelivered = emailOtpService.sendEmailWithOTP(newEmail.getEmail(), subject, body);
-                        logger.debug("Non signed message delivery : " + uiEmailDelivered);
+                        logger.debug("Non signed message delivery: {}", uiEmailDelivered);
 					}
 					if (uiEmailDelivered) {
 						if (toFocus != null) {
@@ -253,17 +252,11 @@ public class EmailOtpVM {
 
 	public boolean validateEmail(String email) {
 		try {
-			Pattern pattern = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
-
-			Matcher matcher = pattern.matcher(email);
-			if (matcher.matches()) {
-
-				return true;
-			}
-			return false;
-
+			Pattern localPattern = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+			Matcher matcher = localPattern.matcher(email);
+			return matcher.matches();
 		} catch (Exception e) {
-			logger.debug("validateEmail exception :" + e.getMessage());
+			logger.debug("validateEmail exception: {}", e.getMessage());
 			return false;
 		}
 	}
