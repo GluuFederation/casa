@@ -270,7 +270,7 @@ public class EmailOtpVM {
 
 	private String generateCode(int charLength) {
 		return String.valueOf(charLength < 1 ? 0
-				: new SecureRandom().nextInt((9 * (int) Math.pow(10, charLength - 1)) - 1)
-						+ (int) Math.pow(10, charLength - 1));
+				: new SecureRandom().nextInt((9 * (int) Math.pow((double)10, (double)(charLength - 1))) - 1)
+						+ (int) Math.pow((double)10, (double)(charLength - 1)));
 	}
 }
