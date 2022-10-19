@@ -119,7 +119,7 @@ public class EmailOtpVM {
 			// Check for uniquess throughout all emails in LDAP. Only new emails are
 			// accepted
 			try {
-				if (validateEmail(newEmail.getEmail()) == false) {
+				if (!validateEmail(newEmail.getEmail())) {
 					UIUtils.showMessageUI(Clients.NOTIFICATION_TYPE_WARNING,
 							Labels.getLabel("usr.email_invalid_format"));
 				}
