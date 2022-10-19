@@ -29,7 +29,6 @@ import org.jboss.weld.inject.WeldInstance;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;

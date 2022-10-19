@@ -64,11 +64,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class EmailOTPService {
 
-    private final static Logger logger = LoggerFactory.getLogger(EmailOTPService.class);
+    private static final Logger logger = LoggerFactory.getLogger(EmailOTPService.class);
 
     private static EmailOTPService singleInstance = null;
 
-    public final static String ACR = "email_2fa_core";
+    public static final String ACR = "email_2fa_core";
 
     public static final String DEF_MAIL_FROM                        = "mail.from";
     public static final String DEF_MAIL_TRANSPORT_PROTOCOL          = "mail.transport.protocol";
@@ -165,7 +165,7 @@ public class EmailOTPService {
 	 * 
 	 */
 	public void reloadConfiguration() {
-		ObjectMapper mapper = new ObjectMapper();
+		ObjectMapper localMapper = new ObjectMapper();
 		properties = persistenceService.getCustScriptConfigProperties(ACR);
 		if (properties == null) {
 		    if (logger.isWarnEnabled()) { // according to Sonar request, as ACR.toUpperCase() is provided before checking    
@@ -175,9 +175,13 @@ public class EmailOTPService {
 		    }
 		} else {
 			try {
+<<<<<<< HEAD
 			    if (logger.isInfoEnabled()) {
 	                logger.info("Settings found were: {}", localMapper.writeValueAsString(properties));
 			    }
+=======
+				logger.info("Settings found were: {}", localMapper.writeValueAsString(properties));
+>>>>>>> d6fff599... refactor: improvement of code;
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
