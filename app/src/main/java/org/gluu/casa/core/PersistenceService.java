@@ -28,6 +28,7 @@ import org.gluu.search.filter.Filter;
 import org.jboss.weld.inject.WeldInstance;
 import org.slf4j.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
@@ -71,6 +72,11 @@ public class PersistenceService implements IPersistenceService {
 
     private CacheConfiguration cacheConfiguration;
     private DocumentStoreConfiguration documentStoreConfiguration;
+
+    @PostConstruct
+    public void inited() {
+        entryManager = null;
+    }
 
     public boolean initialize() {
 
@@ -409,6 +415,7 @@ public class PersistenceService implements IPersistenceService {
             try {
                 i++;
                 entryManager = factory.createEntryManager(backendProperties);
+
             } catch (Exception e) {
                 logger.warn("Unable to create persistence entry manager, retrying in {} seconds", retry_interval);
                 Thread.sleep(retry_interval * 1000);
