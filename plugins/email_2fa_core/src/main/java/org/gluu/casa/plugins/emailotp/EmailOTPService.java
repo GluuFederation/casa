@@ -440,6 +440,7 @@ public class EmailOTPService {
             final String password = decrypt(smtpConfiguration.getPassword());
 
             session = Session.getInstance(props, new javax.mail.Authenticator() {
+                @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
                     return new PasswordAuthentication(userName, password);
                 }
@@ -515,9 +516,9 @@ public class EmailOTPService {
      * @throws SMIMEException
      */
     public static MimeMultipart createMultipartWithSignature(PrivateKey key, X509Certificate cert, String signingAlgorithm, MimeBodyPart dataPart) throws CertificateEncodingException, CertificateParsingException, OperatorCreationException, SMIMEException {
-        List<X509Certificate> certList = new ArrayList<X509Certificate>();
+        List<X509Certificate> certList = new ArrayList<>();
         certList.add(cert);
-        Store certs = new JcaCertStore(certList);
+        JcaCertStore certs = new JcaCertStore(certList);
         ASN1EncodableVector signedAttrs = generateSignedAttributes(cert);
 
         SMIMESignedGenerator gen = new SMIMESignedGenerator();
