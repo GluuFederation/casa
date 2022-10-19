@@ -9,8 +9,7 @@ public class EmailOtpInitiator implements Initiator{
 
 	@Override
 	public void doInit(Page page, Map<String, Object> args) throws Exception {
-		// TODO Auto-generated method stub
-		
+	    // Do nothing.
 	}
 
 }

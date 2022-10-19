@@ -24,6 +24,7 @@ public class EmailOtpPlugin extends Plugin{
      */
 	@Override
     public void start() {
+	    // Do nothing.
     }
 
     /**
@@ -32,6 +33,7 @@ public class EmailOtpPlugin extends Plugin{
      */
 	@Override
     public void stop() {
+	    // Do nothing.
     }
 
     /**
@@ -40,6 +42,7 @@ public class EmailOtpPlugin extends Plugin{
      */
 	@Override
     public void delete() {
+	    // Do nothing.
     }
 
 }
