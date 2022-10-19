@@ -15,7 +15,7 @@ public class EmailOtpPlugin extends Plugin{
 		super(wrapper);
 
         EmailOTPService emailOTPService = EmailOTPService.getInstance();
-        emailOTPService.init(wrapper.getPluginId());
+        emailOTPService.init();
 	}
 
     /**

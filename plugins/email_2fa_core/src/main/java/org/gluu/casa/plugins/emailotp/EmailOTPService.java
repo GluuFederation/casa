@@ -63,12 +63,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 public class EmailOTPService {
-	private static EmailOTPService SINGLE_INSTANCE = null;
-	public static Map<String, String> properties;
-	private static Logger logger = LoggerFactory.getLogger(EmailOTPService.class);
-	public static String ACR = "email_2fa_core";
+
+    private final static Logger logger = LoggerFactory.getLogger(EmailOTPService.class);
+
+    private static EmailOTPService singleInstance = null;
+
+    public final static String ACR = "email_2fa_core";
+
+    private Map<String, String> properties;
 	private IPersistenceService persistenceService;
-	ObjectMapper mapper;
+	private ObjectMapper mapper;
 	private long connectionTimeout = 5000;
     private KeyStore keyStore;
 
@@ -93,19 +97,15 @@ public class EmailOTPService {
 	 * @return
 	 */
 	public static EmailOTPService getInstance() {
-		if (SINGLE_INSTANCE == null) {
+		if (singleInstance == null) {
 			synchronized (EmailOTPService.class) {
-				SINGLE_INSTANCE = new EmailOTPService();
+				singleInstance = new EmailOTPService();
 			}
 		}
-		return SINGLE_INSTANCE;
+		return singleInstance;
 	}
 
-	/**
-	 * 
-	 * @param pluginId
-	 */
-	public void init(String pluginId) {
+	public void init() {
         persistenceService = Utils.managedBean(IPersistenceService.class);
 
         persistenceService.initialize();
