@@ -581,7 +581,7 @@ class EmailSender():
 
         smtp_connect_protect = smtp_config['connect_protection']
 
-        if smtp_connect_protect == SmtpConnectProtectionType.StartTls:
+        if smtp_connect_protect == SmtpConnectProtectionType.START_TLS:
 
             properties.put("mail.transport.protocol", "smtp")
 
@@ -599,7 +599,7 @@ class EmailSender():
             properties.put("mail.smtp.starttls.enable", "true")
             properties.put("mail.smtp.starttls.required", "true")
 
-        elif smtp_connect_protect == SmtpConnectProtectionType.SslTls:
+        elif smtp_connect_protect == SmtpConnectProtectionType.SSL_TLS:
 
             properties.put("mail.transport.protocol.rfc822", "smtps")
 
@@ -646,10 +646,10 @@ class EmailSender():
 
         signed_message = self.signMessage(jks_keystore, keystore_password, alias, sign_alg, message)
 
-        if smtp_connect_protect == SmtpConnectProtectionType.StartTls:
+        if smtp_connect_protect == SmtpConnectProtectionType.START_TLS:
             transport = session.getTransport("smtp")
 
-        elif smtp_connect_protect == SmtpConnectProtectionType.SslTls:
+        elif smtp_connect_protect == SmtpConnectProtectionType.SSL_TLS:
             transport = session.getTransport("smtps")
 
         transport.connect(properties.get("mail.smtp.host"),int(properties.get("mail.smtp.port")), smtp_config['user'], smtp_config['pwd_decrypted'])
