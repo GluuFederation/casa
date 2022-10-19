@@ -336,6 +336,7 @@ public class EmailOTPService {
             final String password = decrypt(smtpConfiguration.getPassword());
 
             session = Session.getInstance(props, new javax.mail.Authenticator() {
+                @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
                     return new PasswordAuthentication(userName, password);
                 }
@@ -359,7 +360,7 @@ public class EmailOTPService {
 
 			Transport.send(message);
 		} catch (Exception e) {
-			logger.error("Failed to send OTP: " + e.getMessage());
+			logger.error("Failed to send OTP: {}", e.getMessage());
 			return false;
 		}
 		return true;
@@ -478,7 +479,7 @@ public class EmailOTPService {
 
             Transport.send(message);
         } catch (Exception e) {
-            logger.error("Failed to send OTP: " + e.getMessage());
+            logger.error("Failed to send OTP: {}", e.getMessage());
             return false;
         }
 
@@ -542,7 +543,7 @@ public class EmailOTPService {
 		EmailPerson person = new EmailPerson();
 		person.setMail(email);
 		person.setBaseDn(persistenceService.getPeopleDn());
-		logger.debug("Registered email id count: " + persistenceService.count(person));
+		logger.debug("Registered email id count: {}", persistenceService.count(person));
 		return persistenceService.count(person) > 0;
 
 	}
@@ -570,7 +571,7 @@ public class EmailOTPService {
 		try {
 			return Utils.stringEncrypter().decrypt(password);
 		} catch (EncryptionException e) {
-			logger.error("Unable to decrypt :" + e.getMessage());
+			logger.error("Unable to decrypt: {}", e.getMessage());
 			return null;
 		}
 	}
