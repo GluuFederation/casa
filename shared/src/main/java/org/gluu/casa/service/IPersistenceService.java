@@ -105,9 +105,4 @@ public interface IPersistenceService extends LocalDirectoryInfo2 {
      */
     <T> boolean delete(T object);
 
-    /**
-     * Initializing of the Persistence.
-     * @return result of initializing
-     */
-    boolean initialize();
 }

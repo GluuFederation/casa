@@ -129,8 +129,6 @@ public class EmailOTPService {
 	public void init() {
         persistenceService = Utils.managedBean(IPersistenceService.class);
 
-        persistenceService.initialize();
-
         reloadConfiguration();
         mapper = new ObjectMapper();
 
