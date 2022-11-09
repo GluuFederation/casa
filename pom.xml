@@ -22,15 +22,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.min-version>3.6.3</maven.min-version>
         <weld.version>3.1.8.Final</weld.version>
-        <pf4j.version>3.2.0</pf4j.version>
+        <pf4j.version>3.7.0</pf4j.version>
         <casa.version>4.4.2.Final</casa.version>
         <ox.version>4.4.2.Final</ox.version>
         <log4j.version>2.17.2</log4j.version>
-        <jackson.version>2.13.2</jackson.version>
-        <zk.version>9.5.0.2</zk.version>
+        <jackson.version>2.14.0</jackson.version>
+        <zk.version>9.6.0.2</zk.version>
         <ldapsdk.version>5.1.4</ldapsdk.version>
         <resteasy.version>4.7.2.Final</resteasy.version>
-        <tika.version>2.1.0</tika.version>
+        <tika.version>2.5.0</tika.version>
         <bc.version>1.70</bc.version>
  
         <sonar.projectKey>GluuFederation_casa</sonar.projectKey>
@@ -66,7 +66,7 @@
 
     <modules>
         <module>app</module>
-        <module>app-fips</module>
+        <!--module>app-fips</module-->
         <module>shared</module>
         <module>plugins/account-linking</module>
         <module>plugins/client-authorizations</module>
@@ -137,7 +137,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.13.2.1</version>
+                <version>${jackson.version}</version>
             </dependency>
 
             <!-- APACHE TIKA -->
