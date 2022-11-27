@@ -47,7 +47,7 @@ public class HomeViewModel {
 
         JSONObject jsonObject = Optional.ofNullable(evt.getData()).map(JSONObject.class::cast).orElse(null);
         if (jsonObject != null) {
-            logger.trace("Browser data is {} ", logger.isTraceEnabled() ? jsonObject.toJSONString() : "");
+            logger.trace("Browser data is {} ", logger.isTraceEnabled() ? jsonObject : "");
 
             updateOffset(jsonObject.get("offset"));
             updateScreenWidth(jsonObject.get("screenWidth"));
@@ -69,7 +69,7 @@ public class HomeViewModel {
                 int offset = (int) value;
                 ZoneOffset zoffset = ZoneOffset.ofTotalSeconds(offset);
                 sessionContext.setZoneOffset(zoffset);
-                logger.trace("Time offset for session is {0}", logger.isTraceEnabled() ? zoffset.toString() : "");
+                logger.trace("Time offset for session is {0}", logger.isTraceEnabled() ? zoffset : "");
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
