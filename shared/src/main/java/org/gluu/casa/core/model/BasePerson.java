@@ -2,12 +2,16 @@ package org.gluu.casa.core.model;
 
 import org.gluu.casa.misc.Utils;
 import org.gluu.casa.service.IPersistenceService;
+import org.gluu.persist.model.base.CustomObjectAttribute;
 import org.gluu.persist.model.base.InumEntry;
 import org.gluu.persist.annotation.AttributeName;
+import org.gluu.persist.annotation.AttributesList;
 import org.gluu.persist.annotation.CustomObjectClass;
 import org.gluu.persist.annotation.DataEntry;
 import org.gluu.persist.annotation.ObjectClass;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -19,11 +23,19 @@ import java.util.Set;
 @ObjectClass("gluuPerson")
 public class BasePerson extends InumEntry {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 6952879204157214152L;
+
     @AttributeName
     private String uid;
 
     @CustomObjectClass
     private static String[] customObjectClasses;
+
+    @AttributesList(name = "name", value = "values", multiValued = "multiValued", sortByName = true)
+    private List<CustomObjectAttribute> customAttributes = new ArrayList<>();
 
     static {
         IPersistenceService ips = Utils.managedBean(IPersistenceService.class);
@@ -51,4 +63,11 @@ public class BasePerson extends InumEntry {
         BasePerson.customObjectClasses = customObjectClasses;
     }
 
+    public List<CustomObjectAttribute> getCustomAttributes() {
+        return customAttributes;
+    }
+
+    public void setCustomAttributes(List<CustomObjectAttribute> customAttributes) {
+        this.customAttributes = customAttributes;
+    }
 }
