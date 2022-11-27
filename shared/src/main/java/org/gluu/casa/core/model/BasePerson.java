@@ -35,7 +35,7 @@ public class BasePerson extends InumEntry {
     private static String[] customObjectClasses;
 
     @AttributesList(name = "name", value = "values", multiValued = "multiValued", sortByName = true)
-    private List<CustomObjectAttribute> customAttributes = new ArrayList<CustomObjectAttribute>();
+    private List<CustomObjectAttribute> customAttributes = new ArrayList<>();
 
     static {
         IPersistenceService ips = Utils.managedBean(IPersistenceService.class);
