@@ -2,8 +2,8 @@ Incase you are installing casa plugin for EMail OTP on Gluu Server version under
 
 1. Copy this to the script on oxTrust - `https://github.com/GluuFederation/casa/blob/master/plugins/emailotp/extras/email_2fa_core.py`
 1. Under `/opt/gluu/jetty/oxauth/custom/pages/casa/` copy 2 files    
-   - `https://github.com/GluuFederation/casa/blob/master/plugins/emailotp/extras/otp_email.xhtml`   
-   - `https://github.com/GluuFederation/casa/blob/master/plugins/emailotp/extras/otp_email_prompt.xhtml`
+   - `https://raw.githubusercontent.com/GluuFederation/casa/master/plugins/email_2fa_core/extras/otp_email.xhtml`   
+   - `https://raw.githubusercontent.com/GluuFederation/casa/master/plugins/email_2fa_core/extras/otp_email_prompt.xhtml`
 1. Under `/opt/gluu/jetty/oxauth/custom/i18n/` create a file `oxauth.properties` with the following content
    ```
     #casa plugin - email otp
