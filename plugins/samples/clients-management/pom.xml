@@ -66,7 +66,7 @@
         <dependency>
             <groupId>org.gluu</groupId>
             <artifactId>casa-shared</artifactId>
-            <version>4.5.1-SNAPSHOT</version>
+            <version>4.5.1.Final</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
