@@ -31,7 +31,7 @@
         <ldapsdk.version>6.0.4</ldapsdk.version>
         <resteasy.version>4.7.2.Final</resteasy.version>
         <tika.version>2.4.1</tika.version>
-        <bc.version>1.70</bc.version>
+        <bc.version>1.76</bc.version>
         <sonar.projectKey>GluuFederation_casa</sonar.projectKey>
         <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
         <sonar.organization>gluufederation</sonar.organization>
@@ -147,20 +147,20 @@
 
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk15on</artifactId>
-                <version>1.70</version>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>1.76</version>
             </dependency>
 
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcpkix-jdk15on</artifactId>
-                <version>1.70</version>
+                <artifactId>bcpkix-jdk18on</artifactId>
+                <version>1.76</version>
             </dependency>
 
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcmail-jdk15on</artifactId>
-                <version>1.70</version>
+                <artifactId>bcmail-jdk18on</artifactId>
+                <version>1.76</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
