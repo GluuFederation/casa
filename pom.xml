@@ -7,7 +7,7 @@
 
 	<groupId>org.gluu</groupId>
 	<artifactId>casa-base</artifactId>
-    <version>4.5.4-SNAPSHOT</version>
+    <version>4.5.4.Final</version>
 
 	<packaging>pom</packaging>
 	<url>https://www.gluu.org</url>
@@ -23,8 +23,8 @@
         <maven.min-version>3.6.3</maven.min-version>
         <weld.version>3.1.9.Final</weld.version>
         <pf4j.version>3.10.0</pf4j.version>
-        <casa.version>4.5.4-SNAPSHOT</casa.version>
-        <ox.version>4.5.4-SNAPSHOT</ox.version>
+        <casa.version>4.5.4.Final</casa.version>
+        <ox.version>4.5.4.Final</ox.version>
         <log4j.version>2.17.2</log4j.version>
         <jackson.version>2.14.0</jackson.version>
         <zk.version>9.6.0.2</zk.version>
@@ -36,7 +36,7 @@
         <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
         <sonar.organization>gluufederation</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <gluu.parent.version>4.5.4-SNAPSHOT</gluu.parent.version>
+        <gluu.parent.version>4.5.4.Final</gluu.parent.version>
     </properties>
 
     <repositories>
