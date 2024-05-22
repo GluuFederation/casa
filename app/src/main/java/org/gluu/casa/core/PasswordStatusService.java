@@ -66,7 +66,9 @@ public class PasswordStatusService implements Serializable {
         } else {
             passSetAvailable = hasPassportPrefix(p.getOxExternalUid()) || hasPassportPrefix(p.getOxUnlinkedExternalUids());
         }
-        password2faRequisite = p.hasPassword() || persistenceService.isBackendLdapEnabled();
+        boolean hasExternalAuth = persistenceService.getCustScriptConfigProperties(ConfigurationHandler.DEFAULT_ACR)
+                .containsKey("auth_configuration_file");
+        password2faRequisite = p.hasPassword() || persistenceService.isBackendLdapEnabled() || hasExternalAuth;
 
     }
 
