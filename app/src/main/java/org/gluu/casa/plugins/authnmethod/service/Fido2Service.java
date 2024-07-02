@@ -7,7 +7,7 @@ import org.gluu.casa.plugins.authnmethod.SecurityKey2Extension;
 import org.gluu.casa.rest.RSUtils;
 import org.gluu.fido2.client.AttestationService;
 import org.gluu.casa.core.model.Fido2RegistrationEntry;
-import org.gluu.fido2.model.entry.Fido2RegistrationStatus;
+import org.gluu.persist.model.fido2.Fido2RegistrationStatus;
 import org.gluu.search.filter.Filter;
 import org.slf4j.Logger;
 
