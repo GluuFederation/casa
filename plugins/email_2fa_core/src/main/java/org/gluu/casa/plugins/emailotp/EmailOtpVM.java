@@ -1,9 +1,7 @@
 package org.gluu.casa.plugins.emailotp;
 
 import java.security.SecureRandom;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
 
 import org.gluu.casa.core.pojo.User;
 import org.gluu.casa.misc.Utils;
@@ -51,7 +49,6 @@ public class EmailOtpVM {
 
 	SndFactorAuthenticationUtils sndFactorUtils;
 	User user;
-	Pattern pattern;
 
 	public boolean isEmailCodesMatch() {
 		return emailCodesMatch;
@@ -114,16 +111,18 @@ public class EmailOtpVM {
 
 	@NotifyChange("uiEmailDelivered")
 	public void sendCode(HtmlBasedComponent toFocus) {
-		logger.debug("email entered: {}", newEmail.getEmail());
+        String theNewEmail = newEmail.getEmail(); 
+		logger.debug("email entered: {}", theNewEmail);
 		if (Utils.isNotEmpty(newEmail.getEmail())) { // Did user fill out the email text box?
 			// Check for uniquess throughout all emails in LDAP. Only new emails are
 			// accepted
 			try {
-				if (!validateEmail(newEmail.getEmail())) {
+				if (!validateEmail(theNewEmail)) {
 					UIUtils.showMessageUI(Clients.NOTIFICATION_TYPE_WARNING,
 							Labels.getLabel("usr.email_invalid_format"));
 				}
-				else if (emailOtpService.isEmailRegistered(newEmail.getEmail())) {
+				else if (emailIds.stream()
+				        .filter(e -> theNewEmail.equals(e.getEmail())).findFirst().isPresent()) {
 					UIUtils.showMessageUI(Clients.NOTIFICATION_TYPE_WARNING,
 							Labels.getLabel("usr.email_already_exists"));
 				} else {
@@ -135,10 +134,10 @@ public class EmailOtpVM {
 					logger.debug("sendCode. code={}", realCode);
 
 					// Send message (service bean already knows all settings to perform this step)
-					uiEmailDelivered = emailOtpService.sendEmailWithOTPSigned(newEmail.getEmail(), subject, body);
+					uiEmailDelivered = emailOtpService.sendEmailWithOTPSigned(theNewEmail, subject, body);
 					logger.debug("Signed message delivery: {}", uiEmailDelivered);
 					if (!uiEmailDelivered) {
-                        uiEmailDelivered = emailOtpService.sendEmailWithOTP(newEmail.getEmail(), subject, body);
+                        uiEmailDelivered = emailOtpService.sendEmailWithOTP(theNewEmail, subject, body);
                         logger.debug("Non signed message delivery: {}", uiEmailDelivered);
 					}
 					if (uiEmailDelivered) {
@@ -170,7 +169,7 @@ public class EmailOtpVM {
 		}
 	}
 
-	@NotifyChange({ "emailCodesMatch", "code", "email", "newEmail", "emailIds" })
+	@NotifyChange({ "emailCodesMatch", "code", "newEmail", "emailIds" })
 	public void add() {
 
 		if (Utils.isNotEmpty(newEmail.getEmail())) {
@@ -190,7 +189,7 @@ public class EmailOtpVM {
 
 	}
 
-	@NotifyChange({ "uiCodesMatch", "code", "newPhone", "uiSmsDelivered" })
+	@NotifyChange({ "uiCodesMatch", "code", "emailCodesMatch", "uiEmailDelivered", "newEmail" })
 	public void cancel() {
 		emailCodesMatch = false;
 		realCode = null;
@@ -251,14 +250,7 @@ public class EmailOtpVM {
 	}
 
 	public boolean validateEmail(String email) {
-		try {
-			Pattern localPattern = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
-			Matcher matcher = localPattern.matcher(email);
-			return matcher.matches();
-		} catch (Exception e) {
-			logger.debug("validateEmail exception: {}", e.getMessage());
-			return false;
-		}
+	    return email.contains("@");
 	}
 
 	private String generateCode(int charLength) {

@@ -480,7 +480,7 @@ public class EmailOTPService {
 
             Transport.send(message);
         } catch (Exception e) {
-            logger.error("Failed to send OTP: {}", e.getMessage());
+            logger.error("Failed to send OTP: {}", e);
             return false;
         }
 

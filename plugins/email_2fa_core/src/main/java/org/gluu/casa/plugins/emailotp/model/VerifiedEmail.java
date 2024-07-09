@@ -1,21 +1,12 @@
 package org.gluu.casa.plugins.emailotp.model;
 
 import java.util.Objects;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * Represents a registered credential corresponding to a verified email address
- * 
- * 
  */
 public class VerifiedEmail implements Comparable<VerifiedEmail> {
-
-    @SuppressWarnings("unused")
-    private static Logger logger = LoggerFactory.getLogger(VerifiedEmail.class);
 
 	private String email;
 
@@ -32,17 +23,14 @@ public class VerifiedEmail implements Comparable<VerifiedEmail> {
 	}
 	
     @Override
-    public boolean equals(java.lang.Object obj) {
+    public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        VerifiedEmail verObj = (VerifiedEmail) obj;
-        return email.equals(verObj.email)
-                && addedOn == verObj.addedOn
-                && nickName.equals(verObj.nickName);
+        return Objects.hashCode(email) == Objects.hashCode(((VerifiedEmail)obj).getEmail());
     }
     
     @Override
