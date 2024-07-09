@@ -39,32 +39,11 @@
 			<artifactId>casa-shared</artifactId>
 			<version>${plugin.version}</version>
 			<scope>provided</scope>
-			<exclusions>
-				<!-- this dep is giving trouble when sending emails -->
-				<exclusion>
-					<groupId>jakarta.activation</groupId>
-					<artifactId>jakarta.activation-api</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>jakarta.activation</groupId>
-					<artifactId>jakarta.activation</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.activation</groupId>
-					<artifactId>activation</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.mail</groupId>
 			<artifactId>javax.mail</artifactId>
 			<version>1.6.2</version>
-			<exclusions>
-				<exclusion>
-					<groupId>javax.activation</groupId>
-					<artifactId>activation</artifactId>
-				</exclusion>
-			</exclusions>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -77,16 +56,19 @@
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk18on</artifactId>
 			<version>1.76</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk18on</artifactId>
 			<version>1.78</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcmail-jdk18on</artifactId>
 			<version>1.76</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 
@@ -97,6 +79,9 @@
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>3.3.0</version>
 				<configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
 					<archive>
 						<manifestEntries>
 							<Plugin-Id>${plugin.id}</Plugin-Id>
@@ -106,7 +91,7 @@
 							<Plugin-Description>
 								A plugin to enroll Email as a 2FA Credential for EmailOTP 2FA.
 							</Plugin-Description>
-							<Plugin-License>Available under the MIT License. See http://opensource.org/licenses/MIT for full text</Plugin-License>
+							<Plugin-License>Visit https://gluu.org/docs/casa/#license</Plugin-License>
 							<Logger-Name>org.gluu.casa.plugins</Logger-Name>
 						</manifestEntries>
 					</archive>
@@ -118,11 +103,6 @@
 						<goals>
 							<goal>single</goal>
 						</goals>
-						<configuration>
-							<descriptors>
-								<descriptor>src/main/assembly/src.xml</descriptor>
-							</descriptors>
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>
