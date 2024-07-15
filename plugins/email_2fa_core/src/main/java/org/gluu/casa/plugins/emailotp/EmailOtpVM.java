@@ -58,11 +58,6 @@ public class EmailOtpVM {
 		this.emailCodesMatch = emailCodesMatch;
 	}
 
-	public EmailOtpVM(boolean uiEmailDelivered) {
-		super();
-		this.uiEmailDelivered = uiEmailDelivered;
-	}
-
 	public VerifiedEmail getNewEmail() {
 		return newEmail;
 	}
@@ -102,8 +97,7 @@ public class EmailOtpVM {
 	@Init(superclass = true)
 	public void childInit() {
 		newEmail = new VerifiedEmail();
-		sessionContext = Utils.managedBean(ISessionContext.class);
-		user = sessionContext.getLoggedUser();
+		user = Utils.managedBean(ISessionContext.class).getLoggedUser();
 		emailIds = emailOtpService.getVerifiedEmail(user.getId());
 		sndFactorUtils = Utils.managedBean(SndFactorAuthenticationUtils.class);
 		logger.debug("init called");
@@ -127,7 +121,7 @@ public class EmailOtpVM {
 							Labels.getLabel("usr.email_already_exists"));
 				} else {
 					// Generate random in [100000, 999999]
-					realCode = generateCode(Integer.valueOf(emailOtpService.getScriptPropertyValue("token_length")));
+					realCode = generateCode(Integer.valueOf(emailOtpService.getScriptPropertyValue("otp_length")));
 
 					String body = Labels.getLabel("usr.email_body", new String[] { realCode });
 					String subject = Labels.getLabel("usr.email_subject");
@@ -155,7 +149,7 @@ public class EmailOtpVM {
 		}
 	}
 
-	@NotifyChange({ "emailCodesMatch", "uiEmailDelivered" })
+	@NotifyChange({ "emailCodesMatch", "uiEmailDelivered", "code" })
 	public void checkCode(HtmlBasedComponent toFocus) {
 		emailCodesMatch = Utils.isNotEmpty(code) && Utils.isNotEmpty(realCode) && realCode.equals(code.trim());
 		if (emailCodesMatch) {
@@ -175,14 +169,14 @@ public class EmailOtpVM {
 		if (Utils.isNotEmpty(newEmail.getEmail())) {
 
 			if (emailOtpService.updateEmailIdAdd(user.getId(), emailIds, newEmail)) {
-				UIUtils.showMessageUI(true, Labels.getLabel("usr.enroll.success"));
+				UIUtils.showMessageUI(true, Labels.getLabel("enroll.success"));
 				
 				sndFactorUtils.notifyEnrollment(user, EmailOTPService.ACR);
 				// trigger refresh (this method is asynchronous...)
 				BindUtils.postNotifyChange(EmailOtpVM.this, "emailIds");
 				BindUtils.postNotifyChange(EmailOtpVM.this, "newEmail");
 			} else {
-				UIUtils.showMessageUI(false, Labels.getLabel("usr.enroll.error"));
+				UIUtils.showMessageUI(false, Labels.getLabel("enroll.error"));
 			}
 			cancel();
 		}
@@ -258,4 +252,5 @@ public class EmailOtpVM {
 				: new SecureRandom().nextInt((9 * (int) Math.pow(10.0, charLength - 1.0)) - 1)
 						+ (int) Math.pow(10.0, charLength - 1.0));
 	}
+
 }

@@ -9,46 +9,25 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.activation.CommandMap;
 import javax.activation.MailcapCommandMap;
-import javax.mail.Message;
-import javax.mail.Multipart;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
+import javax.mail.*;
+import javax.mail.internet.*;
 
 import org.apache.commons.io.FilenameUtils;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.cms.AttributeTable;
-import org.bouncycastle.asn1.smime.SMIMECapabilitiesAttribute;
-import org.bouncycastle.asn1.smime.SMIMECapability;
-import org.bouncycastle.asn1.smime.SMIMECapabilityVector;
-import org.bouncycastle.asn1.smime.SMIMEEncryptionKeyPreferenceAttribute;
+import org.bouncycastle.asn1.smime.*;
 import org.bouncycastle.cert.jcajce.JcaCertStore;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoGeneratorBuilder;
-import org.bouncycastle.mail.smime.SMIMEException;
-import org.bouncycastle.mail.smime.SMIMESignedGenerator;
-import org.bouncycastle.mail.smime.SMIMEUtil;
+import org.bouncycastle.mail.smime.*;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.gluu.casa.credential.BasicCredential;
 import org.gluu.casa.misc.Utils;
-import org.gluu.casa.plugins.emailotp.model.EmailPerson;
-import org.gluu.casa.plugins.emailotp.model.GluuConfiguration;
-import org.gluu.casa.plugins.emailotp.model.SmtpConfiguration;
-import org.gluu.casa.plugins.emailotp.model.SmtpConnectProtectionType;
-import org.gluu.casa.plugins.emailotp.model.VerifiedEmail;
+import org.gluu.casa.plugins.emailotp.model.*;
 import org.gluu.casa.service.IPersistenceService;
 import org.gluu.util.security.SecurityProviderUtility;
 import org.gluu.util.security.SecurityProviderUtility.SecurityModeType;
@@ -58,17 +37,13 @@ import org.slf4j.LoggerFactory;
 import org.zkoss.util.Pair;
 import org.zkoss.util.resource.Labels;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-
 public class EmailOTPService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailOTPService.class);
 
     private static EmailOTPService singleInstance = null;
 
-    public static final String ACR = "email_2fa_core";
+    public static final String ACR = "email_2fa";
 
     public static final String DEF_MAIL_FROM                        = "mail.from";
     public static final String DEF_MAIL_TRANSPORT_PROTOCOL          = "mail.transport.protocol";
@@ -93,7 +68,6 @@ public class EmailOTPService {
 
     private Map<String, String> properties;
 	private IPersistenceService persistenceService;
-	private ObjectMapper mapper;
 	private long connectionTimeout = 5000;
     private KeyStore keyStore;
 
@@ -132,7 +106,6 @@ public class EmailOTPService {
         persistenceService.initialize();
 
         reloadConfiguration();
-        mapper = new ObjectMapper();
 
         SmtpConfiguration smtpConfiguration = getConfiguration().getSmtpConfiguration();
 
@@ -143,18 +116,18 @@ public class EmailOTPService {
 
         try(InputStream is = new FileInputStream(keystoreFile)) {
             switch (keystoreType) {
-            case JKS_KS: {
-                keyStore = KeyStore.getInstance("JKS");
-                break;
-            }
-            case PKCS12_KS: {
-                keyStore = KeyStore.getInstance("PKCS12", SecurityProviderUtility.getBCProvider());
-                break;
-            }
-            case BCFKS_KS: {
-                keyStore = KeyStore.getInstance("BCFKS", SecurityProviderUtility.getBCProvider());
-                break;
-            }
+                case JKS_KS: {
+                    keyStore = KeyStore.getInstance("JKS");
+                    break;
+                }
+                case PKCS12_KS: {
+                    keyStore = KeyStore.getInstance("PKCS12", SecurityProviderUtility.getBCProvider());
+                    break;
+                }
+                case BCFKS_KS: {
+                    keyStore = KeyStore.getInstance("BCFKS", SecurityProviderUtility.getBCProvider());
+                    break;
+                }
             }
             keyStore.load(is, keystoreSecret.toCharArray());
         } catch (Exception e) {
@@ -166,7 +139,6 @@ public class EmailOTPService {
 	 * 
 	 */
 	public void reloadConfiguration() {
-		ObjectMapper localMapper = new ObjectMapper();
 		properties = persistenceService.getCustScriptConfigProperties(ACR);
 		if (properties == null) {
 		    if (logger.isWarnEnabled()) { // according to Sonar request, as ACR.toUpperCase() is provided before checking    
@@ -175,13 +147,7 @@ public class EmailOTPService {
 	                    ACR, ACR.toUpperCase());
 		    }
 		} else {
-			try {
-			    if (logger.isInfoEnabled()) {
-	                logger.info("Settings found were: {}", localMapper.writeValueAsString(properties));
-			    }
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
+			logger.info("Configuration parsed");
 		}
 	}
 
@@ -217,24 +183,20 @@ public class EmailOTPService {
 	public List<VerifiedEmail> getVerifiedEmail(String userId) {
 		List<VerifiedEmail> verifiedEmails = new ArrayList<>();
 		try {
-            EmailPerson testPerson = new EmailPerson();
-
             String searchMask = String.format("inum=%s,ou=people,o=gluu", userId);
+            EmailPerson testPerson = new EmailPerson();
             testPerson.setBaseDn(searchMask);
 
 			EmailPerson person = persistenceService.get(EmailPerson.class, persistenceService.getPersonDn(userId));
-			String json = person.getOxEmailAlternate();
-			json = Utils.isEmpty(json) ? "[]" : mapper.readTree(json).get("email-ids").toString();
-			verifiedEmails = mapper.readValue(json, new TypeReference<List<VerifiedEmail>>() { });
-			VerifiedEmail primaryMail = getExtraEmailId(person.getMail(), verifiedEmails);
-			// implies that this has not been already added
-			if (primaryMail != null) {
-				updateEmailIdAdd(userId, verifiedEmails, primaryMail);
-				verifiedEmails.add(primaryMail);
-
+			List<String> emails = Optional.ofNullable(person.getMails()).orElse(Collections.emptyList());
+			
+			emails.forEach(m -> verifiedEmails.add(new VerifiedEmail(m)));
+			/*
+			for (String mail : emails) {
+			    verifiedEmails.add(new VerifiedEmail(mail));
 			}
-			logger.info("getVerifiedEmail. User '{}' has {}", userId,
-					verifiedEmails.stream().map(VerifiedEmail::getEmail).collect(Collectors.toList()));
+				*/		
+			logger.info("getVerifiedEmail. User {} has {}", userId, emails);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -534,21 +496,6 @@ public class EmailOTPService {
         return gen.generate(dataPart);
     }    
 
-    /**
-     * 
-     * @param email
-     * @return
-     */
-	public boolean isEmailRegistered(String email) {
-
-		EmailPerson person = new EmailPerson();
-		person.setMail(email);
-		person.setBaseDn(persistenceService.getPeopleDn());
-		logger.debug("Registered email id count: {}", persistenceService.count(person));
-		return persistenceService.count(person) > 0;
-
-	}
-
 	/**
 	 * 
 	 * @param password
@@ -605,12 +552,9 @@ public class EmailOTPService {
 				vEmails.add(newEmail);
 			}
 
-			List<String> mailIds = vEmails.stream().map(VerifiedEmail::getEmail).collect(Collectors.toList());
-			String json = !mailIds.isEmpty() ? mapper.writeValueAsString(Collections.singletonMap("email-ids", vEmails))
-					: null;
-
-			person.setOxEmailAlternate(json);
-
+			List<String> mails = vEmails.stream().map(VerifiedEmail::getEmail).collect(Collectors.toList());
+			
+			person.setMails(mails);
 			success = persistenceService.modify(person);
 
 			if (success && newEmail != null) {
@@ -647,29 +591,6 @@ public class EmailOTPService {
 
 	}
 
-	/**
-	 * Creates an instance of VerifiedEmail by looking up in the list of
-	 * VerifiedEmail passed. If the item is not found in the list, it means the user
-	 * had already that mail added by means of another application, ie. oxTrust. In
-	 * this case the resulting object will not have properties like nickname, etc.
-	 * Just the mail id
-	 * 
-	 * @param mail Email id (LDAP attribute "mail" inside a user entry)
-	 * @param list List of existing email ids enrolled. Ideally, there is an item
-	 *             here corresponding to the uid number passed
-	 * @return VerifiedMobile object
-	 */
-	private VerifiedEmail getExtraEmailId(String mail, List<VerifiedEmail> list) {
-		VerifiedEmail vEmail = new VerifiedEmail(mail);
-		Optional<VerifiedEmail> extraEmail = list.stream().filter(ph -> mail.equals(ph.getEmail())).findFirst();
-		if (!extraEmail.isPresent()) {
-			vEmail.setNickName(mail);
-			return vEmail;
-		} else {
-			return null;
-		}
-	}
-
     /**
      * 
      * @return
@@ -698,4 +619,5 @@ public class EmailOTPService {
         }
         return keyStorageType;
     }
+
 }

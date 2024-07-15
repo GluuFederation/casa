@@ -87,7 +87,7 @@
 							<div class="relative w4 mt3 pr3">
 								<z:textbox id="sentCode"
 									sclass="focused-text w-100 pb1" value="@bind(vm.code)"
-									ca:required="required" onOK="@('checkCode')" />
+									ca:required="required" onOK="@('checkCode', null)" />
 								<label class="focused-label">
 									${labels.usr.email_code}
 								</label>
@@ -96,7 +96,7 @@
 								<z:button
 									sclass="${css.primaryButton} mr2"
 									label="${labels.general.validate}"
-									onClick="@('checkCode')" />
+									onClick="@('checkCode', null)" />
 								<z:button sclass="${css.tertiaryButton}"
 									label="${labels.general.cancel}"
 									onClick="@('cancel')" />
