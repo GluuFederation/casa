@@ -71,10 +71,6 @@ public class EmailOTPService {
 	private long connectionTimeout = 5000;
     private KeyStore keyStore;
 
-    static {
-        SecurityProviderUtility.installBCProvider();
-    }
-
     /**
      * 
      */
