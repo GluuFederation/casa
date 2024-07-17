@@ -13,7 +13,8 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <plugin.id>cert-authn</plugin.id>
-        <plugin.version>4.5.3.Final</plugin.version>
+        <plugin.version>4.5.3.1.Final</plugin.version>
+        <ox.version>4.5.3.Final</ox.version>
     </properties>
 
     <repositories>
@@ -79,18 +80,18 @@
         <dependency>
             <groupId>org.gluu</groupId>
             <artifactId>oxauth-model</artifactId>
-            <version>${plugin.version}</version>
+            <version>${ox.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.gluu</groupId>
             <artifactId>scim-model</artifactId>
-            <version>${plugin.version}</version>
+            <version>${ox.version}</version>
         </dependency>
         <dependency>
             <groupId>org.gluu</groupId>
             <artifactId>oxauth-common</artifactId>
-            <version>${plugin.version}</version>
+            <version>${ox.version}</version>
         </dependency>
     </dependencies>
 

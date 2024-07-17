@@ -6,20 +6,15 @@
 	xmlns:zk="zk" xmlns:w="client" xmlns:ca="client/attribute"
 	xmlns="native">
 
-
 	<h:title self="@define(title)">
 		${zkService.appName} - ${labels.email.title}
 	</h:title>
-
 	
 	<z:div if="${empty pageScope.error}"
 		viewModel="@('org.gluu.casa.plugins.emailotp.EmailOtpVM')"
 		self="@define(maincontent)">
 		
-		<div class="ph4 mb2">
-			<div class="alert alert-success dn" id="feedback-email-edit"
-				role="alert" />
-		</div>
+        <z:include src="/back-home.zul" />
 
 		<div class="${css['sectionsWrapper']}">
 			<section class="${css.section}">
@@ -40,17 +35,10 @@
 								<i class="fas fa-envelope f5" />
 
 								<p class="ml3 mb0">
-									<z:label sclass="f5 dark-blue2"
-									
-									
-									value="@load(each.email)"
-                                        
-										 />
-									<br />
-									
+									<z:label sclass="f6 dark-blue2" value="@load(each.email)"/>
 								</p>
 							</div>
-							<div class="pl2 pt2">
+							<div class="pl2">
 								
 								<h:button
 									class="${css.deleteButton} mb2" w:onClick="prepareAlert()"
@@ -99,7 +87,7 @@
 							<div class="relative w4 mt3 pr3">
 								<z:textbox id="sentCode"
 									sclass="focused-text w-100 pb1" value="@bind(vm.code)"
-									ca:required="required" onOK="@('checkCode', ninick)" />
+									ca:required="required" onOK="@('checkCode', null)" />
 								<label class="focused-label">
 									${labels.usr.email_code}
 								</label>
@@ -108,18 +96,18 @@
 								<z:button
 									sclass="${css.primaryButton} mr2"
 									label="${labels.general.validate}"
-									onClick="@('checkCode', ninick)" />
+									onClick="@('checkCode', null)" />
 								<z:button sclass="${css.tertiaryButton}"
-									label="${labels.general.cancel}" w:onClick="resetEmailValue()"
+									label="${labels.general.cancel}"
 									onClick="@('cancel')" />
 							</div>
 						</div>
 
-						<div>
+						<!--div>
 							${labels.usr.email_not_received}
 							<z:a w:onClick="resetEmailValue()"
 								onClick="@('cancel')" label="${labels.usr.email_retry}" />
-						</div>
+						</div-->
 
 					</z:div>
 

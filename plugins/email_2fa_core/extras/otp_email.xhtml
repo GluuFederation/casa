@@ -16,7 +16,7 @@
 			<h:messages class="list dark-red tc pv2 ph0 ma0 f5" />
 			
 			<div class="flex justify-center pa3">
-				<img src="#{request.contextPath}/img/email-ver.png" />
+				<i class="fas fa-envelope f1" />
 			</div>
 			
 			<h:form id="OtpEmailLoginForm" class="pt2">
@@ -37,7 +37,7 @@
 		<ui:include src="/casa/casa.xhtml" />
 		<script>
 			//This is needed since JSF does not allow to set required attribute
-		 	$(".focused-text").attr("required", "true")
+			$(".focused-text").attr("required", "true")
 		</script>
 	</ui:define>
 

@@ -1,9 +1,7 @@
 package org.gluu.casa.plugins.emailotp;
 
 import java.security.SecureRandom;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
 
 import org.gluu.casa.core.pojo.User;
 import org.gluu.casa.misc.Utils;
@@ -51,7 +49,6 @@ public class EmailOtpVM {
 
 	SndFactorAuthenticationUtils sndFactorUtils;
 	User user;
-	Pattern pattern;
 
 	public boolean isEmailCodesMatch() {
 		return emailCodesMatch;
@@ -59,11 +56,6 @@ public class EmailOtpVM {
 
 	public void setEmailCodesMatch(boolean emailCodesMatch) {
 		this.emailCodesMatch = emailCodesMatch;
-	}
-
-	public EmailOtpVM(boolean uiEmailDelivered) {
-		super();
-		this.uiEmailDelivered = uiEmailDelivered;
 	}
 
 	public VerifiedEmail getNewEmail() {
@@ -105,8 +97,7 @@ public class EmailOtpVM {
 	@Init(superclass = true)
 	public void childInit() {
 		newEmail = new VerifiedEmail();
-		sessionContext = Utils.managedBean(ISessionContext.class);
-		user = sessionContext.getLoggedUser();
+		user = Utils.managedBean(ISessionContext.class).getLoggedUser();
 		emailIds = emailOtpService.getVerifiedEmail(user.getId());
 		sndFactorUtils = Utils.managedBean(SndFactorAuthenticationUtils.class);
 		logger.debug("init called");
@@ -114,31 +105,33 @@ public class EmailOtpVM {
 
 	@NotifyChange("uiEmailDelivered")
 	public void sendCode(HtmlBasedComponent toFocus) {
-		logger.debug("email entered: {}", newEmail.getEmail());
+        String theNewEmail = newEmail.getEmail(); 
+		logger.debug("email entered: {}", theNewEmail);
 		if (Utils.isNotEmpty(newEmail.getEmail())) { // Did user fill out the email text box?
 			// Check for uniquess throughout all emails in LDAP. Only new emails are
 			// accepted
 			try {
-				if (!validateEmail(newEmail.getEmail())) {
+				if (!validateEmail(theNewEmail)) {
 					UIUtils.showMessageUI(Clients.NOTIFICATION_TYPE_WARNING,
 							Labels.getLabel("usr.email_invalid_format"));
 				}
-				else if (emailOtpService.isEmailRegistered(newEmail.getEmail())) {
+				else if (emailIds.stream()
+				        .filter(e -> theNewEmail.equals(e.getEmail())).findFirst().isPresent()) {
 					UIUtils.showMessageUI(Clients.NOTIFICATION_TYPE_WARNING,
 							Labels.getLabel("usr.email_already_exists"));
 				} else {
 					// Generate random in [100000, 999999]
-					realCode = generateCode(Integer.valueOf(emailOtpService.getScriptPropertyValue("token_length")));
+					realCode = generateCode(Integer.valueOf(emailOtpService.getScriptPropertyValue("otp_length")));
 
 					String body = Labels.getLabel("usr.email_body", new String[] { realCode });
 					String subject = Labels.getLabel("usr.email_subject");
 					logger.debug("sendCode. code={}", realCode);
 
 					// Send message (service bean already knows all settings to perform this step)
-					uiEmailDelivered = emailOtpService.sendEmailWithOTPSigned(newEmail.getEmail(), subject, body);
+					uiEmailDelivered = emailOtpService.sendEmailWithOTPSigned(theNewEmail, subject, body);
 					logger.debug("Signed message delivery: {}", uiEmailDelivered);
 					if (!uiEmailDelivered) {
-                        uiEmailDelivered = emailOtpService.sendEmailWithOTP(newEmail.getEmail(), subject, body);
+                        uiEmailDelivered = emailOtpService.sendEmailWithOTP(theNewEmail, subject, body);
                         logger.debug("Non signed message delivery: {}", uiEmailDelivered);
 					}
 					if (uiEmailDelivered) {
@@ -156,7 +149,7 @@ public class EmailOtpVM {
 		}
 	}
 
-	@NotifyChange({ "emailCodesMatch", "uiEmailDelivered" })
+	@NotifyChange({ "emailCodesMatch", "uiEmailDelivered", "code" })
 	public void checkCode(HtmlBasedComponent toFocus) {
 		emailCodesMatch = Utils.isNotEmpty(code) && Utils.isNotEmpty(realCode) && realCode.equals(code.trim());
 		if (emailCodesMatch) {
@@ -170,27 +163,27 @@ public class EmailOtpVM {
 		}
 	}
 
-	@NotifyChange({ "emailCodesMatch", "code", "email", "newEmail", "emailIds" })
+	@NotifyChange({ "emailCodesMatch", "code", "newEmail", "emailIds" })
 	public void add() {
 
 		if (Utils.isNotEmpty(newEmail.getEmail())) {
 
 			if (emailOtpService.updateEmailIdAdd(user.getId(), emailIds, newEmail)) {
-				UIUtils.showMessageUI(true, Labels.getLabel("usr.enroll.success"));
+				UIUtils.showMessageUI(true, Labels.getLabel("enroll.success"));
 				
 				sndFactorUtils.notifyEnrollment(user, EmailOTPService.ACR);
 				// trigger refresh (this method is asynchronous...)
 				BindUtils.postNotifyChange(EmailOtpVM.this, "emailIds");
 				BindUtils.postNotifyChange(EmailOtpVM.this, "newEmail");
 			} else {
-				UIUtils.showMessageUI(false, Labels.getLabel("usr.enroll.error"));
+				UIUtils.showMessageUI(false, Labels.getLabel("enroll.error"));
 			}
 			cancel();
 		}
 
 	}
 
-	@NotifyChange({ "uiCodesMatch", "code", "newPhone", "uiSmsDelivered" })
+	@NotifyChange({ "uiCodesMatch", "code", "emailCodesMatch", "uiEmailDelivered", "newEmail" })
 	public void cancel() {
 		emailCodesMatch = false;
 		realCode = null;
@@ -251,14 +244,7 @@ public class EmailOtpVM {
 	}
 
 	public boolean validateEmail(String email) {
-		try {
-			Pattern localPattern = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
-			Matcher matcher = localPattern.matcher(email);
-			return matcher.matches();
-		} catch (Exception e) {
-			logger.debug("validateEmail exception: {}", e.getMessage());
-			return false;
-		}
+	    return email.contains("@");
 	}
 
 	private String generateCode(int charLength) {
@@ -266,4 +252,5 @@ public class EmailOtpVM {
 				: new SecureRandom().nextInt((9 * (int) Math.pow(10.0, charLength - 1.0)) - 1)
 						+ (int) Math.pow(10.0, charLength - 1.0));
 	}
+
 }

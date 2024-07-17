@@ -16,8 +16,8 @@
 			<h:messages class="list dark-red tc pv2 ph0 ma0 f5" />
 			
 			<div class="flex flex-column justify-center items-center pa3">
-				<img src="#{request.contextPath}/img/email-ver.png" />
-				<span class="db w5 tc f7-cust pt2">#{msgs['casa.email.choose']}</span>
+				<i class="fas fa-envelope f1" />
+				<span class="db w5 tc f7-cust pt3">#{msgs['casa.email.choose']}</span>
 			</div>
 			
 			<h:form id="OtpEmailLoginForm" class="pt2">
@@ -32,33 +32,27 @@
 					<h:commandButton class="f7-cust bw0 br1 ph4 pv2 bg-bsgreen-success white hover-bsgreen-success hover-white btn cust-primary-button"
 						value="#{msgs['casa.email.send']}" action="#{authenticator.authenticate}" />
 				</div>
-				<h:inputHidden id="indexOfEmail" value="0" />
 			</h:form>
 		</section>
 		<ui:include src="/casa/casa.xhtml" />
 		
 		<script>
-			var numbs = "${identity.getWorkingParameter('emailIds')}"
-			numbs = numbs.split(",")
+			var numbs = "${identity.getWorkingParameter('emails')}"
+			numbs = numbs.split(", ")
 		
 			for (let i=0; i &lt; numbs.length; i++) {
 				let checked = (i == 0) ? " checked" : ""
 				//very ugly... yes
 				var line = '&lt;li class="list-group-item hover-bg-light-gray gray hover-dark-gray pv1"> '
 				line = line + '&lt;label> '
-				line = line + '&lt;input type="radio" id="optionEmail" name="optionEmail" class="mr1" onchange="changeOption(' + i + ')"' + checked + '/> '
+				line = line + '&lt;input type="radio" name="sendTo" class="mr1" value="' + numbs[i] + '"' + checked + '/> '
 				line = line + '&lt;span class="mb1">'+  numbs[i] + '&lt;/span> '
 				line = line + '&lt;/label> '
 				line = line + '&lt;/li> '
 				
 				var option = $(line)
 				$('#emails').append(option)
-			}
-		
-			function changeOption(index) {
-				document.getElementById("OtpEmailLoginForm:indexOfEmail").value = index;
-			}
-			
+			}			
 			
 		</script>
 
