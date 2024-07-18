@@ -70,15 +70,6 @@
 			<version>1.78.1</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcutil-jdk18on</artifactId>
-			<version>1.78.1</version>
-			<scope>provided</scope>
-			<!-- strangely casa v4_5_4 has bcutil 1.76. Also, scope=provided should not be used here,
-			however bcmail lib cannot see the bcutil classes if they are bundled with the plugin.
-			This means casa war has to be manually updated (in the case of 4_5_4) :( -->
-		</dependency>
 	</dependencies>
 
 	<build>
