@@ -14,8 +14,8 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<plugin.id>stytch-plugin</plugin.id>
-		<plugin.version>4.5.5-SNAPSHOT</plugin.version>
-        <ox.version>4.5.5-SNAPSHOT</ox.version>
+		<plugin.version>4.5.6-SNAPSHOT</plugin.version>
+        <ox.version>4.5.6-SNAPSHOT</ox.version>
 	</properties>
 
 	<repositories>
@@ -67,7 +67,7 @@
 		<dependency>
 			<groupId>org.gluu</groupId>
 			<artifactId>casa-shared</artifactId>
-			<version>4.5.5-SNAPSHOT</version>
+			<version>4.5.6-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		
